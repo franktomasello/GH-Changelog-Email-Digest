@@ -7,7 +7,7 @@
 *Never miss a GitHub product update again. Get a curated email digest of the latest changelog entries delivered straight to your inbox.*
 
 [![GitHub](https://img.shields.io/badge/GitHub-Changelog-blue?logo=github)](https://github.blog/changelog/)
-[![Email](https://img.shields.io/badge/Digest-Email-green?logo=gmail)](mailto:)
+[![Email](https://img.shields.io/badge/Digest-Email-green?logo=gmail)](#)
 [![Automation](https://img.shields.io/badge/Automation-Enabled-orange?logo=github-actions)](https://github.com/features/actions)
 
 ---
@@ -129,17 +129,34 @@ CHANGELOG_FEED_URL=https://github.blog/changelog/feed/
 <summary>📨 SendGrid Setup</summary>
 
 1. Sign up for a [SendGrid account](https://sendgrid.com/)
-2. Generate an API key
-3. Update your `.env` with SendGrid settings
+2. Generate an API key from the SendGrid dashboard
+3. Update your `.env` with SendGrid settings:
+
+```env
+SMTP_HOST=smtp.sendgrid.net
+SMTP_PORT=587
+SMTP_USER=apikey
+SMTP_PASSWORD=your-sendgrid-api-key
+FROM_EMAIL=noreply@yourdomain.com
+FROM_NAME=GitHub Changelog Digest
+```
 
 </details>
 
 <details>
 <summary>☁️ AWS SES Setup</summary>
 
-1. Set up [AWS SES](https://aws.amazon.com/ses/)
-2. Verify your sender email
-3. Configure AWS credentials
+1. Set up [AWS SES](https://aws.amazon.com/ses/) and verify your domain/email
+2. Create IAM credentials with SES send permissions
+3. Configure AWS credentials in your `.env`:
+
+```env
+AWS_ACCESS_KEY_ID=your-access-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-access-key
+AWS_REGION=us-east-1
+FROM_EMAIL=noreply@yourdomain.com
+FROM_NAME=GitHub Changelog Digest
+```
 
 </details>
 
@@ -154,7 +171,7 @@ npm start  # or python main.py
 ```bash
 # Using cron (Linux/Mac)
 crontab -e
-# Add: 0 9 * * 1 cd /path/to/GH-Changelog-Email-Digest && npm start
+# Add: 0 9 * * 1 cd /path/to/GH-Changelog-Email-Digest && npm start >> /var/log/gh-digest.log 2>&1
 
 # Using GitHub Actions (see .github/workflows/digest.yml)
 # Automatically runs on schedule
