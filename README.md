@@ -169,34 +169,34 @@ sudo systemctl start gh-changelog-digest
 ### Example Email Digest
 
 ```
-Subject: GitHub Changelog Digest - Week of Jan 15, 2026
+Subject: GitHub Changelog Digest - This Week's Updates
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📬 GitHub Changelog Digest
-New Updates from January 15-21, 2026
+New Updates from the Past Week
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 🎉 NEW FEATURES
 
 • GitHub Copilot now supports Python type hints
   Enhanced code completion with better type inference
-  https://github.blog/changelog/2026-01-18-copilot-type-hints
+  [Link to changelog entry]
 
 • Actions: Larger runners now available in Free tier
   Get 2x compute power for open source projects
-  https://github.blog/changelog/2026-01-17-actions-larger-runners
+  [Link to changelog entry]
 
 🔧 IMPROVEMENTS
 
 • GitHub Mobile: Improved code review experience
   Faster loading and better syntax highlighting
-  https://github.blog/changelog/2026-01-16-mobile-improvements
+  [Link to changelog entry]
 
 🐛 BUG FIXES
 
 • Resolved issue with branch protection rules
   Settings now save correctly on all repository types
-  https://github.blog/changelog/2026-01-15-branch-protection-fix
+  [Link to changelog entry]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 View all updates: https://github.blog/changelog/
