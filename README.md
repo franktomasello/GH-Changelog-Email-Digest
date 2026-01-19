@@ -171,7 +171,7 @@ npm start  # or python main.py
 ```bash
 # Using cron (Linux/Mac)
 crontab -e
-# Add the following line:
+# Add the following line (replace /path/to/GH-Changelog-Email-Digest with your actual path):
 0 9 * * 1 cd /path/to/GH-Changelog-Email-Digest && npm start >> /var/log/gh-digest.log 2>&1
 
 # Using GitHub Actions (see .github/workflows/digest.yml)
