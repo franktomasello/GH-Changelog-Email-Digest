@@ -46,8 +46,10 @@ jobs:
           enable-cache: true
           cache-dependency-glob: '**/requirements.txt'
 
-      - name: Install dependencies
-        run: uv pip install --system -r requirements.txt
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv
+          uv pip install -r requirements.txt
 
       - name: Pull latest state
         run: |
@@ -62,7 +64,7 @@ jobs:
           DIGEST_TO_EMAIL: ${{ secrets.DIGEST_TO_EMAIL }}
         run: |
           cd src
-          python main.py ${{ inputs.dry_run && '--dry-run' || inputs.force && '--force' || '' }}
+          uv run python main.py ${{ inputs.dry_run && '--dry-run' || inputs.force && '--force' || '' }}
 
       - name: Commit and push state
         if: ${{ success() && !inputs.dry_run }}
