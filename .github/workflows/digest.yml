@@ -65,28 +65,28 @@ jobs:
         run: |
           cd src
           # Build command arguments
-          ARGS=""
+          CMD_ARGS=""
           DRY_RUN=false
           
           # Add --force if requested
           if [ "${{ inputs.force }}" = "true" ]; then
-            ARGS="$ARGS --force"
+            CMD_ARGS="$CMD_ARGS --force"
           fi
           
           # Add --dry-run if requested OR if secrets are not configured
           if [ "${{ inputs.dry_run }}" = "true" ]; then
-            ARGS="$ARGS --dry-run"
+            CMD_ARGS="$CMD_ARGS --dry-run"
             DRY_RUN=true
-          elif [ -z "$DIGEST_TO_EMAIL" ]; then
-            echo "⚠️  DIGEST_TO_EMAIL secret not configured. Running in dry-run mode."
-            ARGS="$ARGS --dry-run"
+          elif [ -z "$DIGEST_TO_EMAIL" ] || [ -z "$RESEND_API_KEY" ]; then
+            echo "⚠️  Email secrets not configured. Running in dry-run mode."
+            CMD_ARGS="$CMD_ARGS --dry-run"
             DRY_RUN=true
           fi
           
           # Set output for downstream steps
           echo "dry_run=$DRY_RUN" >> $GITHUB_OUTPUT
           
-          uv run python main.py $ARGS
+          uv run python main.py $CMD_ARGS
 
       - name: Commit and push state
         if: ${{ success() && steps.digest.outputs.dry_run != 'true' }}
