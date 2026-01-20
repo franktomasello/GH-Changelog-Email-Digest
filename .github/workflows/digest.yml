@@ -24,8 +24,6 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: write
-    env:
-      UV_SYSTEM_PYTHON: 1
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,6 +38,7 @@ jobs:
           RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
           DIGEST_TO_EMAIL: ${{ secrets.DIGEST_TO_EMAIL }}
         run: |
+          uv venv && source .venv/bin/activate
           uv pip install -r requirements.txt
           git pull --rebase || true
           mkdir -p data
