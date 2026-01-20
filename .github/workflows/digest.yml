@@ -2,115 +2,70 @@ name: GitHub Changelog Digest
 
 on:
   schedule:
-    # Run at 8 AM PT (4 PM UTC) every day
-    - cron: '0 16 * * *'
+    - cron: '0 16 * * *'  # 8 AM PT daily
   workflow_dispatch:
     inputs:
       dry_run:
         description: 'Dry run (no email sent)'
-        required: false
-        default: false
         type: boolean
+        default: false
       force:
         description: 'Force send even if no new entries'
-        required: false
-        default: false
         type: boolean
+        default: false
 
-# Prevent concurrent runs - cancel in-progress if new one starts
 concurrency:
   group: changelog-digest
   cancel-in-progress: true
 
-env:
-  PYTHON_VERSION: '3.12'
-
 jobs:
-  send-digest:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10  # Fail fast if something hangs
-    
+  digest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     permissions:
-      contents: write  # Required to commit state file
-    
+      contents: write
+    env:
+      UV_SYSTEM_PYTHON: 1
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          persist-credentials: true  # Needed for push
 
-      - name: Set up Python with uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: false  # Disable caching - uv is fast enough without it
+      - uses: astral-sh/setup-uv@v4
 
-      - name: Create virtual environment and install dependencies
-        run: |
-          uv venv
-          uv pip install -r requirements.txt
-
-      - name: Pull latest state
-        run: |
-          git pull origin main --rebase || true
-          mkdir -p data
-
-      - name: Run digest script
-        id: digest
+      - name: Install & Run
+        id: run
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
           DIGEST_TO_EMAIL: ${{ secrets.DIGEST_TO_EMAIL }}
         run: |
-          cd src
-          # Build command arguments
-          CMD_ARGS=""
-          DRY_RUN=false
+          uv pip install -r requirements.txt
+          git pull --rebase || true
+          mkdir -p data
           
-          # Add --force if requested
-          if [ "${{ inputs.force }}" = "true" ]; then
-            CMD_ARGS="$CMD_ARGS --force"
-          fi
+          ARGS="${{ inputs.force && '--force' || '' }} ${{ inputs.dry_run && '--dry-run' || '' }}"
+          [ -z "$RESEND_API_KEY" ] && ARGS="$ARGS --dry-run" && echo "⚠️ No API key, dry-run mode"
           
-          # Add --dry-run if requested OR if secrets are not configured
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
-            CMD_ARGS="$CMD_ARGS --dry-run"
-            DRY_RUN=true
-          elif [ -z "$DIGEST_TO_EMAIL" ] || [ -z "$RESEND_API_KEY" ]; then
-            echo "⚠️  Email secrets not configured. Running in dry-run mode."
-            CMD_ARGS="$CMD_ARGS --dry-run"
-            DRY_RUN=true
-          fi
-          
-          # Set output for downstream steps
-          echo "dry_run=$DRY_RUN" >> $GITHUB_OUTPUT
-          
-          uv run python main.py $CMD_ARGS
+          echo "dry_run=${{ inputs.dry_run || 'false' }}" >> $GITHUB_OUTPUT
+          cd src && uv run python main.py $ARGS
 
-      - name: Commit and push state
-        if: ${{ success() && steps.digest.outputs.dry_run != 'true' }}
+      - name: Persist state
+        if: success() && !inputs.dry_run
         run: |
-          if [ -f data/state.json ] && ! git diff --quiet data/state.json 2>/dev/null; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add data/state.json
-            git commit -m "chore: update digest state [skip ci]"
-            git push
-          fi
+          git diff --quiet data/state.json 2>/dev/null && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/state.json && git commit -m "state [skip ci]" && git push
 
-      - name: Job Summary
-        if: always()
+      - if: always()
         run: |
-          echo "## 📧 Changelog Digest Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ job.status }}" = "success" ]; then
-            echo "✅ **Status:** Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ **Status:** Failed" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Setting | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Dry Run | \`${{ inputs.dry_run || 'false' }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Force | \`${{ inputs.force || 'false' }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Triggered | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## 📧 Changelog Digest
+          | | |
+          |---|---|
+          | Status | ${{ job.status == 'success' && '✅' || '❌' }} |
+          | Trigger | `${{ github.event_name }}` |
+          | Force | `${{ inputs.force || false }}` |
+          | Dry Run | `${{ inputs.dry_run || false }}` |
+          EOF
