@@ -43,8 +43,7 @@ jobs:
       - name: Set up Python with uv
         uses: astral-sh/setup-uv@v4
         with:
-          enable-cache: true
-          cache-dependency-glob: '**/requirements.txt'
+          enable-cache: false  # Disable caching - uv is fast enough without it
 
       - name: Create virtual environment and install dependencies
         run: |
