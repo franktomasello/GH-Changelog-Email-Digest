@@ -45,10 +45,6 @@ jobs:
           
           ARGS="${{ inputs.force && '--force' || '' }} ${{ inputs.dry_run && '--dry-run' || '' }}"
           
-          # Debug: check if secrets are configured
-          echo "🔑 API Key configured: ${{ secrets.RESEND_API_KEY != '' }}"
-          echo "📧 To Email configured: ${{ secrets.DIGEST_TO_EMAIL != '' }}"
-          
           echo "dry_run=${{ inputs.dry_run || 'false' }}" >> $GITHUB_OUTPUT
           cd src && uv run python main.py $ARGS
 

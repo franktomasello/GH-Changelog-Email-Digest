@@ -24,6 +24,8 @@ from state import (
     mark_entries_as_processed,
 )
 import email_sender
+from dotenv import load_dotenv
+load_dotenv()  # Load .env file; existing env vars take precedence
 
 
 def main():
