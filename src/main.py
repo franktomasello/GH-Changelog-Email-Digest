@@ -84,10 +84,14 @@ def main():
     print(f"   - Improvements: {len(categorized['improvements'])}")
     print(f"   - Retirements: {len(categorized['retirements'])}")
 
-    # Step 6: Enrich releases with demo outlines
-    print("📝 Generating demo outlines for releases...")
+    # Step 6: Enrich all entries with documentation links and demo outlines
+    print("📝 Enriching entries with documentation and demo outlines...")
     enriched_releases = enrich_entries_with_demo_outlines(categorized["releases"])
+    enriched_improvements = enrich_entries_with_demo_outlines(categorized["improvements"])
+    enriched_retirements = enrich_entries_with_demo_outlines(categorized["retirements"])
     categorized["releases"] = enriched_releases
+    categorized["improvements"] = enriched_improvements
+    categorized["retirements"] = enriched_retirements
 
     # Step 7: Convert to dict format for templating
     releases = entries_to_dict(categorized["releases"])

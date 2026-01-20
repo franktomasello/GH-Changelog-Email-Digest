@@ -1,612 +1,585 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="color-scheme" content="dark">
+  <meta name="supported-color-schemes" content="dark">
   <title>GitHub Changelog Digest</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
   <style>
-    /* Reset and base styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
-      color: #24292f;
-      background-color: #f6f8fa;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* Container */
-    .email-wrapper {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: #ffffff;
-    }
-
-    /* Header */
-    .header {
-      background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
-      padding: 32px 24px;
-      text-align: center;
-    }
-
-    .header-logo {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 16px;
-    }
-
-    .header h1 {
-      color: #ffffff;
-      font-size: 24px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .header-subtitle {
-      color: #8b949e;
-      font-size: 14px;
-      margin-top: 8px;
-    }
-
-    /* Stats bar */
-    .stats-bar {
-      background-color: #f6f8fa;
-      padding: 16px 24px;
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      border-bottom: 1px solid #d0d7de;
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-number {
-      font-size: 24px;
-      font-weight: 600;
-      color: #24292f;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: #57606a;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* Content area */
-    .content {
-      padding: 24px;
-    }
-
-    /* Section styles */
-    .section {
-      margin-bottom: 32px;
-    }
-
-    .section:last-child {
-      margin-bottom: 0;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #d0d7de;
-    }
-
-    .section-icon {
-      font-size: 24px;
-    }
-
-    .section-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #24292f;
-    }
-
-    .section-count {
-      background-color: #ddf4ff;
-      color: #0969da;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 12px;
-      margin-left: auto;
-    }
-
-    /* Release section specific */
-    .section-releases .section-header {
-      border-bottom-color: #238636;
-    }
-
-    .section-releases .section-count {
-      background-color: #dafbe1;
-      color: #1a7f37;
-    }
-
-    /* Improvements section specific */
-    .section-improvements .section-header {
-      border-bottom-color: #1f6feb;
-    }
-
-    .section-improvements .section-count {
-      background-color: #ddf4ff;
-      color: #0969da;
-    }
-
-    /* Retirements section specific */
-    .section-retirements .section-header {
-      border-bottom-color: #d29922;
-    }
-
-    .section-retirements .section-count {
-      background-color: #fff8c5;
-      color: #9a6700;
-    }
-
-    /* Card styles */
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #d0d7de;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 12px;
-      transition: border-color 0.2s;
-    }
-
-    .card:last-child {
-      margin-bottom: 0;
-    }
-
-    .card:hover {
-      border-color: #0969da;
-    }
-
-    .card-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #24292f;
-      margin-bottom: 8px;
-    }
-
-    .card-title a {
-      color: #0969da;
-      text-decoration: none;
-    }
-
-    .card-title a:hover {
-      text-decoration: underline;
-    }
-
-    .card-meta {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
-    .card-date {
-      font-size: 12px;
-      color: #57606a;
-    }
-
-    .card-label {
-      font-size: 11px;
-      font-weight: 500;
-      padding: 2px 8px;
-      border-radius: 12px;
-      background-color: #ddf4ff;
-      color: #0969da;
-    }
-
-    .card-summary {
-      font-size: 14px;
-      color: #57606a;
-      line-height: 1.5;
-    }
-
-    /* Demo outline styles (for releases) */
-    .demo-outline {
-      margin-top: 16px;
-      padding: 16px;
-      background-color: #f6f8fa;
-      border-radius: 8px;
-      border-left: 4px solid #238636;
-    }
-
-    .demo-outline-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #24292f;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .demo-outline-title::before {
-      content: "📋";
-    }
-
-    .navigation-path {
-      background-color: #ffffff;
-      border: 1px solid #d0d7de;
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 12px;
-      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-      font-size: 13px;
-      color: #24292f;
-    }
-
-    .navigation-path code {
-      background-color: #f6f8fa;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #8957e5;
-    }
-
-    .demo-steps {
-      list-style: none;
-      counter-reset: step-counter;
-    }
-
-    .demo-steps li {
-      counter-increment: step-counter;
-      position: relative;
-      padding-left: 32px;
-      margin-bottom: 8px;
-      font-size: 14px;
-      color: #24292f;
-    }
-
-    .demo-steps li::before {
-      content: counter(step-counter);
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 20px;
-      height: 20px;
-      background-color: #238636;
-      color: #ffffff;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .demo-steps li:last-child {
-      margin-bottom: 0;
-    }
-
-    .docs-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 12px;
-      font-size: 13px;
-      color: #0969da;
-      text-decoration: none;
-    }
-
-    .docs-link:hover {
-      text-decoration: underline;
-    }
-
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 24px;
-      color: #57606a;
-      font-size: 14px;
-    }
-
-    /* Footer */
-    .footer {
-      background-color: #f6f8fa;
-      padding: 24px;
-      text-align: center;
-      border-top: 1px solid #d0d7de;
-    }
-
-    .footer-text {
-      font-size: 12px;
-      color: #57606a;
-      margin-bottom: 8px;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-    }
-
-    .footer-links a {
-      font-size: 12px;
-      color: #0969da;
-      text-decoration: none;
-    }
-
-    .footer-links a:hover {
-      text-decoration: underline;
-    }
-
-    /* Dark mode support */
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #0d1117;
-        color: #c9d1d9;
-      }
-
-      .email-wrapper {
-        background-color: #161b22;
-      }
-
-      .stats-bar {
-        background-color: #0d1117;
-        border-bottom-color: #30363d;
-      }
-
-      .stat-number {
-        color: #c9d1d9;
-      }
-
-      .stat-label {
-        color: #8b949e;
-      }
-
-      .section-header {
-        border-bottom-color: #30363d;
-      }
-
-      .section-title {
-        color: #c9d1d9;
-      }
-
-      .card {
-        background-color: #0d1117;
-        border-color: #30363d;
-      }
-
-      .card-title {
-        color: #c9d1d9;
-      }
-
-      .card-summary {
-        color: #8b949e;
-      }
-
-      .demo-outline {
-        background-color: #0d1117;
-      }
-
-      .navigation-path {
-        background-color: #161b22;
-        border-color: #30363d;
-        color: #c9d1d9;
-      }
-
-      .demo-steps li {
-        color: #c9d1d9;
-      }
-
-      .footer {
-        background-color: #0d1117;
-        border-top-color: #30363d;
-      }
-
-      .footer-text {
-        color: #8b949e;
-      }
-    }
-
-    /* Responsive adjustments */
-    @media only screen and (max-width: 480px) {
-      .header {
-        padding: 24px 16px;
-      }
-
-      .header h1 {
-        font-size: 20px;
-      }
-
-      .stats-bar {
-        padding: 12px 16px;
-        gap: 16px;
-      }
-
-      .stat-number {
-        font-size: 20px;
-      }
-
-      .content {
-        padding: 16px;
-      }
-
-      .card {
-        padding: 12px;
-      }
-
-      .demo-outline {
-        padding: 12px;
-      }
+    :root { color-scheme: dark; supported-color-schemes: dark; }
+    body, html { margin: 0 !important; padding: 0 !important; background-color: #0f172a !important; }
+    * { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    
+    /* Link styles with gradient text effect simulation */
+    a.title-link { color: #f1f5f9 !important; text-decoration: none !important; }
+    a.title-link:hover { color: #60a5fa !important; }
+    a.accent-link { color: #58a6ff !important; text-decoration: none !important; }
+    a.accent-link:hover { color: #79c0ff !important; }
+    a.nav-link { color: #c9d1d9 !important; text-decoration: none !important; }
+    a.nav-link:hover { color: #ffffff !important; }
+    a.docs-link { color: #a78bfa !important; text-decoration: none !important; }
+    a.docs-link:hover { color: #c4b5fd !important; }
+    a.footer-link { color: #8b949e !important; text-decoration: none !important; }
+    a.footer-link:hover { color: #c9d1d9 !important; }
+    
+    @media only screen and (max-width: 600px) {
+      .mobile-padding { padding: 20px !important; }
+      .mobile-stack { display: block !important; width: 100% !important; }
+      .stat-cell { display: block !important; width: 100% !important; margin-bottom: 12px !important; }
     }
   </style>
 </head>
-<body>
-  <div class="email-wrapper">
-    <!-- Header -->
-    <div class="header">
-      <svg class="header-logo" viewBox="0 0 16 16" fill="#ffffff">
-        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
-      </svg>
-      <h1>GitHub Changelog Digest</h1>
-      <p class="header-subtitle">{{ digest_date }}</p>
-    </div>
-
-    <!-- Stats Bar -->
-    <div class="stats-bar">
-      <div class="stat-item">
-        <div class="stat-number">{{ releases|length }}</div>
-        <div class="stat-label">Releases</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">{{ improvements|length }}</div>
-        <div class="stat-label">Improvements</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">{{ retirements|length }}</div>
-        <div class="stat-label">Retirements</div>
-      </div>
-    </div>
-
-    <!-- Content -->
-    <div class="content">
-      {% if releases %}
-      <!-- Releases Section -->
-      <div class="section section-releases">
-        <div class="section-header">
-          <span class="section-icon">🚀</span>
-          <h2 class="section-title">New Releases</h2>
-          <span class="section-count">{{ releases|length }}</span>
-        </div>
-
-        {% for release in releases %}
-        <div class="card">
-          <h3 class="card-title">
-            <a href="{{ release.url }}">{{ release.title }}</a>
-          </h3>
-          <div class="card-meta">
-            <span class="card-date">{{ release.published }}</span>
-            {% for label in release.labels %}
-            <span class="card-label">{{ label }}</span>
-            {% endfor %}
-          </div>
-          {% if release.summary %}
-          <p class="card-summary">{{ release.summary }}</p>
-          {% endif %}
-
-          {% if release.demo_outline %}
-          <div class="demo-outline">
-            <div class="demo-outline-title">Demo Outline</div>
-
-            {% if release.navigation_path %}
-            <div class="navigation-path">
-              <strong>Navigation:</strong> <code>{{ release.navigation_path }}</code>
-            </div>
-            {% endif %}
-
-            <ol class="demo-steps">
-              <li>Log into GitHub</li>
-              {% if release.navigation_path %}
-              {% for step in release.navigation_path.split(' → ') %}
-              <li>Navigate to <strong>{{ step }}</strong></li>
-              {% endfor %}
-              {% else %}
-              <li>Navigate to the relevant feature area</li>
-              {% endif %}
-              <li>Explore and test the new functionality</li>
-              <li>Review behavior and document findings</li>
-            </ol>
-
-            {% if release.docs_url %}
-            <a href="{{ release.docs_url }}" class="docs-link">
-              📖 View full documentation →
-            </a>
-            {% endif %}
-          </div>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      {% if improvements %}
-      <!-- Improvements Section -->
-      <div class="section section-improvements">
-        <div class="section-header">
-          <span class="section-icon">✨</span>
-          <h2 class="section-title">Improvements</h2>
-          <span class="section-count">{{ improvements|length }}</span>
-        </div>
-
-        {% for improvement in improvements %}
-        <div class="card">
-          <h3 class="card-title">
-            <a href="{{ improvement.url }}">{{ improvement.title }}</a>
-          </h3>
-          <div class="card-meta">
-            <span class="card-date">{{ improvement.published }}</span>
-            {% for label in improvement.labels %}
-            <span class="card-label">{{ label }}</span>
-            {% endfor %}
-          </div>
-          {% if improvement.summary %}
-          <p class="card-summary">{{ improvement.summary }}</p>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      {% if retirements %}
-      <!-- Retirements Section -->
-      <div class="section section-retirements">
-        <div class="section-header">
-          <span class="section-icon">🔄</span>
-          <h2 class="section-title">Retirements</h2>
-          <span class="section-count">{{ retirements|length }}</span>
-        </div>
-
-        {% for retirement in retirements %}
-        <div class="card">
-          <h3 class="card-title">
-            <a href="{{ retirement.url }}">{{ retirement.title }}</a>
-          </h3>
-          <div class="card-meta">
-            <span class="card-date">{{ retirement.published }}</span>
-            {% for label in retirement.labels %}
-            <span class="card-label">{{ label }}</span>
-            {% endfor %}
-          </div>
-          {% if retirement.summary %}
-          <p class="card-summary">{{ retirement.summary }}</p>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      {% if not releases and not improvements and not retirements %}
-      <div class="empty-state">
-        <p>No new changelog entries to report. Check back tomorrow! 🎉</p>
-      </div>
-      {% endif %}
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-      <p class="footer-text">
-        This digest was automatically generated from the GitHub Changelog RSS feed.
-      </p>
-      <div class="footer-links">
-        <a href="https://github.blog/changelog/">View Full Changelog</a>
-        <a href="https://github.blog/changelog/feed/">RSS Feed</a>
-      </div>
-    </div>
+<body style="margin: 0 !important; padding: 0 !important; background-color: #0f172a !important;" bgcolor="#0f172a">
+  
+  <!-- Preheader text -->
+  <div style="display: none; font-size: 1px; color: #0f172a; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+    {{ total_count }} GitHub updates: {{ releases|length }} releases, {{ improvements|length }} improvements, {{ retirements|length }} retirements — Click to jump to any section ↓
   </div>
+
+  <!-- Main wrapper table -->
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a;" bgcolor="#0f172a">
+    <tr>
+      <td align="center" style="padding: 40px 20px;" bgcolor="#0f172a">
+        
+        <!-- Email container -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; border-radius: 16px; overflow: hidden; background-color: #1e293b;" bgcolor="#1e293b">
+          
+          <!-- Header -->
+          <tr>
+            <td align="center" style="padding: 48px 40px; background-color: #0d1117;" bgcolor="#0d1117">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td align="center">
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="56" height="56" style="display: block; border-radius: 50%;">
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 20px;">
+                    <h1 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 28px; font-weight: 700; color: #ffffff;">GitHub Changelog Digest</h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 8px;">
+                    <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #8b949e;">{{ digest_date }}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 16px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 8px 16px; background-color: #21262d; border-radius: 100px;" bgcolor="#21262d">
+                          <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #c9d1d9;">✨ {{ total_count }} updates this week</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Quick Navigation Stats Bar - Clickable to jump to sections -->
+          <tr>
+            <td style="padding: 24px 20px; background-color: #161b22; border-bottom: 1px solid #30363d;" bgcolor="#161b22">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <!-- Navigation hint -->
+                <tr>
+                  <td align="center" style="padding-bottom: 16px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 6px 14px; background-color: #21262d; border-radius: 8px; border: 1px solid #30363d;" bgcolor="#21262d">
+                          <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: #8b949e;">⬇ Click to jump to section</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <!-- Releases Stat - Clickable -->
+                  <td align="center" width="33%" style="padding: 0 8px;" class="stat-cell">
+                    <a href="#releases-section" class="nav-link" style="text-decoration: none; display: block;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                          <td align="center" style="padding: 16px 12px; background-color: #052e16; border: 2px solid #22c55e; border-radius: 12px; box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);" bgcolor="#052e16">
+                            <span style="font-size: 24px; display: block;">🚀</span>
+                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 32px; font-weight: 700; color: #22c55e; display: block; margin-top: 8px;">{{ releases|length }}</span>
+                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #86efac; display: block; margin-top: 4px;">Releases</span>
+                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; color: #4ade80; display: block; margin-top: 8px;">↓ Jump</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </a>
+                  </td>
+                  <!-- Improvements Stat - Clickable -->
+                  <td align="center" width="33%" style="padding: 0 8px;" class="stat-cell">
+                    <a href="#improvements-section" class="nav-link" style="text-decoration: none; display: block;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                          <td align="center" style="padding: 16px 12px; background-color: #172554; border: 2px solid #3b82f6; border-radius: 12px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);" bgcolor="#172554">
+                            <span style="font-size: 24px; display: block;">✨</span>
+                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 32px; font-weight: 700; color: #3b82f6; display: block; margin-top: 8px;">{{ improvements|length }}</span>
+                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #93c5fd; display: block; margin-top: 4px;">Improvements</span>
+                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; color: #60a5fa; display: block; margin-top: 8px;">↓ Jump</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </a>
+                  </td>
+                  <!-- Retirements Stat - Clickable -->
+                  <td align="center" width="33%" style="padding: 0 8px;" class="stat-cell">
+                    <a href="#retirements-section" class="nav-link" style="text-decoration: none; display: block;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                          <td align="center" style="padding: 16px 12px; background-color: #451a03; border: 2px solid #f59e0b; border-radius: 12px; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);" bgcolor="#451a03">
+                            <span style="font-size: 24px; display: block;">🔄</span>
+                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 32px; font-weight: 700; color: #f59e0b; display: block; margin-top: 8px;">{{ retirements|length }}</span>
+                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #fcd34d; display: block; margin-top: 4px;">Retirements</span>
+                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; color: #fbbf24; display: block; margin-top: 8px;">↓ Jump</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Content Area -->
+          <tr>
+            <td style="padding: 32px; background-color: #1e293b;" bgcolor="#1e293b">
+
+              {% if releases %}
+              <!-- Releases Section -->
+              <a name="releases-section"></a>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 40px;" id="releases-section">
+                <!-- Section Header -->
+                <tr>
+                  <td style="padding-bottom: 20px; border-bottom: 2px solid #22c55e;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                      <tr>
+                        <td width="44" valign="middle">
+                          <div style="width: 44px; height: 44px; background-color: #14532d; border-radius: 12px; text-align: center; line-height: 44px; font-size: 22px; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);">🚀</div>
+                        </td>
+                        <td style="padding-left: 14px;" valign="middle">
+                          <h2 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #f1f5f9;">New Releases</h2>
+                          <p style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">Fresh features and capabilities</p>
+                        </td>
+                        <td align="right" valign="middle">
+                          <span style="display: inline-block; padding: 6px 14px; background-color: #052e16; border-radius: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #4ade80; box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);">{{ releases|length }} new</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                
+                {% for release in releases %}
+                <!-- Release Card -->
+                <tr>
+                  <td style="padding-top: 16px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #22c55e; border-radius: 12px;" bgcolor="#0f172a">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <!-- Card Title with styled link -->
+                          <h3 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 17px; font-weight: 600; line-height: 1.4;">
+                            <a href="{{ release.url }}" class="title-link" style="color: #f1f5f9; text-decoration: none; border-bottom: 2px solid transparent; background: linear-gradient(90deg, #22c55e, #4ade80); -webkit-background-clip: text; background-clip: text;">
+                              <span style="color: #f1f5f9;">{{ release.title }}</span>
+                            </a>
+                            <span style="display: inline-block; margin-left: 8px; font-size: 12px; color: #22c55e;">→</span>
+                          </h3>
+                          <!-- Card Meta -->
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                            <tr>
+                              <td style="padding-right: 12px;">
+                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b;">📅 {{ release.published }}</span>
+                              </td>
+                              {% for label in release.labels %}
+                              <td style="padding-right: 8px;">
+                                <span style="display: inline-block; padding: 3px 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background-color: #052e16; border-radius: 6px; color: #4ade80;">{{ label }}</span>
+                              </td>
+                              {% endfor %}
+                            </tr>
+                          </table>
+                          {% if release.summary %}
+                          <p style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #94a3b8; line-height: 1.6;">{{ release.summary }}</p>
+                          {% endif %}
+                          
+                          {% if release.key_features %}
+                          <!-- Key Features -->
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                            {% for feature in release.key_features[:4] %}
+                            <tr>
+                              <td style="padding: 4px 0;">
+                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">✓ {{ feature }}</span>
+                              </td>
+                            </tr>
+                            {% endfor %}
+                          </table>
+                          {% endif %}
+
+                          {% if release.demo_outline %}
+                          <!-- Demo Outline -->
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 20px; background-color: #0a0e14; border: 1px solid #21262d; border-radius: 12px;" bgcolor="#0a0e14">
+                            <tr>
+                              <td style="padding: 20px;">
+                                <!-- Demo Header -->
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #21262d;" width="100%">
+                                  <tr>
+                                    <td width="36" valign="middle">
+                                      <div style="width: 36px; height: 36px; background-color: #5b21b6; border-radius: 10px; text-align: center; line-height: 36px; font-size: 18px; box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);">🎯</div>
+                                    </td>
+                                    <td style="padding-left: 10px;" valign="middle">
+                                      <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; font-weight: 700; color: #c9d1d9;">Demo Outline</span>
+                                    </td>
+                                  </tr>
+                                </table>
+
+                                {% if release.navigation_path or (release.demo_context and release.demo_context.navigation) %}
+                                <!-- Navigation Path -->
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 20px; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                  <tr>
+                                    <td style="padding: 14px 16px;">
+                                      <span style="font-family: 'SF Mono', Consolas, monospace; font-size: 13px; color: #94a3b8; font-weight: 500;">📍 Start:</span>
+                                      <span style="display: inline-block; margin-left: 8px; padding: 4px 10px; background-color: #5b21b6; border-radius: 6px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; color: #c4b5fd; font-weight: 500; box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);">{{ release.navigation_path or release.demo_context.navigation }}</span>
+                                    </td>
+                                  </tr>
+                                </table>
+                                {% endif %}
+
+                                {% if release.demo_context and release.demo_context.demo_flow %}
+                                {% for step in release.demo_context.demo_flow %}
+                                <!-- Demo Step -->
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: {% if loop.last %}0{% else %}12{% endif %}px; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                  <tr>
+                                    <td width="44" valign="top" style="padding: 16px 0 16px 16px;">
+                                      <div style="width: 28px; height: 28px; background-color: #2563eb; border-radius: 8px; text-align: center; line-height: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);">{{ loop.index }}</div>
+                                    </td>
+                                    <td style="padding: 16px 16px 16px 12px;" valign="top">
+                                      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px;">{{ step.click }}</div>
+                                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #8b949e; font-style: italic; padding-left: 20px; border-left: 2px solid #3b82f6;">"{{ step.say }}"
+                                    </td>
+                                  </tr>
+                                </table>
+                                {% endfor %}
+                                {% else %}
+                                <!-- Default Demo Steps -->
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                  <tr>
+                                    <td width="44" valign="top" style="padding: 16px 0 16px 16px;">
+                                      <div style="width: 28px; height: 28px; background-color: #2563eb; border-radius: 8px; text-align: center; line-height: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);">1</div>
+                                    </td>
+                                    <td style="padding: 16px 16px 16px 12px;" valign="top">
+                                      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px;">Navigate to the feature area</div>
+                                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #8b949e; font-style: italic; padding-left: 20px; border-left: 2px solid #3b82f6;">"Let me show you where this lives in GitHub..."
+                                    </td>
+                                  </tr>
+                                </table>
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                  <tr>
+                                    <td width="44" valign="top" style="padding: 16px 0 16px 16px;">
+                                      <div style="width: 28px; height: 28px; background-color: #2563eb; border-radius: 8px; text-align: center; line-height: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);">2</div>
+                                    </td>
+                                    <td style="padding: 16px 16px 16px 12px;" valign="top">
+                                      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px;">Walk through the new capability</div>
+                                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #8b949e; font-style: italic; padding-left: 20px; border-left: 2px solid #3b82f6;">"Here's what just shipped — this is going to make your workflow smoother."
+                                    </td>
+                                  </tr>
+                                </table>
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 0; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                  <tr>
+                                    <td width="44" valign="top" style="padding: 16px 0 16px 16px;">
+                                      <div style="width: 28px; height: 28px; background-color: #2563eb; border-radius: 8px; text-align: center; line-height: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);">3</div>
+                                    </td>
+                                    <td style="padding: 16px 16px 16px 12px;" valign="top">
+                                      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px;">Demo it in action</div>
+                                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #8b949e; font-style: italic; padding-left: 20px; border-left: 2px solid #3b82f6;">"Let me show you what it looks like in practice."
+                                    </td>
+                                  </tr>
+                                </table>
+                                {% endif %}
+
+                                {% if release.docs_url %}
+                                <!-- Docs Link - Styled beautifully -->
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 16px;">
+                                  <tr>
+                                    <td style="padding: 12px 20px; background-color: #1e1b4b; border: 1px solid #4c1d95; border-radius: 10px; box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);" bgcolor="#1e1b4b">
+                                      <a href="{{ release.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #a78bfa; text-decoration: none;">
+                                        <span style="color: #a78bfa;">📖 View Documentation</span>
+                                        <span style="color: #c4b5fd; margin-left: 4px;">→</span>
+                                      </a>
+                                    </td>
+                                  </tr>
+                                </table>
+                                {% endif %}
+                              </td>
+                            </tr>
+                          </table>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                {% endfor %}
+                
+                <!-- Back to top link -->
+                <tr>
+                  <td align="center" style="padding-top: 20px;">
+                    <a href="#" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; text-decoration: none;">↑ Back to top</a>
+                  </td>
+                </tr>
+              </table>
+              {% endif %}
+
+              {% if improvements %}
+              <!-- Improvements Section -->
+              <a name="improvements-section"></a>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 40px;" id="improvements-section">
+                <!-- Section Header -->
+                <tr>
+                  <td style="padding-bottom: 20px; border-bottom: 2px solid #3b82f6;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                      <tr>
+                        <td width="44" valign="middle">
+                          <div style="width: 44px; height: 44px; background-color: #1e3a8a; border-radius: 12px; text-align: center; line-height: 44px; font-size: 22px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);">✨</div>
+                        </td>
+                        <td style="padding-left: 14px;" valign="middle">
+                          <h2 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #f1f5f9;">Improvements</h2>
+                          <p style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">Enhancements to existing features</p>
+                        </td>
+                        <td align="right" valign="middle">
+                          <span style="display: inline-block; padding: 6px 14px; background-color: #172554; border-radius: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #60a5fa; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);">{{ improvements|length }} updates</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                
+                {% for improvement in improvements %}
+                <!-- Improvement Card -->
+                <tr>
+                  <td style="padding-top: 16px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #3b82f6; border-radius: 12px;" bgcolor="#0f172a">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <h3 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 17px; font-weight: 600; line-height: 1.4;">
+                            <a href="{{ improvement.url }}" class="title-link" style="color: #f1f5f9; text-decoration: none;">
+                              <span style="color: #f1f5f9;">{{ improvement.title }}</span>
+                            </a>
+                            <span style="display: inline-block; margin-left: 8px; font-size: 12px; color: #3b82f6;">→</span>
+                          </h3>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                            <tr>
+                              <td style="padding-right: 12px;">
+                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b;">📅 {{ improvement.published }}</span>
+                              </td>
+                              {% for label in improvement.labels %}
+                              <td style="padding-right: 8px;">
+                                <span style="display: inline-block; padding: 3px 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background-color: #172554; border-radius: 6px; color: #60a5fa;">{{ label }}</span>
+                              </td>
+                              {% endfor %}
+                            </tr>
+                          </table>
+                          {% if improvement.summary %}
+                          <p style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #94a3b8; line-height: 1.6;">{{ improvement.summary }}</p>
+                          {% endif %}
+                          
+                          {% if improvement.key_features %}
+                          <!-- Key Features -->
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 8px;">
+                            {% for feature in improvement.key_features[:4] %}
+                            <tr>
+                              <td style="padding: 3px 0;">
+                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">✓ {{ feature }}</span>
+                              </td>
+                            </tr>
+                            {% endfor %}
+                          </table>
+                          {% endif %}
+                          
+                          {% if improvement.docs_url %}
+                          <!-- Docs Link -->
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 12px;">
+                            <tr>
+                              <td style="padding: 10px 16px; background-color: #1e1b4b; border: 1px solid #3730a3; border-radius: 8px;" bgcolor="#1e1b4b">
+                                <a href="{{ improvement.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 600; color: #a78bfa; text-decoration: none;">
+                                  <span style="color: #a78bfa;">📖 Documentation →</span>
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                {% endfor %}
+                
+                <!-- Back to top link -->
+                <tr>
+                  <td align="center" style="padding-top: 20px;">
+                    <a href="#" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; text-decoration: none;">↑ Back to top</a>
+                  </td>
+                </tr>
+              </table>
+              {% endif %}
+
+              {% if retirements %}
+              <!-- Retirements Section -->
+              <a name="retirements-section"></a>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" id="retirements-section">
+                <!-- Section Header -->
+                <tr>
+                  <td style="padding-bottom: 20px; border-bottom: 2px solid #f59e0b;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                      <tr>
+                        <td width="44" valign="middle">
+                          <div style="width: 44px; height: 44px; background-color: #78350f; border-radius: 12px; text-align: center; line-height: 44px; font-size: 22px; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);">🔄</div>
+                        </td>
+                        <td style="padding-left: 14px;" valign="middle">
+                          <h2 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #f1f5f9;">Retirements</h2>
+                          <p style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">Deprecated or removed features</p>
+                        </td>
+                        <td align="right" valign="middle">
+                          <span style="display: inline-block; padding: 6px 14px; background-color: #451a03; border-radius: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #fbbf24; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);">{{ retirements|length }} retired</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                
+                {% for retirement in retirements %}
+                <!-- Retirement Card -->
+                <tr>
+                  <td style="padding-top: 16px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #f59e0b; border-radius: 12px;" bgcolor="#0f172a">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <h3 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 17px; font-weight: 600; line-height: 1.4;">
+                            <a href="{{ retirement.url }}" class="title-link" style="color: #f1f5f9; text-decoration: none;">
+                              <span style="color: #f1f5f9;">{{ retirement.title }}</span>
+                            </a>
+                            <span style="display: inline-block; margin-left: 8px; font-size: 12px; color: #f59e0b;">→</span>
+                          </h3>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                            <tr>
+                              <td style="padding-right: 12px;">
+                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b;">📅 {{ retirement.published }}</span>
+                              </td>
+                              {% for label in retirement.labels %}
+                              <td style="padding-right: 8px;">
+                                <span style="display: inline-block; padding: 3px 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background-color: #451a03; border-radius: 6px; color: #fbbf24;">{{ label }}</span>
+                              </td>
+                              {% endfor %}
+                            </tr>
+                          </table>
+                          {% if retirement.summary %}
+                          <p style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #94a3b8; line-height: 1.6;">{{ retirement.summary }}</p>
+                          {% endif %}
+                          
+                          {% if retirement.key_features %}
+                          <!-- Key Features -->
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 8px;">
+                            {% for feature in retirement.key_features[:4] %}
+                            <tr>
+                              <td style="padding: 3px 0;">
+                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">• {{ feature }}</span>
+                              </td>
+                            </tr>
+                            {% endfor %}
+                          </table>
+                          {% endif %}
+                          
+                          {% if retirement.docs_url %}
+                          <!-- Docs Link -->
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 12px;">
+                            <tr>
+                              <td style="padding: 10px 16px; background-color: #451a03; border: 1px solid #78350f; border-radius: 8px;" bgcolor="#451a03">
+                                <a href="{{ retirement.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 600; color: #fcd34d; text-decoration: none;">
+                                  <span style="color: #fcd34d;">📖 Documentation →</span>
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                {% endfor %}
+                
+                <!-- Back to top link -->
+                <tr>
+                  <td align="center" style="padding-top: 20px;">
+                    <a href="#" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; text-decoration: none;">↑ Back to top</a>
+                  </td>
+                </tr>
+              </table>
+              {% endif %}
+
+              {% if not releases and not improvements and not retirements %}
+              <!-- Empty State -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td align="center" style="padding: 60px 20px;">
+                    <span style="font-size: 48px; display: block; margin-bottom: 16px;">🎉</span>
+                    <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #64748b;">No new changelog entries to report.<br>Check back tomorrow!</p>
+                  </td>
+                </tr>
+              </table>
+              {% endif %}
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding: 32px; background-color: #0f172a; border-top: 1px solid #1e293b;" bgcolor="#0f172a">
+              <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="32" height="32" style="display: block; margin: 0 auto 16px; opacity: 0.6; border-radius: 50%;">
+              <p style="margin: 0 0 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #64748b; line-height: 1.7;">
+                Automatically generated from the GitHub Changelog RSS feed.<br>
+                Delivered with ❤️ every morning at 8 AM PST.
+              </p>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td style="padding: 8px 16px; background-color: #1e293b; border-radius: 8px; margin: 0 6px;" bgcolor="#1e293b">
+                    <a href="https://github.blog/changelog/" class="footer-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 500; color: #94a3b8; text-decoration: none;">
+                      <span style="color: #94a3b8;">📋 Full Changelog</span>
+                    </a>
+                  </td>
+                  <td style="width: 12px;"></td>
+                  <td style="padding: 8px 16px; background-color: #1e293b; border-radius: 8px; margin: 0 6px;" bgcolor="#1e293b">
+                    <a href="https://github.blog/changelog/feed/" class="footer-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 500; color: #94a3b8; text-decoration: none;">
+                      <span style="color: #94a3b8;">📡 RSS Feed</span>
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+        <!-- End Email Container -->
+
+      </td>
+    </tr>
+  </table>
+  <!-- End Main Wrapper -->
+
 </body>
 </html>

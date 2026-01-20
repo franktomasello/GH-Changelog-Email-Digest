@@ -5,6 +5,10 @@ Email building and sending functionality using Resend (free tier: 3,000 emails/m
 import os
 from datetime import datetime
 from typing import Optional
+from zoneinfo import ZoneInfo
+
+# Pacific Time Zone
+PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
 
 import resend
 from jinja2 import Environment, FileSystemLoader
@@ -23,7 +27,7 @@ def build_email_html(
     template = env.get_template("digest_email.html")
 
     if digest_date is None:
-        digest_date = datetime.now().strftime("%B %d, %Y")
+        digest_date = datetime.now(tz=PACIFIC_TZ).strftime("%B %d, %Y") + " PT"
 
     html_content = template.render(
         releases=releases,
@@ -83,7 +87,7 @@ def send_digest_email(
 
     # Build subject line
     total_items = len(releases) + len(improvements) + len(retirements)
-    date_str = datetime.now().strftime("%b %d")
+    date_str = datetime.now(tz=PACIFIC_TZ).strftime("%b %d")
     subject = f"🚀 GitHub Changelog Digest - {date_str} ({total_items} updates)"
 
     # Send email
