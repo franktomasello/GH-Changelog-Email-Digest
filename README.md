@@ -25,11 +25,11 @@ cd GH-Changelog-Email-Digest
 pip install -r requirements.txt
 ```
 
-### 3. Configure SendGrid
+### 3. Configure Resend (Free)
 
-1. Create a [SendGrid account](https://signup.sendgrid.com/)
-2. Create an [API key](https://app.sendgrid.com/settings/api_keys) with "Mail Send" permissions
-3. [Verify a sender](https://app.sendgrid.com/settings/sender_auth) email address
+1. Sign up at [resend.com](https://resend.com) (no credit card required)
+2. Get your [API key](https://resend.com/api-keys) — free tier gives 3,000 emails/month
+3. For testing, use `onboarding@resend.dev` as sender (or verify your own domain)
 
 ### 4. Set environment variables
 
@@ -42,8 +42,8 @@ cp .env.example .env
 Or export directly:
 
 ```bash
-export SENDGRID_API_KEY=your_api_key
-export SENDGRID_FROM_EMAIL=verified-sender@example.com
+export RESEND_API_KEY=re_your_api_key
+export RESEND_FROM_EMAIL=onboarding@resend.dev
 export DIGEST_TO_EMAIL=recipient@example.com
 ```
 
@@ -72,8 +72,8 @@ Go to **Settings → Secrets and variables → Actions** and add:
 
 | Secret | Description |
 |--------|-------------|
-| `SENDGRID_API_KEY` | Your SendGrid API key |
-| `SENDGRID_FROM_EMAIL` | Verified sender email |
+| `RESEND_API_KEY` | Your Resend API key (free at resend.com) |
+| `RESEND_FROM_EMAIL` | `onboarding@resend.dev` or your verified domain |
 | `DIGEST_TO_EMAIL` | Recipient email address |
 
 ### Manual trigger
@@ -93,7 +93,7 @@ You can also trigger the workflow manually from the **Actions** tab with options
 ├── src/
 │   ├── main.py                 # Entry point & orchestration
 │   ├── changelog.py            # RSS fetch, parse, categorize
-│   ├── email.py                # Build & send emails
+│   ├── email_sender.py         # Build & send emails via Resend
 │   └── state.py                # Track processed entries
 ├── templates/
 │   └── digest_email.html       # Jinja2 email template
@@ -114,7 +114,7 @@ You can also trigger the workflow manually from the **Actions** tab with options
    - Scraping docs pages for navigation paths
    - Falling back to smart templates based on labels
 5. **Render** — Builds a beautiful HTML email with Jinja2
-6. **Send** — Delivers via SendGrid API
+6. **Send** — Delivers via Resend API (free tier: 3,000/month)
 7. **Save** — Persists processed entry URLs to prevent duplicates
 
 ## License

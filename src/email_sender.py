@@ -1,14 +1,13 @@
 """
-Email building and sending functionality using SendGrid.
+Email building and sending functionality using Resend (free tier: 3,000 emails/month).
 """
 
 import os
 from datetime import datetime
 from typing import Optional
 
+import resend
 from jinja2 import Environment, FileSystemLoader
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Email, To, Content
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
 
@@ -44,27 +43,24 @@ def send_email(
     from_email: Optional[str] = None,
     api_key: Optional[str] = None,
 ) -> bool:
-    """Send an email using SendGrid API."""
-    api_key = api_key or os.environ.get("SENDGRID_API_KEY")
-    from_email = from_email or os.environ.get("SENDGRID_FROM_EMAIL")
+    """Send an email using Resend API."""
+    api_key = api_key or os.environ.get("RESEND_API_KEY")
+    from_email = from_email or os.environ.get("RESEND_FROM_EMAIL", "onboarding@resend.dev")
 
     if not api_key:
-        raise ValueError("SENDGRID_API_KEY environment variable is required")
-    if not from_email:
-        raise ValueError("SENDGRID_FROM_EMAIL environment variable is required")
+        raise ValueError("RESEND_API_KEY environment variable is required")
 
-    message = Mail(
-        from_email=Email(from_email),
-        to_emails=To(to_email),
-        subject=subject,
-        html_content=Content("text/html", html_content),
-    )
+    resend.api_key = api_key
 
     try:
-        sg = SendGridAPIClient(api_key)
-        response = sg.send(message)
-        print(f"Email sent successfully. Status code: {response.status_code}")
-        return response.status_code in (200, 201, 202)
+        response = resend.Emails.send({
+            "from": from_email,
+            "to": [to_email],
+            "subject": subject,
+            "html": html_content,
+        })
+        print(f"Email sent successfully. ID: {response['id']}")
+        return True
     except Exception as e:
         print(f"Error sending email: {e}")
         return False
