@@ -117,29 +117,51 @@ python main.py --preview    # Output HTML to stdout
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
+│                              DAILY @ 8 AM PT                                │
+├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│   📡 FETCH          🔍 FILTER         📊 CATEGORIZE      🎯 ENRICH          │
-│   ───────          ────────         ─────────────      ────────          │
-│   GitHub RSS   →   Remove dupes  →   Releases       →   Demo outlines     │
-│   Changelog        from state        Improvements       Docs search        │
-│                                      Retirements        Key features       │
+│   ① FETCH             ② PARSE              ③ DEDUPE                        │
+│   ─────────────       ──────────────       ──────────────                  │
+│   GitHub Changelog    Extract titles,      Check against                   │
+│   RSS Feed            dates, content       state.json                      │
+│   (atom.xml)          via feedparser       for seen URLs                   │
 │                                                                             │
-│   📧 RENDER         📤 SEND           💾 SAVE                               │
-│   ────────         ───────          ───────                               │
-│   Jinja2       →   Resend API    →   Update state                          │
-│   Template         (free tier)       Persist URLs                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ④ CATEGORIZE        ⑤ ENRICH             ⑥ SEARCH DOCS                   │
+│   ─────────────       ──────────────       ──────────────                  │
+│   🚀 Releases         Extract key          Multi-strategy:                 │
+│   ✨ Improvements     features & SE-       • Embedded links                │
+│   🔌 Retirements      focused summary      • Web search                    │
+│                       (~350 chars)         • Keyword mapping               │
+│                                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ⑦ RENDER            ⑧ SEND               ⑨ PERSIST                       │
+│   ─────────────       ──────────────       ──────────────                  │
+│   Jinja2 template     Resend API           Git commit                      │
+│   Dark mode HTML      (free tier)          state.json                      │
+│   Table-based CSS     Any recipient        [skip ci]                       │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 🔍 Smart Documentation Search
 
-The digest automatically finds accurate documentation for each entry:
+The digest intelligently finds accurate documentation for each entry using a **3-tier fallback strategy**:
 
-1. **Embedded Links** — Extracts `docs.github.com` URLs from changelog content
-2. **Web Search** — Queries GitHub docs with relevant keywords
-3. **Keyword Mapping** — Falls back to curated feature → docs URL mapping
-   - Copilot, Actions, Security, Codespaces, Projects, and more
+| Priority | Method | Description |
+|:--------:|:-------|:------------|
+| 1️⃣ | **Embedded Links** | Extracts `docs.github.com` URLs directly from changelog HTML |
+| 2️⃣ | **Web Search** | Queries `site:docs.github.com` with title keywords |
+| 3️⃣ | **Keyword Mapping** | 20+ curated feature → docs URL mappings (Copilot, Actions, Security, Codespaces, Projects, etc.) |
+
+### 🎯 SE-Focused Demo Outlines
+
+Each entry includes an **actionable demo outline** with:
+- **Concise summary** (~350 chars) highlighting business value
+- **Top 4 key features** extracted from the actual release
+- **Direct documentation link** for deeper exploration
 
 <br />
 
