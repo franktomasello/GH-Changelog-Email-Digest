@@ -43,7 +43,7 @@ jobs:
           git pull --rebase || true
           mkdir -p data
           
-          ARGS="${{ inputs.force && '--force' || '' }} ${{ inputs.dry_run && '--dry-run' || '' }}"
+          ARGS="${{ github.event_name == 'workflow_dispatch' && '--all' || '' }} ${{ inputs.force && '--force' || '' }} ${{ inputs.dry_run && '--dry-run' || '' }}"
           
           echo "dry_run=${{ inputs.dry_run || 'false' }}" >> $GITHUB_OUTPUT
           cd src && uv run python main.py $ARGS

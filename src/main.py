@@ -43,6 +43,11 @@ def main():
         help="Force processing even if there are no new entries (for dry-run/preview only)",
     )
     parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Include all entries from the past week, ignoring previously sent state (for manual runs)",
+    )
+    parser.add_argument(
         "--preview",
         action="store_true",
         help="Output HTML to stdout instead of sending email",
@@ -62,13 +67,17 @@ def main():
     all_entries = fetch_changelog()
     print(f"   Fetched {len(all_entries)} entries from the past week")
 
-    # Step 3: Filter to only new entries
-    print("🔍 Filtering new entries...")
-    # Convert to dict format for filtering
-    all_entries_dict = [{"url": e.url, "entry": e} for e in all_entries]
-    new_entries_dict = filter_new_entries(all_entries_dict, processed_urls)
-    new_entries = [e["entry"] for e in new_entries_dict]
-    print(f"   Found {len(new_entries)} new entries")
+    # Step 3: Filter to only new entries (unless --all flag is set)
+    if args.all:
+        print("📋 Manual run with --all flag: including all entries from past week")
+        new_entries = all_entries
+    else:
+        print("🔍 Filtering new entries...")
+        # Convert to dict format for filtering
+        all_entries_dict = [{"url": e.url, "entry": e} for e in all_entries]
+        new_entries_dict = filter_new_entries(all_entries_dict, processed_urls)
+        new_entries = [e["entry"] for e in new_entries_dict]
+    print(f"   Found {len(new_entries)} entries to process")
 
     # Step 4: Check if we have anything to send
     if not new_entries:
