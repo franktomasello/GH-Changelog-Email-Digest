@@ -64,10 +64,32 @@ jobs:
           DIGEST_TO_EMAIL: ${{ secrets.DIGEST_TO_EMAIL }}
         run: |
           cd src
-          uv run python main.py ${{ inputs.dry_run && '--dry-run' || inputs.force && '--force' || '' }}
+          # Build command arguments
+          CMD_ARGS=""
+          DRY_RUN=false
+          
+          # Add --force if requested
+          if [ "${{ inputs.force }}" = "true" ]; then
+            CMD_ARGS="$CMD_ARGS --force"
+          fi
+          
+          # Add --dry-run if requested OR if secrets are not configured
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            CMD_ARGS="$CMD_ARGS --dry-run"
+            DRY_RUN=true
+          elif [ -z "$DIGEST_TO_EMAIL" ] || [ -z "$RESEND_API_KEY" ]; then
+            echo "⚠️  Email secrets not configured. Running in dry-run mode."
+            CMD_ARGS="$CMD_ARGS --dry-run"
+            DRY_RUN=true
+          fi
+          
+          # Set output for downstream steps
+          echo "dry_run=$DRY_RUN" >> $GITHUB_OUTPUT
+          
+          uv run python main.py $CMD_ARGS
 
       - name: Commit and push state
-        if: ${{ success() && !inputs.dry_run }}
+        if: ${{ success() && steps.digest.outputs.dry_run != 'true' }}
         run: |
           if [ -f data/state.json ] && ! git diff --quiet data/state.json 2>/dev/null; then
             git config user.name "github-actions[bot]"
