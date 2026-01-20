@@ -40,7 +40,7 @@ def main():
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Send email even if there are no new entries (useful for testing)",
+        help="Force processing even if there are no new entries (for dry-run/preview only)",
     )
     parser.add_argument(
         "--preview",
@@ -57,10 +57,10 @@ def main():
     processed_urls = load_processed_urls()
     print(f"   Found {len(processed_urls)} previously processed entries")
 
-    # Step 2: Fetch changelog entries
-    print("📡 Fetching GitHub changelog...")
+    # Step 2: Fetch changelog entries (only from the past 7 days)
+    print("📡 Fetching GitHub changelog (past 7 days)...")
     all_entries = fetch_changelog()
-    print(f"   Fetched {len(all_entries)} total entries from RSS feed")
+    print(f"   Fetched {len(all_entries)} entries from the past week")
 
     # Step 3: Filter to only new entries
     print("🔍 Filtering new entries...")
@@ -71,13 +71,13 @@ def main():
     print(f"   Found {len(new_entries)} new entries")
 
     # Step 4: Check if we have anything to send
-    if not new_entries and not args.force:
-        print("✅ No new entries to send. Exiting.")
-        return 0
-
-    if not new_entries and args.force:
-        print("⚠️  No new entries, but --force flag set. Using all entries for preview...")
-        new_entries = all_entries[:5]  # Limit to 5 for testing
+    if not new_entries:
+        if args.force and (args.dry_run or args.preview):
+            print("⚠️  No new entries, but --force flag set with dry-run/preview. Using recent entries for testing...")
+            new_entries = all_entries[:5]  # Limit to 5 for testing
+        else:
+            print("✅ No new entries to send. Skipping email.")
+            return 0
 
     # Step 5: Categorize entries
     print("📊 Categorizing entries...")

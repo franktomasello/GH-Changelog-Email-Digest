@@ -4,7 +4,7 @@ Changelog fetching, parsing, categorization, and demo outline extraction.
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from typing import Optional
 from urllib.parse import urljoin
@@ -19,6 +19,9 @@ DOCS_BASE_URL = "https://docs.github.com"
 
 # Pacific Time Zone
 PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
+
+# Only include entries from the past 7 days
+MAX_AGE_DAYS = 7
 
 
 def convert_to_pst(date_string: str) -> str:
@@ -41,6 +44,7 @@ class ChangelogEntry:
     title: str
     url: str
     published: str
+    published_dt: datetime  # Original datetime for filtering
     summary: str
     content_html: str
     category: str  # "Release", "Improvement", or "Retired"
@@ -50,12 +54,30 @@ class ChangelogEntry:
     docs_url: Optional[str] = None
 
 
-def fetch_changelog() -> list[ChangelogEntry]:
-    """Fetch and parse the GitHub changelog RSS feed."""
+def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
+    """Fetch and parse the GitHub changelog RSS feed.
+    
+    Only returns entries from the past max_age_days (default 7 days).
+    """
     feed = feedparser.parse(CHANGELOG_FEED_URL)
     entries = []
+    
+    # Calculate cutoff date (entries older than this are excluded)
+    cutoff_date = datetime.now(timezone.utc) - timedelta(days=max_age_days)
 
     for item in feed.entries:
+        # Parse the publication date
+        published_str = item.get("published", "")
+        try:
+            published_dt = parsedate_to_datetime(published_str)
+        except Exception:
+            # If we can't parse the date, skip this entry
+            continue
+        
+        # Skip entries older than the cutoff
+        if published_dt < cutoff_date:
+            continue
+        
         # Extract category type (Release, Improvement, Retired)
         category = "Improvement"  # Default
         labels = []
@@ -76,7 +98,8 @@ def fetch_changelog() -> list[ChangelogEntry]:
         entry = ChangelogEntry(
             title=item.get("title", ""),
             url=item.get("link", ""),
-            published=convert_to_pst(item.get("published", "")),
+            published=convert_to_pst(published_str),
+            published_dt=published_dt,
             summary=item.get("summary", ""),
             content_html=content_html,
             category=category,
