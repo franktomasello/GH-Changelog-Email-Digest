@@ -1,126 +1,233 @@
-# GitHub Changelog Email Digest
+<div align="center">
 
-Automated daily email digest of GitHub Changelog updates, sent at 8 AM PST.
+# 🚀 GitHub Changelog Email Digest
 
-## Features
+**Your daily briefing on what's new in GitHub — delivered at 8 AM PT**
 
-- 🚀 **New Releases** — with demo outlines and click-by-click navigation paths
-- ✨ **Improvements** — enhancements to existing features
-- 🔄 **Retirements** — deprecated/removed features
-- 📧 **Beautiful emails** — GitHub-inspired design, responsive, dark mode support
-- 🔁 **No duplicates** — each changelog item is only sent once, ever
+[![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
+[![Resend](https://img.shields.io/badge/Email-Resend-000000?style=for-the-badge&logo=resend&logoColor=white)](https://resend.com)
+[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 
-## Setup
+<br />
 
-### 1. Clone the repository
+<img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="80" />
+
+<br />
+
+*Built for Solutions Engineers who need to stay on top of GitHub's latest releases*
+
+---
+
+[Features](#-features) • [Quick Start](#-quick-start) • [How It Works](#-how-it-works) • [Configuration](#%EF%B8%8F-configuration) • [Project Structure](#-project-structure)
+
+</div>
+
+<br />
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 📬 Smart Email Digest
+- **Dark mode** premium design
+- **Responsive** tables for all email clients
+- **Pacific Time** formatted dates
+- **No duplicates** — each entry sent once
+
+</td>
+<td width="50%">
+
+### 🎯 SE-Focused Content
+- **Concise summaries** — the stuff that matters
+- **Demo outlines** — click-by-click navigation
+- **Accurate docs links** — web search powered
+- **Key features** — bullet points for demos
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 📊 Organized Categories
+- 🚀 **New Releases** — with demo guidance
+- ✨ **Improvements** — enhancements
+- 🔄 **Retirements** — deprecations
+
+</td>
+<td width="50%">
+
+### ⚡ Fully Automated
+- **Daily at 8 AM PT** via GitHub Actions
+- **Manual triggers** available
+- **Dry run mode** for testing
+- **State persistence** in JSON
+
+</td>
+</tr>
+</table>
+
+<br />
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.9+
+- [Resend](https://resend.com) account (free — 3,000 emails/month)
+
+### 1️⃣ Clone & Install
 
 ```bash
 git clone https://github.com/yourusername/GH-Changelog-Email-Digest.git
 cd GH-Changelog-Email-Digest
-```
-
-### 2. Install dependencies
-
-```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure Resend (Free)
-
-1. Sign up at [resend.com](https://resend.com) (no credit card required)
-2. Get your [API key](https://resend.com/api-keys) — free tier gives 3,000 emails/month
-3. For testing, use `onboarding@resend.dev` as sender (or verify your own domain)
-
-### 4. Set environment variables
-
-Copy `.env.example` to `.env` and fill in your values:
-
-```bash
-cp .env.example .env
-```
-
-Or export directly:
+### 2️⃣ Configure Environment
 
 ```bash
 export RESEND_API_KEY=re_your_api_key
 export RESEND_FROM_EMAIL=onboarding@resend.dev
-export DIGEST_TO_EMAIL=recipient@example.com
+export DIGEST_TO_EMAIL=your@email.com
 ```
 
-### 5. Run locally
+### 3️⃣ Run
 
 ```bash
-cd src
-python main.py
+cd src && python main.py
 ```
 
-#### CLI Options
+<details>
+<summary><strong>📋 CLI Options</strong></summary>
 
 ```bash
-python main.py --dry-run   # Process entries but don't send email
-python main.py --force     # Send even if no new entries (for testing)
-python main.py --preview   # Output HTML to stdout
+python main.py              # Send digest (if new entries exist)
+python main.py --dry-run    # Process without sending email
+python main.py --force      # Send even with no new entries
+python main.py --preview    # Output HTML to stdout
 ```
 
-## GitHub Actions (Automated Daily Digest)
+</details>
 
-The workflow runs automatically at 8 AM PST every day.
+<br />
 
-### Configure repository secrets
+## 🔄 How It Works
 
-Go to **Settings → Secrets and variables → Actions** and add:
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│   📡 FETCH          🔍 FILTER         📊 CATEGORIZE      🎯 ENRICH          │
+│   ───────          ────────         ─────────────      ────────          │
+│   GitHub RSS   →   Remove dupes  →   Releases       →   Demo outlines     │
+│   Changelog        from state        Improvements       Docs search        │
+│                                      Retirements        Key features       │
+│                                                                             │
+│   📧 RENDER         📤 SEND           💾 SAVE                               │
+│   ────────         ───────          ───────                               │
+│   Jinja2       →   Resend API    →   Update state                          │
+│   Template         (free tier)       Persist URLs                          │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 🔍 Smart Documentation Search
+
+The digest automatically finds accurate documentation for each entry:
+
+1. **Embedded Links** — Extracts `docs.github.com` URLs from changelog content
+2. **Web Search** — Queries GitHub docs with relevant keywords
+3. **Keyword Mapping** — Falls back to curated feature → docs URL mapping
+   - Copilot, Actions, Security, Codespaces, Projects, and more
+
+<br />
+
+## ⚙️ Configuration
+
+### GitHub Actions (Automated)
+
+The workflow runs **daily at 8 AM Pacific Time**.
+
+#### Repository Secrets
+
+Navigate to **Settings → Secrets and variables → Actions**:
 
 | Secret | Description |
-|--------|-------------|
-| `RESEND_API_KEY` | Your Resend API key (free at resend.com) |
-| `RESEND_FROM_EMAIL` | `onboarding@resend.dev` or your verified domain |
+|:-------|:------------|
+| `RESEND_API_KEY` | Your Resend API key |
+| `RESEND_FROM_EMAIL` | Sender email (`onboarding@resend.dev` for testing) |
 | `DIGEST_TO_EMAIL` | Recipient email address |
 
-### Manual trigger
+#### Manual Trigger
 
-You can also trigger the workflow manually from the **Actions** tab with options for:
-- **Dry run** — test without sending email
-- **Force** — send even if no new entries
+Go to **Actions → Changelog Digest → Run workflow** with options:
+- ☑️ Dry run — test without sending
+- ☑️ Force — send even with no new entries
 
-## Project Structure
+<br />
+
+## 📁 Project Structure
 
 ```
-├── .github/
-│   ├── prompts/
-│   │   └── plan-ghChangelogEmailDigest.prompt.md
+GH-Changelog-Email-Digest/
+│
+├── 📂 .github/
 │   └── workflows/
-│       └── digest.yml          # GitHub Actions workflow
-├── src/
-│   ├── main.py                 # Entry point & orchestration
-│   ├── changelog.py            # RSS fetch, parse, categorize
-│   ├── email_sender.py         # Build & send emails via Resend
-│   └── state.py                # Track processed entries
-├── templates/
-│   └── digest_email.html       # Jinja2 email template
-├── data/
-│   └── state.json              # Persisted state (auto-generated)
-├── .env.example
-├── requirements.txt
-└── README.md
+│       └── digest.yml              # ⏰ Daily cron job (8 AM PT)
+│
+├── 📂 src/
+│   ├── main.py                     # 🎯 Entry point & orchestration
+│   ├── changelog.py                # 📡 RSS fetch, parse, docs search
+│   ├── email_sender.py             # 📧 Build & send via Resend
+│   └── state.py                    # 💾 Track processed entries
+│
+├── 📂 templates/
+│   └── digest_email.html           # 🎨 Jinja2 email template (dark mode)
+│
+├── 📂 data/
+│   └── state.json                  # 📋 Persisted URLs (auto-generated)
+│
+├── requirements.txt                # 📦 Python dependencies
+└── README.md                       # 📖 You are here
 ```
 
-## How It Works
+<br />
 
-1. **Fetch** — Downloads the GitHub Changelog RSS feed
-2. **Filter** — Removes entries already sent in previous digests
-3. **Categorize** — Sorts entries into Releases, Improvements, Retirements
-4. **Enrich** — Generates demo outlines for releases by:
-   - Extracting `docs.github.com` links from content
-   - Scraping docs pages for navigation paths
-   - Falling back to smart templates based on labels
-5. **Render** — Builds a beautiful HTML email with Jinja2
-6. **Send** — Delivers via Resend API (free tier: 3,000/month)
-7. **Save** — Persists processed entry URLs to prevent duplicates
+## 🛠️ Tech Stack
 
-## License
+<div align="center">
 
-MIT
+| Component | Technology |
+|:---------:|:----------:|
+| **Language** | ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) |
+| **Email** | ![Resend](https://img.shields.io/badge/Resend-000000?style=flat-square&logoColor=white) |
+| **Automation** | ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white) |
+| **Parsing** | `feedparser` · `beautifulsoup4` |
+| **Templating** | `jinja2` |
 
-[Report Bug](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues) • [Request Feature](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues)
+</div>
+
+<br />
+
+## 📄 License
+
+MIT License — feel free to use and modify.
+
+<br />
+
+---
+
+<div align="center">
+
+**[⬆ Back to Top](#-github-changelog-email-digest)**
+
+<br />
+
+Made with ❤️ for GitHub Solutions Engineers
+
+<br />
+
+[Report Bug](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues) · [Request Feature](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues)
 
 </div>
