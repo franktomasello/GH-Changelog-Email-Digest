@@ -47,7 +47,7 @@ def send_email(
     from_email: Optional[str] = None,
     api_key: Optional[str] = None,
 ) -> bool:
-    """Send an email using Resend API."""
+    """Send an email using Resend API to each recipient individually."""
     api_key = api_key or os.environ.get("RESEND_API_KEY")
     from_email = from_email or os.environ.get("RESEND_FROM_EMAIL", "onboarding@resend.dev")
 
@@ -56,18 +56,30 @@ def send_email(
 
     resend.api_key = api_key
 
-    try:
-        response = resend.Emails.send({
-            "from": from_email,
-            "to": to_emails,
-            "subject": subject,
-            "html": html_content,
-        })
-        print(f"Email sent successfully to {len(to_emails)} recipient(s). ID: {response['id']}")
-        return True
-    except Exception as e:
-        print(f"Error sending email: {e}")
-        return False
+    # Send individual emails to each recipient for reliable delivery
+    success_count = 0
+    failed_recipients = []
+
+    for email in to_emails:
+        try:
+            response = resend.Emails.send({
+                "from": from_email,
+                "to": [email],
+                "subject": subject,
+                "html": html_content,
+            })
+            print(f"  ✓ Email sent to {email} (ID: {response['id']})")
+            success_count += 1
+        except Exception as e:
+            print(f"  ✗ Failed to send to {email}: {e}")
+            failed_recipients.append(email)
+
+    print(f"Email delivery complete: {success_count}/{len(to_emails)} successful")
+    
+    if failed_recipients:
+        print(f"Failed recipients: {', '.join(failed_recipients)}")
+    
+    return success_count > 0
 
 
 def send_digest_email(
