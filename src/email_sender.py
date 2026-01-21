@@ -41,7 +41,7 @@ def build_email_html(
 
 
 def send_email(
-    to_email: str,
+    to_emails: list[str],
     subject: str,
     html_content: str,
     from_email: Optional[str] = None,
@@ -59,11 +59,11 @@ def send_email(
     try:
         response = resend.Emails.send({
             "from": from_email,
-            "to": [to_email],
+            "to": to_emails,
             "subject": subject,
             "html": html_content,
         })
-        print(f"Email sent successfully. ID: {response['id']}")
+        print(f"Email sent successfully to {len(to_emails)} recipient(s). ID: {response['id']}")
         return True
     except Exception as e:
         print(f"Error sending email: {e}")
@@ -74,13 +74,15 @@ def send_digest_email(
     releases: list[dict],
     improvements: list[dict],
     retirements: list[dict],
-    to_email: Optional[str] = None,
+    to_emails: Optional[list[str]] = None,
 ) -> bool:
     """Build and send the changelog digest email."""
-    to_email = to_email or os.environ.get("DIGEST_TO_EMAIL")
+    if not to_emails:
+        env_emails = os.environ.get("DIGEST_TO_EMAIL", "")
+        to_emails = [e.strip() for e in env_emails.split(",") if e.strip()]
 
-    if not to_email:
-        raise ValueError("DIGEST_TO_EMAIL environment variable is required")
+    if not to_emails:
+        raise ValueError("DIGEST_TO_EMAIL environment variable is required (comma-separated for multiple)")
 
     # Build email content
     html_content = build_email_html(releases, improvements, retirements)
@@ -91,4 +93,4 @@ def send_digest_email(
     subject = f"🚀 GitHub Changelog Digest - {date_str} ({total_items} updates)"
 
     # Send email
-    return send_email(to_email, subject, html_content)
+    return send_email(to_emails, subject, html_content)
