@@ -91,7 +91,9 @@ def send_digest_email(
     """Build and send the changelog digest email."""
     if not to_emails:
         env_emails = os.environ.get("DIGEST_TO_EMAIL", "")
+        print(f"📬 DIGEST_TO_EMAIL raw value: '{env_emails}'")
         to_emails = [e.strip() for e in env_emails.split(",") if e.strip()]
+        print(f"📬 Parsed {len(to_emails)} recipient(s): {to_emails}")
 
     if not to_emails:
         raise ValueError("DIGEST_TO_EMAIL environment variable is required (comma-separated for multiple)")
