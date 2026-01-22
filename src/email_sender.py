@@ -1,17 +1,18 @@
-"""
-Email building and sending functionality using Resend (free tier: 3,000 emails/month).
-"""
+"""Email building and sending functionality using SMTP (Gmail or other providers)."""
 
 import os
+import smtplib
+import ssl
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Optional
 from zoneinfo import ZoneInfo
 
+from jinja2 import Environment, FileSystemLoader
+
 # Pacific Time Zone
 PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
-
-import resend
-from jinja2 import Environment, FileSystemLoader
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
 
@@ -45,40 +46,57 @@ def send_email(
     subject: str,
     html_content: str,
     from_email: Optional[str] = None,
-    api_key: Optional[str] = None,
 ) -> bool:
-    """Send an email using Resend API to each recipient individually."""
-    api_key = api_key or os.environ.get("RESEND_API_KEY")
-    from_email = from_email or os.environ.get("RESEND_FROM_EMAIL", "onboarding@resend.dev")
+    """Send an email using SMTP to each recipient individually."""
+    smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+    smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+    smtp_user = os.environ.get("SMTP_USER")
+    smtp_password = os.environ.get("SMTP_PASSWORD")
+    from_email = from_email or os.environ.get("SMTP_FROM_EMAIL") or smtp_user
 
-    if not api_key:
-        raise ValueError("RESEND_API_KEY environment variable is required")
-
-    resend.api_key = api_key
+    if not smtp_user or not smtp_password:
+        raise ValueError("SMTP_USER and SMTP_PASSWORD environment variables are required")
 
     # Send individual emails to each recipient for reliable delivery
     success_count = 0
     failed_recipients = []
 
-    for email in to_emails:
-        try:
-            response = resend.Emails.send({
-                "from": from_email,
-                "to": [email],
-                "subject": subject,
-                "html": html_content,
-            })
-            print(f"  ✓ Email sent to {email} (ID: {response['id']})")
-            success_count += 1
-        except Exception as e:
-            print(f"  ✗ Failed to send to {email}: {e}")
-            failed_recipients.append(email)
+    # Create secure SSL context
+    context = ssl.create_default_context()
+
+    try:
+        with smtplib.SMTP(smtp_host, smtp_port) as server:
+            server.starttls(context=context)
+            server.login(smtp_user, smtp_password)
+
+            for email in to_emails:
+                try:
+                    # Create message
+                    msg = MIMEMultipart("alternative")
+                    msg["Subject"] = subject
+                    msg["From"] = from_email
+                    msg["To"] = email
+
+                    # Attach HTML content
+                    msg.attach(MIMEText(html_content, "html"))
+
+                    # Send
+                    server.sendmail(from_email, email, msg.as_string())
+                    print(f"  ✓ Email sent to {email}")
+                    success_count += 1
+                except Exception as e:
+                    print(f"  ✗ Failed to send to {email}: {e}")
+                    failed_recipients.append(email)
+
+    except Exception as e:
+        print(f"SMTP connection error: {e}")
+        return False
 
     print(f"Email delivery complete: {success_count}/{len(to_emails)} successful")
-    
+
     if failed_recipients:
         print(f"Failed recipients: {', '.join(failed_recipients)}")
-    
+
     return success_count > 0
 
 
