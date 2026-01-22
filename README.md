@@ -5,7 +5,7 @@
 **Your daily briefing on what's new in GitHub — delivered at 8 AM PT**
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
-[![Resend](https://img.shields.io/badge/Email-Resend-000000?style=for-the-badge&logo=resend&logoColor=white)](https://resend.com)
+[![Gmail SMTP](https://img.shields.io/badge/Email-Gmail%20SMTP-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](https://support.google.com/mail/answer/7126229)
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 
 <br />
@@ -75,7 +75,7 @@
 ### Prerequisites
 
 - Python 3.9+
-- [Resend](https://resend.com) account (free — 3,000 emails/month)
+- Gmail account with [App Password](https://myaccount.google.com/apppasswords) (free — 500 emails/day)
 
 ### 1️⃣ Clone & Install
 
@@ -88,9 +88,12 @@ pip install -r requirements.txt
 ### 2️⃣ Configure Environment
 
 ```bash
-export RESEND_API_KEY=re_your_api_key
-export RESEND_FROM_EMAIL=onboarding@resend.dev
-export DIGEST_TO_EMAIL=your@email.com
+export SMTP_HOST=smtp.gmail.com
+export SMTP_PORT=587
+export SMTP_USER=your@gmail.com
+export SMTP_PASSWORD=your_app_password
+export SMTP_FROM_EMAIL=your@gmail.com
+export DIGEST_TO_EMAIL=recipient@email.com
 ```
 
 ### 3️⃣ Run
@@ -139,7 +142,7 @@ python main.py --preview    # Output HTML to stdout
                                                                               
    ⑦ RENDER             ⑧ SEND                ⑨ PERSIST                     
    ┈┈┈┈┈┈┈┈┈┈┈┈┈┈       ┈┈┈┈┈┈┈┈┈┈┈┈┈┈        ┈┈┈┈┈┈┈┈┈┈┈┈┈┈                  
-   Jinja2 template      Resend API            Git commit                      
+   Jinja2 template      Gmail SMTP            Git commit                      
    Dark mode HTML       (free tier)           state.json                      
    Table-based CSS      Any recipient         [skip ci]                       
                                                                               
@@ -177,9 +180,12 @@ Navigate to **Settings → Secrets and variables → Actions**:
 
 | Secret | Description |
 |:-------|:------------|
-| `RESEND_API_KEY` | Your Resend API key |
-| `RESEND_FROM_EMAIL` | Sender email (`onboarding@resend.dev` for testing) |
-| `DIGEST_TO_EMAIL` | Recipient email address |
+| `SMTP_HOST` | SMTP server (e.g., `smtp.gmail.com`) |
+| `SMTP_PORT` | SMTP port (e.g., `587`) |
+| `SMTP_USER` | Your Gmail address |
+| `SMTP_PASSWORD` | Gmail App Password |
+| `SMTP_FROM_EMAIL` | Sender email address |
+| `DIGEST_TO_EMAIL` | Recipient email(s), comma-separated |
 
 #### Manual Trigger
 
@@ -201,7 +207,7 @@ GH-Changelog-Email-Digest/
 ├── 📂 src/
 │   ├── main.py                     # 🎯 Entry point & orchestration
 │   ├── changelog.py                # 📡 RSS fetch, parse, docs search
-│   ├── email_sender.py             # 📧 Build & send via Resend
+│   ├── email_sender.py             # 📧 Build & send via SMTP
 │   └── state.py                    # 💾 Track processed entries
 │
 ├── 📂 templates/
@@ -223,7 +229,7 @@ GH-Changelog-Email-Digest/
 | Component | Technology |
 |:---------:|:----------:|
 | **Language** | ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) |
-| **Email** | ![Resend](https://img.shields.io/badge/Resend-000000?style=flat-square&logoColor=white) |
+| **Email** | ![Gmail SMTP](https://img.shields.io/badge/Gmail%20SMTP-EA4335?style=flat-square&logo=gmail&logoColor=white) |
 | **Automation** | ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white) |
 | **Parsing** | `feedparser` · `beautifulsoup4` |
 | **Templating** | `jinja2` |
