@@ -2,10 +2,11 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="color-scheme" content="dark">
   <meta name="supported-color-schemes" content="dark">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
   <title>GitHub Changelog Digest</title>
   <!--[if mso]>
   <noscript>
@@ -18,12 +19,12 @@
   <![endif]-->
   <style>
     :root { color-scheme: dark; supported-color-schemes: dark; }
-    body, html { margin: 0 !important; padding: 0 !important; background-color: #0f172a !important; }
-    * { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+    body, html { margin: 0 !important; padding: 0 !important; background-color: #0f172a !important; width: 100% !important; }
+    * { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; box-sizing: border-box; }
     table, td { mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; }
-    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; max-width: 100%; }
     
-    /* Link styles with gradient text effect simulation */
+    /* Link styles */
     a.title-link { color: #f1f5f9 !important; text-decoration: none !important; }
     a.title-link:hover { color: #60a5fa !important; }
     a.accent-link { color: #58a6ff !important; text-decoration: none !important; }
@@ -35,14 +36,135 @@
     a.footer-link { color: #8b949e !important; text-decoration: none !important; }
     a.footer-link:hover { color: #c9d1d9 !important; }
     
+    /* Base responsive table */
+    .email-container { width: 100% !important; max-width: 600px !important; }
+    
+    /* Mobile-first responsive styles */
     @media only screen and (max-width: 600px) {
-      .mobile-padding { padding: 20px !important; }
-      .mobile-stack { display: block !important; width: 100% !important; }
-      .stat-cell { display: block !important; width: 100% !important; margin-bottom: 12px !important; }
+      /* Container adjustments */
+      .email-container { width: 100% !important; min-width: 100% !important; }
+      .outer-padding { padding: 12px !important; }
+      .mobile-padding { padding: 16px !important; }
+      .mobile-padding-sm { padding: 12px !important; }
+      
+      /* Header adjustments */
+      .header-padding { padding: 32px 20px !important; }
+      .header-title { font-size: 22px !important; }
+      .header-subtitle { font-size: 14px !important; }
+      .header-logo { width: 48px !important; height: 48px !important; }
+      
+      /* Stats navigation - stack vertically */
+      .stats-row { display: block !important; }
+      .stat-cell { 
+        display: block !important; 
+        width: 100% !important; 
+        padding: 6px 0 !important;
+      }
+      .stat-card {
+        padding: 14px 16px !important;
+      }
+      .stat-card-inner {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+      }
+      .stat-emoji { 
+        font-size: 20px !important; 
+        margin-right: 12px !important;
+        margin-bottom: 0 !important;
+      }
+      .stat-number { 
+        font-size: 24px !important; 
+        margin-top: 0 !important;
+        margin-right: 8px !important;
+      }
+      .stat-label { 
+        font-size: 12px !important; 
+        margin-top: 0 !important;
+      }
+      .stat-jump { display: none !important; }
+      
+      /* Section headers */
+      .section-header { padding-bottom: 16px !important; }
+      .section-icon { width: 36px !important; height: 36px !important; line-height: 36px !important; font-size: 18px !important; }
+      .section-title { font-size: 18px !important; }
+      .section-subtitle { font-size: 12px !important; }
+      .section-count { padding: 5px 10px !important; font-size: 11px !important; }
+      
+      /* Cards */
+      .card { border-radius: 10px !important; }
+      .card-content { padding: 16px !important; }
+      .card-title { font-size: 15px !important; line-height: 1.4 !important; }
+      .card-meta { font-size: 11px !important; }
+      .card-label { padding: 2px 8px !important; font-size: 10px !important; }
+      .card-summary { font-size: 13px !important; line-height: 1.5 !important; }
+      .card-feature { font-size: 12px !important; }
+      
+      /* Demo outline */
+      .demo-container { padding: 14px !important; border-radius: 10px !important; }
+      .demo-header { margin-bottom: 12px !important; padding-bottom: 10px !important; }
+      .demo-icon { width: 30px !important; height: 30px !important; line-height: 30px !important; font-size: 15px !important; }
+      .demo-title { font-size: 14px !important; }
+      .demo-nav { padding: 10px 12px !important; margin-bottom: 14px !important; }
+      .demo-nav-text { font-size: 11px !important; }
+      .demo-nav-path { padding: 3px 8px !important; font-size: 11px !important; }
+      .demo-step { margin-bottom: 10px !important; border-radius: 8px !important; }
+      .demo-step-num { width: 24px !important; height: 24px !important; line-height: 24px !important; font-size: 12px !important; }
+      .demo-step-click { font-size: 13px !important; margin-bottom: 4px !important; }
+      .demo-step-say { font-size: 12px !important; padding-left: 12px !important; }
+      
+      /* Docs links */
+      .docs-btn { padding: 10px 14px !important; }
+      .docs-btn-text { font-size: 12px !important; }
+      
+      /* Footer */
+      .footer-padding { padding: 24px 16px !important; }
+      .footer-logo { width: 28px !important; height: 28px !important; margin-bottom: 12px !important; }
+      .footer-text { font-size: 12px !important; line-height: 1.6 !important; }
+      .footer-links { display: block !important; }
+      .footer-link-cell { 
+        display: block !important; 
+        width: 100% !important; 
+        margin-bottom: 8px !important;
+        text-align: center !important;
+      }
+      .footer-link-spacer { display: none !important; }
+      .footer-btn { 
+        display: block !important; 
+        width: 100% !important; 
+        text-align: center !important;
+        padding: 12px 16px !important;
+      }
+      
+      /* Back to top */
+      .back-to-top { padding-top: 16px !important; }
+      .back-to-top-link { font-size: 11px !important; }
+      
+      /* Nav hint */
+      .nav-hint { padding: 5px 10px !important; }
+      .nav-hint-text { font-size: 10px !important; }
+      
+      /* Empty state */
+      .empty-state { padding: 40px 16px !important; }
+      .empty-emoji { font-size: 40px !important; margin-bottom: 12px !important; }
+      .empty-text { font-size: 14px !important; }
+    }
+    
+    /* Extra small devices (iPhone SE, etc.) */
+    @media only screen and (max-width: 375px) {
+      .outer-padding { padding: 8px !important; }
+      .mobile-padding { padding: 12px !important; }
+      .header-padding { padding: 24px 16px !important; }
+      .header-title { font-size: 20px !important; }
+      .card-content { padding: 14px !important; }
+      .card-title { font-size: 14px !important; }
+      .stat-number { font-size: 22px !important; }
+      .section-title { font-size: 16px !important; }
     }
   </style>
 </head>
-<body style="margin: 0 !important; padding: 0 !important; background-color: #0f172a !important;" bgcolor="#0f172a">
+<body style="margin: 0 !important; padding: 0 !important; background-color: #0f172a !important; width: 100% !important;" bgcolor="#0f172a">
   
   <!-- Preheader text -->
   <div style="display: none; font-size: 1px; color: #0f172a; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
@@ -50,34 +172,34 @@
   </div>
 
   <!-- Main wrapper table -->
-  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a;" bgcolor="#0f172a">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a; width: 100% !important;" bgcolor="#0f172a">
     <tr>
-      <td align="center" style="padding: 40px 20px;" bgcolor="#0f172a">
+      <td align="center" style="padding: 24px 16px;" class="outer-padding" bgcolor="#0f172a">
         
         <!-- Email container -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; border-radius: 16px; overflow: hidden; background-color: #1e293b;" bgcolor="#1e293b">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width: 600px; width: 100%; border-radius: 16px; overflow: hidden; background-color: #1e293b;" bgcolor="#1e293b">
           
           <!-- Header -->
           <tr>
-            <td align="center" style="padding: 48px 40px; background-color: #0d1117;" bgcolor="#0d1117">
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+            <td align="center" style="padding: 40px 32px;" class="header-padding" bgcolor="#0d1117">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center">
-                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="56" height="56" style="display: block; border-radius: 50%;">
-                  </td>
-                </tr>
-                <tr>
-                  <td align="center" style="padding-top: 20px;">
-                    <h1 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 28px; font-weight: 700; color: #ffffff;">GitHub Changelog Digest</h1>
-                  </td>
-                </tr>
-                <tr>
-                  <td align="center" style="padding-top: 8px;">
-                    <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #8b949e;">{{ digest_date }}</p>
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="52" height="52" class="header-logo" style="display: block; border-radius: 50%;">
                   </td>
                 </tr>
                 <tr>
                   <td align="center" style="padding-top: 16px;">
+                    <h1 class="header-title" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 26px; font-weight: 700; color: #ffffff;">GitHub Changelog Digest</h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 6px;">
+                    <p class="header-subtitle" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #8b949e;">{{ digest_date }}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 14px;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                       <tr>
                         <td style="padding: 8px 16px; background-color: #21262d; border-radius: 100px;" bgcolor="#21262d">
@@ -91,67 +213,73 @@
             </td>
           </tr>
 
-          <!-- Quick Navigation Stats Bar - Clickable to jump to sections -->
+          <!-- Quick Navigation Stats Bar - Mobile Optimized -->
           <tr>
-            <td style="padding: 24px 20px; background-color: #161b22; border-bottom: 1px solid #30363d;" bgcolor="#161b22">
+            <td style="padding: 20px 16px;" class="mobile-padding" bgcolor="#161b22">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <!-- Navigation hint -->
                 <tr>
-                  <td align="center" style="padding-bottom: 16px;">
+                  <td align="center" style="padding-bottom: 14px;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                       <tr>
-                        <td style="padding: 6px 14px; background-color: #21262d; border-radius: 8px; border: 1px solid #30363d;" bgcolor="#21262d">
-                          <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: #8b949e;">⬇ Click to jump to section</span>
+                        <td class="nav-hint" style="padding: 6px 12px; background-color: #21262d; border-radius: 8px; border: 1px solid #30363d;" bgcolor="#21262d">
+                          <span class="nav-hint-text" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: #8b949e;">⬇ Tap to jump to section</span>
                         </td>
                       </tr>
                     </table>
                   </td>
                 </tr>
                 <tr>
-                  <!-- Releases Stat - Clickable -->
-                  <td align="center" width="33%" style="padding: 0 8px;" class="stat-cell">
-                    <a href="#releases-section" class="nav-link" style="text-decoration: none; display: block;">
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                        <tr>
-                          <td align="center" style="padding: 16px 12px; background-color: #052e16; border: 2px solid #22c55e; border-radius: 12px; box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);" bgcolor="#052e16">
-                            <span style="font-size: 24px; display: block;">🚀</span>
-                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 32px; font-weight: 700; color: #22c55e; display: block; margin-top: 8px;">{{ releases|length }}</span>
-                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #86efac; display: block; margin-top: 4px;">Releases</span>
-                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; color: #4ade80; display: block; margin-top: 8px;">↓ Jump</span>
-                          </td>
-                        </tr>
-                      </table>
-                    </a>
-                  </td>
-                  <!-- Improvements Stat - Clickable -->
-                  <td align="center" width="33%" style="padding: 0 8px;" class="stat-cell">
-                    <a href="#improvements-section" class="nav-link" style="text-decoration: none; display: block;">
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                        <tr>
-                          <td align="center" style="padding: 16px 12px; background-color: #172554; border: 2px solid #3b82f6; border-radius: 12px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);" bgcolor="#172554">
-                            <span style="font-size: 24px; display: block;">✨</span>
-                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 32px; font-weight: 700; color: #3b82f6; display: block; margin-top: 8px;">{{ improvements|length }}</span>
-                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #93c5fd; display: block; margin-top: 4px;">Improvements</span>
-                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; color: #60a5fa; display: block; margin-top: 8px;">↓ Jump</span>
-                          </td>
-                        </tr>
-                      </table>
-                    </a>
-                  </td>
-                  <!-- Retirements Stat - Clickable -->
-                  <td align="center" width="33%" style="padding: 0 8px;" class="stat-cell">
-                    <a href="#retirements-section" class="nav-link" style="text-decoration: none; display: block;">
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                        <tr>
-                          <td align="center" style="padding: 16px 12px; background-color: #451a03; border: 2px solid #f59e0b; border-radius: 12px; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);" bgcolor="#451a03">
-                            <span style="font-size: 24px; display: block;">🔄</span>
-                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 32px; font-weight: 700; color: #f59e0b; display: block; margin-top: 8px;">{{ retirements|length }}</span>
-                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #fcd34d; display: block; margin-top: 4px;">Retirements</span>
-                            <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; color: #fbbf24; display: block; margin-top: 8px;">↓ Jump</span>
-                          </td>
-                        </tr>
-                      </table>
-                    </a>
+                  <td>
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="stats-row">
+                      <tr class="stats-row">
+                        <!-- Releases Stat -->
+                        <td align="center" width="33%" style="padding: 0 4px;" class="stat-cell">
+                          <a href="#releases-section" class="nav-link" style="text-decoration: none; display: block;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                              <tr>
+                                <td align="center" class="stat-card" style="padding: 14px 10px; background-color: #052e16; border: 2px solid #22c55e; border-radius: 12px;" bgcolor="#052e16">
+                                  <span class="stat-emoji" style="font-size: 22px; display: block;">🚀</span>
+                                  <span class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 28px; font-weight: 700; color: #22c55e; display: block; margin-top: 6px;">{{ releases|length }}</span>
+                                  <span class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #86efac; display: block; margin-top: 4px;">Releases</span>
+                                  <span class="stat-jump" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; color: #4ade80; display: block; margin-top: 6px;">↓ Jump</span>
+                                </td>
+                              </tr>
+                            </table>
+                          </a>
+                        </td>
+                        <!-- Improvements Stat -->
+                        <td align="center" width="33%" style="padding: 0 4px;" class="stat-cell">
+                          <a href="#improvements-section" class="nav-link" style="text-decoration: none; display: block;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                              <tr>
+                                <td align="center" class="stat-card" style="padding: 14px 10px; background-color: #172554; border: 2px solid #3b82f6; border-radius: 12px;" bgcolor="#172554">
+                                  <span class="stat-emoji" style="font-size: 22px; display: block;">✨</span>
+                                  <span class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 28px; font-weight: 700; color: #3b82f6; display: block; margin-top: 6px;">{{ improvements|length }}</span>
+                                  <span class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #93c5fd; display: block; margin-top: 4px;">Improvements</span>
+                                  <span class="stat-jump" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; color: #60a5fa; display: block; margin-top: 6px;">↓ Jump</span>
+                                </td>
+                              </tr>
+                            </table>
+                          </a>
+                        </td>
+                        <!-- Retirements Stat -->
+                        <td align="center" width="33%" style="padding: 0 4px;" class="stat-cell">
+                          <a href="#retirements-section" class="nav-link" style="text-decoration: none; display: block;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                              <tr>
+                                <td align="center" class="stat-card" style="padding: 14px 10px; background-color: #451a03; border: 2px solid #f59e0b; border-radius: 12px;" bgcolor="#451a03">
+                                  <span class="stat-emoji" style="font-size: 22px; display: block;">🔄</span>
+                                  <span class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 28px; font-weight: 700; color: #f59e0b; display: block; margin-top: 6px;">{{ retirements|length }}</span>
+                                  <span class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #fcd34d; display: block; margin-top: 4px;">Retirements</span>
+                                  <span class="stat-jump" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; color: #fbbf24; display: block; margin-top: 6px;">↓ Jump</span>
+                                </td>
+                              </tr>
+                            </table>
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
@@ -160,26 +288,26 @@
 
           <!-- Content Area -->
           <tr>
-            <td style="padding: 32px; background-color: #1e293b;" bgcolor="#1e293b">
+            <td style="padding: 24px 20px;" class="mobile-padding" bgcolor="#1e293b">
 
               {% if releases %}
               <!-- Releases Section -->
               <a name="releases-section"></a>
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 40px;" id="releases-section">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 32px;" id="releases-section">
                 <!-- Section Header -->
                 <tr>
-                  <td style="padding-bottom: 20px; border-bottom: 2px solid #22c55e;">
+                  <td class="section-header" style="padding-bottom: 16px; border-bottom: 2px solid #22c55e;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
-                        <td width="44" valign="middle">
-                          <div style="width: 44px; height: 44px; background-color: #14532d; border-radius: 12px; text-align: center; line-height: 44px; font-size: 22px; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);">🚀</div>
+                        <td width="40" valign="middle">
+                          <div class="section-icon" style="width: 40px; height: 40px; background-color: #14532d; border-radius: 10px; text-align: center; line-height: 40px; font-size: 20px;">🚀</div>
                         </td>
-                        <td style="padding-left: 14px;" valign="middle">
-                          <h2 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #f1f5f9;">New Releases</h2>
-                          <p style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">Fresh features and capabilities</p>
+                        <td style="padding-left: 12px;" valign="middle">
+                          <h2 class="section-title" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 700; color: #f1f5f9;">New Releases</h2>
+                          <p class="section-subtitle" style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #94a3b8;">Fresh features and capabilities</p>
                         </td>
                         <td align="right" valign="middle">
-                          <span style="display: inline-block; padding: 6px 14px; background-color: #052e16; border-radius: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #4ade80; box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);">{{ releases|length }} new</span>
+                          <span class="section-count" style="display: inline-block; padding: 5px 12px; background-color: #052e16; border-radius: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 700; color: #4ade80;">{{ releases|length }} new</span>
                         </td>
                       </tr>
                     </table>
@@ -189,41 +317,41 @@
                 {% for release in releases %}
                 <!-- Release Card -->
                 <tr>
-                  <td style="padding-top: 16px;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #22c55e; border-radius: 12px;" bgcolor="#0f172a">
+                  <td style="padding-top: 14px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card" style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #22c55e; border-radius: 10px;" bgcolor="#0f172a">
                       <tr>
-                        <td style="padding: 20px;">
-                          <!-- Card Title with styled link -->
-                          <h3 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 17px; font-weight: 600; line-height: 1.4;">
-                            <a href="{{ release.url }}" class="title-link" style="color: #f1f5f9; text-decoration: none; border-bottom: 2px solid transparent; background: linear-gradient(90deg, #22c55e, #4ade80); -webkit-background-clip: text; background-clip: text;">
+                        <td class="card-content" style="padding: 18px;">
+                          <!-- Card Title -->
+                          <h3 class="card-title" style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.4;">
+                            <a href="{{ release.url }}" class="title-link" style="color: #f1f5f9; text-decoration: none;">
                               <span style="color: #f1f5f9;">{{ release.title }}</span>
                             </a>
-                            <span style="display: inline-block; margin-left: 8px; font-size: 12px; color: #22c55e;">→</span>
+                            <span style="display: inline-block; margin-left: 6px; font-size: 12px; color: #22c55e;">→</span>
                           </h3>
                           <!-- Card Meta -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 10px;">
                             <tr>
-                              <td style="padding-right: 12px;">
-                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b;">📅 {{ release.published }}</span>
+                              <td style="padding-right: 10px;">
+                                <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; color: #64748b;">📅 {{ release.published }}</span>
                               </td>
                               {% for label in release.labels %}
-                              <td style="padding-right: 8px;">
-                                <span style="display: inline-block; padding: 3px 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background-color: #052e16; border-radius: 6px; color: #4ade80;">{{ label }}</span>
+                              <td style="padding-right: 6px;">
+                                <span class="card-label" style="display: inline-block; padding: 2px 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background-color: #052e16; border-radius: 5px; color: #4ade80;">{{ label }}</span>
                               </td>
                               {% endfor %}
                             </tr>
                           </table>
                           {% if release.summary %}
-                          <p style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #94a3b8; line-height: 1.6;">{{ release.summary }}</p>
+                          <p class="card-summary" style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #94a3b8; line-height: 1.5;">{{ release.summary }}</p>
                           {% endif %}
                           
                           {% if release.key_features %}
                           <!-- Key Features -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 10px;">
                             {% for feature in release.key_features[:4] %}
                             <tr>
-                              <td style="padding: 4px 0;">
-                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">✓ {{ feature }}</span>
+                              <td style="padding: 3px 0;">
+                                <span class="card-feature" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">✓ {{ feature }}</span>
                               </td>
                             </tr>
                             {% endfor %}
@@ -232,28 +360,28 @@
 
                           {% if release.demo_outline %}
                           <!-- Demo Outline -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 20px; background-color: #0a0e14; border: 1px solid #21262d; border-radius: 12px;" bgcolor="#0a0e14">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="demo-container" style="margin-top: 16px; background-color: #0a0e14; border: 1px solid #21262d; border-radius: 10px;" bgcolor="#0a0e14">
                             <tr>
-                              <td style="padding: 20px;">
+                              <td style="padding: 16px;">
                                 <!-- Demo Header -->
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #21262d;" width="100%">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="demo-header" style="margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #21262d;" width="100%">
                                   <tr>
-                                    <td width="36" valign="middle">
-                                      <div style="width: 36px; height: 36px; background-color: #5b21b6; border-radius: 10px; text-align: center; line-height: 36px; font-size: 18px; box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);">🎯</div>
+                                    <td width="32" valign="middle">
+                                      <div class="demo-icon" style="width: 32px; height: 32px; background-color: #5b21b6; border-radius: 8px; text-align: center; line-height: 32px; font-size: 16px;">🎯</div>
                                     </td>
                                     <td style="padding-left: 10px;" valign="middle">
-                                      <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; font-weight: 700; color: #c9d1d9;">Demo Outline</span>
+                                      <span class="demo-title" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #c9d1d9;">Demo Outline</span>
                                     </td>
                                   </tr>
                                 </table>
 
                                 {% if release.navigation_path or (release.demo_context and release.demo_context.navigation) %}
                                 <!-- Navigation Path -->
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 20px; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="demo-nav" style="margin-bottom: 16px; background-color: #1e293b; border: 1px solid #334155; border-radius: 8px;" bgcolor="#1e293b">
                                   <tr>
-                                    <td style="padding: 14px 16px;">
-                                      <span style="font-family: 'SF Mono', Consolas, monospace; font-size: 13px; color: #94a3b8; font-weight: 500;">📍 Start:</span>
-                                      <span style="display: inline-block; margin-left: 8px; padding: 4px 10px; background-color: #5b21b6; border-radius: 6px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; color: #c4b5fd; font-weight: 500; box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);">{{ release.navigation_path or release.demo_context.navigation }}</span>
+                                    <td style="padding: 12px 14px;">
+                                      <span class="demo-nav-text" style="font-family: 'SF Mono', Consolas, monospace; font-size: 12px; color: #94a3b8; font-weight: 500;">📍 Start:</span>
+                                      <span class="demo-nav-path" style="display: inline-block; margin-left: 6px; padding: 3px 8px; background-color: #5b21b6; border-radius: 5px; font-family: 'SF Mono', Consolas, monospace; font-size: 12px; color: #c4b5fd; font-weight: 500;">{{ release.navigation_path or release.demo_context.navigation }}</span>
                                     </td>
                                   </tr>
                                 </table>
@@ -262,62 +390,62 @@
                                 {% if release.demo_context and release.demo_context.demo_flow %}
                                 {% for step in release.demo_context.demo_flow %}
                                 <!-- Demo Step -->
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: {% if loop.last %}0{% else %}12{% endif %}px; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="demo-step" style="margin-bottom: {% if loop.last %}0{% else %}10{% endif %}px; background-color: #1e293b; border: 1px solid #334155; border-radius: 8px;" bgcolor="#1e293b">
                                   <tr>
-                                    <td width="44" valign="top" style="padding: 16px 0 16px 16px;">
-                                      <div style="width: 28px; height: 28px; background-color: #2563eb; border-radius: 8px; text-align: center; line-height: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);">{{ loop.index }}</div>
+                                    <td width="40" valign="top" style="padding: 14px 0 14px 12px;">
+                                      <div class="demo-step-num" style="width: 26px; height: 26px; background-color: #2563eb; border-radius: 6px; text-align: center; line-height: 26px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 700; color: #ffffff;">{{ loop.index }}</div>
                                     </td>
-                                    <td style="padding: 16px 16px 16px 12px;" valign="top">
-                                      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px;">{{ step.click }}</div>
-                                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #8b949e; font-style: italic; padding-left: 20px; border-left: 2px solid #3b82f6;">"{{ step.say }}"
+                                    <td style="padding: 14px 14px 14px 10px;" valign="top">
+                                      <div class="demo-step-click" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 5px;">{{ step.click }}</div>
+                                      <p class="demo-step-say" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e; font-style: italic; padding-left: 14px; border-left: 2px solid #3b82f6;">"{{ step.say }}"
                                     </td>
                                   </tr>
                                 </table>
                                 {% endfor %}
                                 {% else %}
                                 <!-- Default Demo Steps -->
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="demo-step" style="margin-bottom: 10px; background-color: #1e293b; border: 1px solid #334155; border-radius: 8px;" bgcolor="#1e293b">
                                   <tr>
-                                    <td width="44" valign="top" style="padding: 16px 0 16px 16px;">
-                                      <div style="width: 28px; height: 28px; background-color: #2563eb; border-radius: 8px; text-align: center; line-height: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);">1</div>
+                                    <td width="40" valign="top" style="padding: 14px 0 14px 12px;">
+                                      <div class="demo-step-num" style="width: 26px; height: 26px; background-color: #2563eb; border-radius: 6px; text-align: center; line-height: 26px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 700; color: #ffffff;">1</div>
                                     </td>
-                                    <td style="padding: 16px 16px 16px 12px;" valign="top">
-                                      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px;">Navigate to the feature area</div>
-                                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #8b949e; font-style: italic; padding-left: 20px; border-left: 2px solid #3b82f6;">"Let me show you where this lives in GitHub..."
+                                    <td style="padding: 14px 14px 14px 10px;" valign="top">
+                                      <div class="demo-step-click" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 5px;">Navigate to the feature area</div>
+                                      <p class="demo-step-say" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e; font-style: italic; padding-left: 14px; border-left: 2px solid #3b82f6;">"Let me show you where this lives in GitHub..."
                                     </td>
                                   </tr>
                                 </table>
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="demo-step" style="margin-bottom: 10px; background-color: #1e293b; border: 1px solid #334155; border-radius: 8px;" bgcolor="#1e293b">
                                   <tr>
-                                    <td width="44" valign="top" style="padding: 16px 0 16px 16px;">
-                                      <div style="width: 28px; height: 28px; background-color: #2563eb; border-radius: 8px; text-align: center; line-height: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);">2</div>
+                                    <td width="40" valign="top" style="padding: 14px 0 14px 12px;">
+                                      <div class="demo-step-num" style="width: 26px; height: 26px; background-color: #2563eb; border-radius: 6px; text-align: center; line-height: 26px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 700; color: #ffffff;">2</div>
                                     </td>
-                                    <td style="padding: 16px 16px 16px 12px;" valign="top">
-                                      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px;">Walk through the new capability</div>
-                                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #8b949e; font-style: italic; padding-left: 20px; border-left: 2px solid #3b82f6;">"Here's what just shipped — this is going to make your workflow smoother."
+                                    <td style="padding: 14px 14px 14px 10px;" valign="top">
+                                      <div class="demo-step-click" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 5px;">Walk through the new capability</div>
+                                      <p class="demo-step-say" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e; font-style: italic; padding-left: 14px; border-left: 2px solid #3b82f6;">"Here's what just shipped — this is going to make your workflow smoother."
                                     </td>
                                   </tr>
                                 </table>
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 0; background-color: #1e293b; border: 1px solid #334155; border-radius: 10px;" bgcolor="#1e293b">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="demo-step" style="margin-bottom: 0; background-color: #1e293b; border: 1px solid #334155; border-radius: 8px;" bgcolor="#1e293b">
                                   <tr>
-                                    <td width="44" valign="top" style="padding: 16px 0 16px 16px;">
-                                      <div style="width: 28px; height: 28px; background-color: #2563eb; border-radius: 8px; text-align: center; line-height: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);">3</div>
+                                    <td width="40" valign="top" style="padding: 14px 0 14px 12px;">
+                                      <div class="demo-step-num" style="width: 26px; height: 26px; background-color: #2563eb; border-radius: 6px; text-align: center; line-height: 26px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 700; color: #ffffff;">3</div>
                                     </td>
-                                    <td style="padding: 16px 16px 16px 12px;" valign="top">
-                                      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px;">Demo it in action</div>
-                                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #8b949e; font-style: italic; padding-left: 20px; border-left: 2px solid #3b82f6;">"Let me show you what it looks like in practice."
+                                    <td style="padding: 14px 14px 14px 10px;" valign="top">
+                                      <div class="demo-step-click" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 5px;">Demo it in action</div>
+                                      <p class="demo-step-say" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e; font-style: italic; padding-left: 14px; border-left: 2px solid #3b82f6;">"Let me show you what it looks like in practice."
                                     </td>
                                   </tr>
                                 </table>
                                 {% endif %}
 
                                 {% if release.docs_url %}
-                                <!-- Docs Link - Styled beautifully -->
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 16px;">
+                                <!-- Docs Link -->
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 14px;">
                                   <tr>
-                                    <td style="padding: 12px 20px; background-color: #1e1b4b; border: 1px solid #4c1d95; border-radius: 10px; box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);" bgcolor="#1e1b4b">
-                                      <a href="{{ release.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #a78bfa; text-decoration: none;">
-                                        <span style="color: #a78bfa;">📖 View Documentation</span>
+                                    <td class="docs-btn" style="padding: 10px 16px; background-color: #1e1b4b; border: 1px solid #4c1d95; border-radius: 8px;" bgcolor="#1e1b4b">
+                                      <a href="{{ release.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 600; color: #a78bfa; text-decoration: none;">
+                                        <span class="docs-btn-text" style="color: #a78bfa;">📖 View Documentation</span>
                                         <span style="color: #c4b5fd; margin-left: 4px;">→</span>
                                       </a>
                                     </td>
@@ -337,8 +465,8 @@
                 
                 <!-- Back to top link -->
                 <tr>
-                  <td align="center" style="padding-top: 20px;">
-                    <a href="#" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; text-decoration: none;">↑ Back to top</a>
+                  <td align="center" class="back-to-top" style="padding-top: 18px;">
+                    <a href="#" class="back-to-top-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; text-decoration: none;">↑ Back to top</a>
                   </td>
                 </tr>
               </table>
@@ -347,21 +475,21 @@
               {% if improvements %}
               <!-- Improvements Section -->
               <a name="improvements-section"></a>
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 40px;" id="improvements-section">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 32px;" id="improvements-section">
                 <!-- Section Header -->
                 <tr>
-                  <td style="padding-bottom: 20px; border-bottom: 2px solid #3b82f6;">
+                  <td class="section-header" style="padding-bottom: 16px; border-bottom: 2px solid #3b82f6;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
-                        <td width="44" valign="middle">
-                          <div style="width: 44px; height: 44px; background-color: #1e3a8a; border-radius: 12px; text-align: center; line-height: 44px; font-size: 22px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);">✨</div>
+                        <td width="40" valign="middle">
+                          <div class="section-icon" style="width: 40px; height: 40px; background-color: #1e3a8a; border-radius: 10px; text-align: center; line-height: 40px; font-size: 20px;">✨</div>
                         </td>
-                        <td style="padding-left: 14px;" valign="middle">
-                          <h2 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #f1f5f9;">Improvements</h2>
-                          <p style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">Enhancements to existing features</p>
+                        <td style="padding-left: 12px;" valign="middle">
+                          <h2 class="section-title" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 700; color: #f1f5f9;">Improvements</h2>
+                          <p class="section-subtitle" style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #94a3b8;">Enhancements to existing features</p>
                         </td>
                         <td align="right" valign="middle">
-                          <span style="display: inline-block; padding: 6px 14px; background-color: #172554; border-radius: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #60a5fa; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);">{{ improvements|length }} updates</span>
+                          <span class="section-count" style="display: inline-block; padding: 5px 12px; background-color: #172554; border-radius: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 700; color: #60a5fa;">{{ improvements|length }} updates</span>
                         </td>
                       </tr>
                     </table>
@@ -371,30 +499,30 @@
                 {% for improvement in improvements %}
                 <!-- Improvement Card -->
                 <tr>
-                  <td style="padding-top: 16px;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #3b82f6; border-radius: 12px;" bgcolor="#0f172a">
+                  <td style="padding-top: 14px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card" style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #3b82f6; border-radius: 10px;" bgcolor="#0f172a">
                       <tr>
-                        <td style="padding: 20px;">
-                          <h3 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 17px; font-weight: 600; line-height: 1.4;">
+                        <td class="card-content" style="padding: 18px;">
+                          <h3 class="card-title" style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.4;">
                             <a href="{{ improvement.url }}" class="title-link" style="color: #f1f5f9; text-decoration: none;">
                               <span style="color: #f1f5f9;">{{ improvement.title }}</span>
                             </a>
-                            <span style="display: inline-block; margin-left: 8px; font-size: 12px; color: #3b82f6;">→</span>
+                            <span style="display: inline-block; margin-left: 6px; font-size: 12px; color: #3b82f6;">→</span>
                           </h3>
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 10px;">
                             <tr>
-                              <td style="padding-right: 12px;">
-                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b;">📅 {{ improvement.published }}</span>
+                              <td style="padding-right: 10px;">
+                                <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; color: #64748b;">📅 {{ improvement.published }}</span>
                               </td>
                               {% for label in improvement.labels %}
-                              <td style="padding-right: 8px;">
-                                <span style="display: inline-block; padding: 3px 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background-color: #172554; border-radius: 6px; color: #60a5fa;">{{ label }}</span>
+                              <td style="padding-right: 6px;">
+                                <span class="card-label" style="display: inline-block; padding: 2px 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background-color: #172554; border-radius: 5px; color: #60a5fa;">{{ label }}</span>
                               </td>
                               {% endfor %}
                             </tr>
                           </table>
                           {% if improvement.summary %}
-                          <p style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #94a3b8; line-height: 1.6;">{{ improvement.summary }}</p>
+                          <p class="card-summary" style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #94a3b8; line-height: 1.5;">{{ improvement.summary }}</p>
                           {% endif %}
                           
                           {% if improvement.key_features %}
@@ -403,7 +531,7 @@
                             {% for feature in improvement.key_features[:4] %}
                             <tr>
                               <td style="padding: 3px 0;">
-                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">✓ {{ feature }}</span>
+                                <span class="card-feature" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">✓ {{ feature }}</span>
                               </td>
                             </tr>
                             {% endfor %}
@@ -412,11 +540,11 @@
                           
                           {% if improvement.docs_url %}
                           <!-- Docs Link -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 10px;">
                             <tr>
-                              <td style="padding: 10px 16px; background-color: #1e1b4b; border: 1px solid #3730a3; border-radius: 8px;" bgcolor="#1e1b4b">
+                              <td class="docs-btn" style="padding: 10px 14px; background-color: #1e1b4b; border: 1px solid #3730a3; border-radius: 8px;" bgcolor="#1e1b4b">
                                 <a href="{{ improvement.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 600; color: #a78bfa; text-decoration: none;">
-                                  <span style="color: #a78bfa;">📖 Documentation →</span>
+                                  <span class="docs-btn-text" style="color: #a78bfa;">📖 Documentation →</span>
                                 </a>
                               </td>
                             </tr>
@@ -431,8 +559,8 @@
                 
                 <!-- Back to top link -->
                 <tr>
-                  <td align="center" style="padding-top: 20px;">
-                    <a href="#" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; text-decoration: none;">↑ Back to top</a>
+                  <td align="center" class="back-to-top" style="padding-top: 18px;">
+                    <a href="#" class="back-to-top-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; text-decoration: none;">↑ Back to top</a>
                   </td>
                 </tr>
               </table>
@@ -444,18 +572,18 @@
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" id="retirements-section">
                 <!-- Section Header -->
                 <tr>
-                  <td style="padding-bottom: 20px; border-bottom: 2px solid #f59e0b;">
+                  <td class="section-header" style="padding-bottom: 16px; border-bottom: 2px solid #f59e0b;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
-                        <td width="44" valign="middle">
-                          <div style="width: 44px; height: 44px; background-color: #78350f; border-radius: 12px; text-align: center; line-height: 44px; font-size: 22px; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);">🔄</div>
+                        <td width="40" valign="middle">
+                          <div class="section-icon" style="width: 40px; height: 40px; background-color: #78350f; border-radius: 10px; text-align: center; line-height: 40px; font-size: 20px;">🔄</div>
                         </td>
-                        <td style="padding-left: 14px;" valign="middle">
-                          <h2 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #f1f5f9;">Retirements</h2>
-                          <p style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">Deprecated or removed features</p>
+                        <td style="padding-left: 12px;" valign="middle">
+                          <h2 class="section-title" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 700; color: #f1f5f9;">Retirements</h2>
+                          <p class="section-subtitle" style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #94a3b8;">Deprecated or removed features</p>
                         </td>
                         <td align="right" valign="middle">
-                          <span style="display: inline-block; padding: 6px 14px; background-color: #451a03; border-radius: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #fbbf24; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);">{{ retirements|length }} retired</span>
+                          <span class="section-count" style="display: inline-block; padding: 5px 12px; background-color: #451a03; border-radius: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 700; color: #fbbf24;">{{ retirements|length }} retired</span>
                         </td>
                       </tr>
                     </table>
@@ -465,30 +593,30 @@
                 {% for retirement in retirements %}
                 <!-- Retirement Card -->
                 <tr>
-                  <td style="padding-top: 16px;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #f59e0b; border-radius: 12px;" bgcolor="#0f172a">
+                  <td style="padding-top: 14px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card" style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #f59e0b; border-radius: 10px;" bgcolor="#0f172a">
                       <tr>
-                        <td style="padding: 20px;">
-                          <h3 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 17px; font-weight: 600; line-height: 1.4;">
+                        <td class="card-content" style="padding: 18px;">
+                          <h3 class="card-title" style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.4;">
                             <a href="{{ retirement.url }}" class="title-link" style="color: #f1f5f9; text-decoration: none;">
                               <span style="color: #f1f5f9;">{{ retirement.title }}</span>
                             </a>
-                            <span style="display: inline-block; margin-left: 8px; font-size: 12px; color: #f59e0b;">→</span>
+                            <span style="display: inline-block; margin-left: 6px; font-size: 12px; color: #f59e0b;">→</span>
                           </h3>
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 10px;">
                             <tr>
-                              <td style="padding-right: 12px;">
-                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b;">📅 {{ retirement.published }}</span>
+                              <td style="padding-right: 10px;">
+                                <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; color: #64748b;">📅 {{ retirement.published }}</span>
                               </td>
                               {% for label in retirement.labels %}
-                              <td style="padding-right: 8px;">
-                                <span style="display: inline-block; padding: 3px 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background-color: #451a03; border-radius: 6px; color: #fbbf24;">{{ label }}</span>
+                              <td style="padding-right: 6px;">
+                                <span class="card-label" style="display: inline-block; padding: 2px 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background-color: #451a03; border-radius: 5px; color: #fbbf24;">{{ label }}</span>
                               </td>
                               {% endfor %}
                             </tr>
                           </table>
                           {% if retirement.summary %}
-                          <p style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #94a3b8; line-height: 1.6;">{{ retirement.summary }}</p>
+                          <p class="card-summary" style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #94a3b8; line-height: 1.5;">{{ retirement.summary }}</p>
                           {% endif %}
                           
                           {% if retirement.key_features %}
@@ -497,7 +625,7 @@
                             {% for feature in retirement.key_features[:4] %}
                             <tr>
                               <td style="padding: 3px 0;">
-                                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">• {{ feature }}</span>
+                                <span class="card-feature" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #94a3b8;">• {{ feature }}</span>
                               </td>
                             </tr>
                             {% endfor %}
@@ -506,11 +634,11 @@
                           
                           {% if retirement.docs_url %}
                           <!-- Docs Link -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 10px;">
                             <tr>
-                              <td style="padding: 10px 16px; background-color: #451a03; border: 1px solid #78350f; border-radius: 8px;" bgcolor="#451a03">
+                              <td class="docs-btn" style="padding: 10px 14px; background-color: #451a03; border: 1px solid #78350f; border-radius: 8px;" bgcolor="#451a03">
                                 <a href="{{ retirement.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 600; color: #fcd34d; text-decoration: none;">
-                                  <span style="color: #fcd34d;">📖 Documentation →</span>
+                                  <span class="docs-btn-text" style="color: #fcd34d;">📖 Documentation →</span>
                                 </a>
                               </td>
                             </tr>
@@ -525,8 +653,8 @@
                 
                 <!-- Back to top link -->
                 <tr>
-                  <td align="center" style="padding-top: 20px;">
-                    <a href="#" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; text-decoration: none;">↑ Back to top</a>
+                  <td align="center" class="back-to-top" style="padding-top: 18px;">
+                    <a href="#" class="back-to-top-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; text-decoration: none;">↑ Back to top</a>
                   </td>
                 </tr>
               </table>
@@ -536,9 +664,9 @@
               <!-- Empty State -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
-                  <td align="center" style="padding: 60px 20px;">
-                    <span style="font-size: 48px; display: block; margin-bottom: 16px;">🎉</span>
-                    <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #64748b;">No new changelog entries to report.<br>Check back tomorrow!</p>
+                  <td align="center" class="empty-state" style="padding: 50px 16px;">
+                    <span class="empty-emoji" style="font-size: 44px; display: block; margin-bottom: 14px;">🎉</span>
+                    <p class="empty-text" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #64748b; line-height: 1.5;">No new changelog entries to report.<br>Check back tomorrow!</p>
                   </td>
                 </tr>
               </table>
@@ -549,22 +677,22 @@
 
           <!-- Footer -->
           <tr>
-            <td align="center" style="padding: 32px; background-color: #0f172a; border-top: 1px solid #1e293b;" bgcolor="#0f172a">
-              <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="32" height="32" style="display: block; margin: 0 auto 16px; opacity: 0.6; border-radius: 50%;">
-              <p style="margin: 0 0 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; color: #64748b; line-height: 1.7;">
+            <td align="center" class="footer-padding" style="padding: 28px 20px; border-top: 1px solid #1e293b;" bgcolor="#0f172a">
+              <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="30" height="30" class="footer-logo" style="display: block; margin: 0 auto 14px; opacity: 0.6; border-radius: 50%;">
+              <p class="footer-text" style="margin: 0 0 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #64748b; line-height: 1.6;">
                 Automatically generated from the GitHub Changelog RSS feed.<br>
                 Delivered with ❤️ every morning at 8 AM PST.
               </p>
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                <tr>
-                  <td style="padding: 8px 16px; background-color: #1e293b; border-radius: 8px; margin: 0 6px;" bgcolor="#1e293b">
-                    <a href="https://github.blog/changelog/" class="footer-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 500; color: #94a3b8; text-decoration: none;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="footer-links">
+                <tr class="footer-links">
+                  <td class="footer-link-cell" style="padding: 0 4px;">
+                    <a href="https://github.blog/changelog/" class="footer-link footer-btn" style="display: inline-block; padding: 10px 14px; background-color: #1e293b; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 500; color: #94a3b8; text-decoration: none;">
                       <span style="color: #94a3b8;">📋 Full Changelog</span>
                     </a>
                   </td>
-                  <td style="width: 12px;"></td>
-                  <td style="padding: 8px 16px; background-color: #1e293b; border-radius: 8px; margin: 0 6px;" bgcolor="#1e293b">
-                    <a href="https://github.blog/changelog/feed/" class="footer-link" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 500; color: #94a3b8; text-decoration: none;">
+                  <td class="footer-link-spacer" style="width: 8px;"></td>
+                  <td class="footer-link-cell" style="padding: 0 4px;">
+                    <a href="https://github.blog/changelog/feed/" class="footer-link footer-btn" style="display: inline-block; padding: 10px 14px; background-color: #1e293b; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 500; color: #94a3b8; text-decoration: none;">
                       <span style="color: #94a3b8;">📡 RSS Feed</span>
                     </a>
                   </td>
