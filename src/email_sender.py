@@ -28,7 +28,7 @@ def build_email_html(
     template = env.get_template("digest_email.html")
 
     if digest_date is None:
-        digest_date = datetime.now(tz=PACIFIC_TZ).strftime("%B %d, %Y") + " PT"
+        digest_date = datetime.now(tz=PACIFIC_TZ).strftime("%B %d, %Y")
 
     html_content = template.render(
         releases=releases,
