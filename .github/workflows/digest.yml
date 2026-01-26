@@ -5,6 +5,10 @@ on:
     - cron: '0 16 * * *'  # 8 AM PT daily
   workflow_dispatch:
     inputs:
+      test_email:
+        description: 'Send only to this email (leave empty for all recipients)'
+        type: string
+        default: ''
       dry_run:
         description: 'Dry run (no email sent)'
         type: boolean
@@ -39,7 +43,7 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
-          DIGEST_TO_EMAIL: ${{ secrets.DIGEST_TO_EMAIL }}
+          DIGEST_TO_EMAIL: ${{ inputs.test_email || secrets.DIGEST_TO_EMAIL }}
         run: |
           uv venv && source .venv/bin/activate
           uv pip install -r requirements.txt
@@ -67,6 +71,7 @@ jobs:
           |---|---|
           | Status | ${{ job.status == 'success' && '✅' || '❌' }} |
           | Trigger | `${{ github.event_name }}` |
+          | Test Email | `${{ inputs.test_email || 'all recipients' }}` |
           | Force | `${{ inputs.force || false }}` |
           | Dry Run | `${{ inputs.dry_run || false }}` |
           EOF
