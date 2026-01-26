@@ -53,7 +53,7 @@
 ### 📊 Organized Categories
 - 🚀 **New Releases** — with demo guidance
 - ✨ **Improvements** — enhancements
-- 🔄 **Retirements** — deprecations
+- � **Retirements** — deprecations
 
 </td>
 <td width="50%">
@@ -61,6 +61,7 @@
 ### ⚡ Fully Automated
 - **Daily at 8 AM PT** via GitHub Actions
 - **Manual triggers** available
+- **Test email mode** — send to yourself only
 - **Dry run mode** for testing
 - **State persistence** in JSON
 
@@ -109,6 +110,7 @@ cd src && python main.py
 python main.py              # Send digest (if new entries exist)
 python main.py --dry-run    # Process without sending email
 python main.py --force      # Send even with no new entries
+python main.py --all        # Include all entries from past week
 python main.py --preview    # Output HTML to stdout
 ```
 
@@ -189,9 +191,10 @@ Navigate to **Settings → Secrets and variables → Actions**:
 
 #### Manual Trigger
 
-Go to **Actions → Changelog Digest → Run workflow** with options:
-- ☑️ Dry run — test without sending
-- ☑️ Force — send even with no new entries
+Go to **Actions → GitHub Changelog Digest → Run workflow** with options:
+- 📧 **Test email** — send only to this address (leave empty for all recipients)
+- ☑️ **Dry run** — test without sending
+- ☑️ **Force** — send even with no new entries
 
 <br />
 
@@ -211,7 +214,7 @@ GH-Changelog-Email-Digest/
 │   └── state.py                    # 💾 Track processed entries
 │
 ├── 📂 templates/
-│   └── digest_email.html           # 🎨 Jinja2 email template (dark mode)
+│   └── digest_email.html           # 🎨 Jinja2 email template (dark mode, GitHub Octicons)
 │
 ├── 📂 data/
 │   └── state.json                  # 📋 Persisted URLs (auto-generated)
