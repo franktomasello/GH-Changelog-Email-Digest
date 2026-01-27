@@ -255,10 +255,6 @@ MIT License — feel free to use and modify.
 
 <br />
 
-Made with ❤️ for GitHub Solutions Engineers
-
-<br />
-
 [Report Bug](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues) · [Request Feature](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues)
 
 </div>
