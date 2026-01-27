@@ -1,22 +1,22 @@
 {
-  "processed_urls": [
-    "https://github.blog/changelog/2026-01-14-copilot-sdk-in-technical-preview",
-    "https://github.blog/changelog/2026-01-14-github-copilot-cli-enhanced-agents-context-management-and-new-ways-to-install",
-    "https://github.blog/changelog/2026-01-14-gpt-5-2-codex-is-now-generally-available-in-github-copilot",
-    "https://github.blog/changelog/2026-01-15-agentic-memory-for-github-copilot-is-in-public-preview",
-    "https://github.blog/changelog/2026-01-15-github-copilot-bring-your-own-key-byok-enhancements",
-    "https://github.blog/changelog/2026-01-15-hierarchy-view-now-available-in-github-projects",
-    "https://github.blog/changelog/2026-01-15-secret-scanning-extended-metadata-to-be-automatically-enabled-for-certain-repositories",
-    "https://github.blog/changelog/2026-01-16-github-copilot-now-supports-opencode",
-    "https://github.blog/changelog/2026-01-16-rate-limiting-for-actions-cache-entries",
-    "https://github.blog/changelog/2026-01-19-enterprise-scoped-budgets-that-exclude-cost-center-usage-in-public-preview",
-    "https://github.blog/changelog/2026-01-20-codeql-2-23-9-has-been-released",
-    "https://github.blog/changelog/2026-01-20-strengthen-your-supply-chain-with-code-to-cloud-traceability-and-slsa-build-level-3-security",
-    "https://github.blog/changelog/2026-01-21-github-copilot-cli-plan-before-you-build-steer-as-you-go",
-    "https://github.blog/changelog/2026-01-21-install-and-use-github-copilot-cli-directly-from-the-github-cli",
-    "https://github.blog/changelog/2026-01-22-1-vcpu-linux-runner-now-generally-available-in-github-actions",
-    "https://github.blog/changelog/2026-01-22-faster-loading-for-github-issues",
-    "https://github.blog/changelog/2026-01-22-improved-pull-request-files-changed-page-on-by-default",
-    "https://github.blog/changelog/2026-01-26-gpt-5-2-codex-is-now-available-in-visual-studio-jetbrains-ides-xcode-and-eclipse"
-  ]
+  "processed_urls": {
+    "https://github.blog/changelog/2026-01-26-gpt-5-2-codex-is-now-available-in-visual-studio-jetbrains-ides-xcode-and-eclipse": "2026-01-26T08:00:00",
+    "https://github.blog/changelog/2026-01-22-faster-loading-for-github-issues": "2026-01-22T08:00:00",
+    "https://github.blog/changelog/2026-01-22-improved-pull-request-files-changed-page-on-by-default": "2026-01-22T08:00:00",
+    "https://github.blog/changelog/2026-01-22-1-vcpu-linux-runner-now-generally-available-in-github-actions": "2026-01-22T08:00:00",
+    "https://github.blog/changelog/2026-01-21-github-copilot-cli-plan-before-you-build-steer-as-you-go": "2026-01-21T08:00:00",
+    "https://github.blog/changelog/2026-01-21-install-and-use-github-copilot-cli-directly-from-the-github-cli": "2026-01-21T08:00:00",
+    "https://github.blog/changelog/2026-01-20-codeql-2-23-9-has-been-released": "2026-01-20T08:00:00",
+    "https://github.blog/changelog/2026-01-20-strengthen-your-supply-chain-with-code-to-cloud-traceability-and-slsa-build-level-3-security": "2026-01-20T08:00:00",
+    "https://github.blog/changelog/2026-01-19-enterprise-scoped-budgets-that-exclude-cost-center-usage-in-public-preview": "2026-01-19T08:00:00",
+    "https://github.blog/changelog/2026-01-16-github-copilot-now-supports-opencode": "2026-01-16T08:00:00",
+    "https://github.blog/changelog/2026-01-16-rate-limiting-for-actions-cache-entries": "2026-01-16T08:00:00",
+    "https://github.blog/changelog/2026-01-15-agentic-memory-for-github-copilot-is-in-public-preview": "2026-01-15T08:00:00",
+    "https://github.blog/changelog/2026-01-15-github-copilot-bring-your-own-key-byok-enhancements": "2026-01-15T08:00:00",
+    "https://github.blog/changelog/2026-01-15-hierarchy-view-now-available-in-github-projects": "2026-01-15T08:00:00",
+    "https://github.blog/changelog/2026-01-15-secret-scanning-extended-metadata-to-be-automatically-enabled-for-certain-repositories": "2026-01-15T08:00:00",
+    "https://github.blog/changelog/2026-01-14-copilot-sdk-in-technical-preview": "2026-01-14T08:00:00",
+    "https://github.blog/changelog/2026-01-14-github-copilot-cli-enhanced-agents-context-management-and-new-ways-to-install": "2026-01-14T08:00:00",
+    "https://github.blog/changelog/2026-01-14-gpt-5-2-codex-is-now-generally-available-in-github-copilot": "2026-01-14T08:00:00"
+  }
 }
