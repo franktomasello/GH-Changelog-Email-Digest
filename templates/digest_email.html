@@ -61,7 +61,13 @@
     a.footer-link:hover { color: #c9d1d9 !important; }
     
     /* Base responsive table */
-    .email-container { width: 100% !important; max-width: 600px !important; }
+    .email-container { width: 100% !important; max-width: 720px !important; }
+    
+    /* Tablet and smaller desktop */
+    @media only screen and (max-width: 768px) {
+      .email-container { max-width: 100% !important; border-radius: 0 !important; }
+      .outer-padding { padding: 0 !important; }
+    }
     
     /* Mobile-first responsive styles - iPhone optimized */
     @media only screen and (max-width: 600px) {
@@ -213,14 +219,14 @@
   <!-- Main wrapper table -->
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="dark-bg" style="background-color: #0d1117 !important; width: 100% !important; color-scheme: dark only;" bgcolor="#0d1117">
     <tr>
-      <td align="center" style="padding: 20px 16px; background-color: #0d1117 !important;" class="outer-padding dark-bg" bgcolor="#0d1117">
+      <td align="center" style="padding: 12px 0; background-color: #0d1117 !important;" class="outer-padding dark-bg" bgcolor="#0d1117">
         
         <!-- Email container -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container card-bg" style="max-width: 600px; width: 100%; border-radius: 20px; overflow: hidden; background-color: #161b22 !important;" bgcolor="#161b22">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container card-bg" style="max-width: 720px; width: 100%; border-radius: 16px; overflow: hidden; background-color: #161b22 !important;" bgcolor="#161b22">
           
           <!-- Header -->
           <tr>
-            <td align="center" style="padding: 44px 32px 36px; background-color: #0d1117 !important;" class="header-padding dark-bg" bgcolor="#0d1117">
+            <td align="center" style="padding: 44px 40px 36px; background-color: #0d1117 !important;" class="header-padding dark-bg" bgcolor="#0d1117">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center">
@@ -259,7 +265,7 @@
 
           <!-- Quick Navigation Stats Bar - Mobile Optimized -->
           <tr>
-            <td class="stats-wrapper card-bg" style="padding: 20px 20px 16px; background-color: #161b22 !important;" bgcolor="#161b22">
+            <td class="stats-wrapper card-bg" style="padding: 20px 28px 16px; background-color: #161b22 !important;" bgcolor="#161b22">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="stats-table">
                 <tr class="nav-hint-row">
                   <td colspan="3" align="center" style="padding-bottom: 14px;">
@@ -316,7 +322,7 @@
 
           <!-- Content Area -->
           <tr>
-            <td style="padding: 24px 20px; background-color: #161b22 !important;" class="mobile-padding card-bg" bgcolor="#161b22">
+            <td style="padding: 24px 32px; background-color: #161b22 !important;" class="mobile-padding card-bg" bgcolor="#161b22">
 
               {% if releases %}
               <!-- Releases Section -->
