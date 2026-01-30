@@ -525,8 +525,15 @@ def infer_feature_context(entry: ChangelogEntry) -> dict:
         "key_features": key_features,
     }
     
-    # Build feature-specific talking points
-    feature_highlight = detailed_summary[:150] + "..." if len(detailed_summary) > 150 else detailed_summary
+    # Build feature-specific talking points from actual content
+    feature_highlight = detailed_summary[:200] + "..." if len(detailed_summary) > 200 else detailed_summary
+    
+    # Build specific benefit statements from key features
+    feature_benefits = ""
+    if key_features:
+        feature_benefits = f"Key capabilities include: {key_features[0]}"
+        if len(key_features) > 1:
+            feature_benefits += f", and {key_features[1]}"
     
     if "copilot" in all_text:
         context["area"] = "copilot"
@@ -534,268 +541,256 @@ def infer_feature_context(entry: ChangelogEntry) -> dict:
             context["navigation"] = "VS Code → Copilot Chat → Agent Mode"
             context["demo_flow"] = [
                 {
-                    "click": "Open VS Code with a real project",
-                    "say": f"Let me show you {feature_title}. {feature_highlight}"
+                    "click": "Open VS Code with a project that has multiple files",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Open Copilot Chat with Cmd+Shift+I",
-                    "say": "This is Copilot Chat — your AI pair programmer that understands your entire codebase."
+                    "click": "Press Cmd+Shift+I to open Copilot Chat, then enable 'Agent' mode",
+                    "say": f"Agent mode is the key here. {feature_benefits}" if feature_benefits else "Agent mode lets Copilot work autonomously across your entire codebase."
                 },
                 {
-                    "click": "Toggle on 'Agent' mode at the top",
-                    "say": "Agent mode lets Copilot work across multiple files autonomously — not just answer questions."
+                    "click": "Type a multi-step request like 'Add error handling to all API calls'",
+                    "say": "Watch it analyze the codebase, identify all the relevant files, and propose changes — this would take a developer 30+ minutes manually."
                 },
                 {
-                    "click": "Give it a multi-step task relevant to the new feature",
-                    "say": "Watch what happens — I'm giving it a real task that would normally take 30+ minutes."
-                },
-                {
-                    "click": "Review the proposed changes",
-                    "say": "You're still in control. Nothing changes until you review and accept. It's like having a junior dev who does the work, but you sign off."
+                    "click": "Review the diff and click 'Accept' on changes you approve",
+                    "say": "You're always in control. Nothing changes until you review and accept. That's the key for enterprise adoption."
                 },
             ]
         elif "chat" in all_text:
-            context["navigation"] = "VS Code → Copilot Chat"
+            context["navigation"] = "VS Code → Copilot Chat (Cmd+Shift+I)"
             context["demo_flow"] = [
                 {
-                    "click": "Open a complex file in VS Code",
-                    "say": f"Let me demo {feature_title}. {feature_highlight}"
+                    "click": "Open VS Code and navigate to a complex file",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Select code and open Copilot Chat",
-                    "say": "Instead of hunting down the original author, just ask Copilot."
+                    "click": "Select a block of code, right-click → 'Copilot' → 'Explain This'",
+                    "say": f"{feature_benefits}" if feature_benefits else "Instead of searching docs or asking the original author, just ask Copilot."
                 },
                 {
-                    "click": "Ask about the selected code",
-                    "say": "Plain English explanation. And it's not surface-level — it understands context."
-                },
-                {
-                    "click": "Use @workspace to ask about the project",
-                    "say": "Here's the real power — ask about the entire project, not just one file."
+                    "click": "In the Chat panel, type '@workspace how does authentication work?'",
+                    "say": "The @workspace command searches your entire project — it understands context across all files, not just the one you're looking at."
                 },
             ]
         elif "code review" in all_text or "review" in all_text:
-            context["navigation"] = "github.com → Pull Request → Files Changed"
+            context["navigation"] = "github.com → Pull Request → Files changed tab"
             context["demo_flow"] = [
                 {
-                    "click": "Open a PR with substantial changes",
-                    "say": f"This is {feature_title}. {feature_highlight}"
+                    "click": "Open a PR with 10+ file changes",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Click the Copilot icon → 'Review changes'",
-                    "say": "One click to get AI-powered code review."
+                    "click": "Click the Copilot icon in the PR toolbar → 'Summarize' or 'Review'",
+                    "say": f"{feature_benefits}" if feature_benefits else "One click for AI-powered code review that catches security issues, bugs, and performance problems."
                 },
                 {
-                    "click": "Review the summary and suggestions",
-                    "say": "It catches security issues, performance problems, bugs — things that might slip through manual review."
+                    "click": "Scroll through the suggestions — click 'Apply' on any you want to accept",
+                    "say": "Developers don't have to figure out the fix themselves. Copilot proposes the code change and they just approve it."
+                },
+            ]
+        elif "extension" in all_text or "extensions" in all_text:
+            context["navigation"] = "github.com → Marketplace → Copilot Extensions"
+            context["demo_flow"] = [
+                {
+                    "click": "Go to github.com/marketplace and filter by 'Copilot Extensions'",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Apply a suggestion with one click",
-                    "say": "Developer doesn't have to figure out the fix — it's done for them."
+                    "click": "Browse available extensions or search for a specific tool integration",
+                    "say": f"{feature_benefits}" if feature_benefits else "Extensions let third-party tools integrate directly into Copilot Chat — so developers can query Datadog, Sentry, or your internal tools without leaving their editor."
+                },
+                {
+                    "click": "Install an extension and demo using it via @extension-name in Copilot Chat",
+                    "say": "This is how you extend Copilot's capabilities for your specific tech stack and internal tools."
                 },
             ]
         else:
-            context["navigation"] = "Settings → Copilot"
+            context["navigation"] = "github.com → Settings → Copilot"
             context["demo_flow"] = [
                 {
-                    "click": "Navigate to Copilot settings",
-                    "say": f"Let me show you {feature_title}. {feature_highlight}"
+                    "click": "Navigate to your organization or user settings → Copilot",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Walk through the new feature",
-                    "say": "Here's the key capability and how it fits into developer workflow."
+                    "click": "Show the relevant configuration or feature toggle",
+                    "say": f"{feature_benefits}" if feature_benefits else "Here's where admins control Copilot policies and features for their organization."
                 },
                 {
-                    "click": "Demo it in action",
-                    "say": "Let me show you what this looks like when a developer actually uses it."
+                    "click": "Demo the feature in VS Code or github.com",
+                    "say": "Let me show you what this looks like from a developer's perspective."
                 },
             ]
     
     elif "actions" in all_text or "workflow" in all_text:
         context["area"] = "actions"
-        if "runner" in all_text:
+        if "runner" in all_text or "runners" in all_text:
             context["navigation"] = "Repository → Settings → Actions → Runners"
             context["demo_flow"] = [
                 {
-                    "click": "Go to Settings → Actions → Runners",
-                    "say": f"This is {feature_title}. {feature_highlight}"
+                    "click": "Go to any repository → Settings → Actions → Runners",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Show the runner configuration",
-                    "say": "You've got hosted runners (we manage everything) or self-hosted for compliance/specialized hardware."
+                    "click": "Click 'New self-hosted runner' or view existing runner configuration",
+                    "say": f"{feature_benefits}" if feature_benefits else "You can use GitHub-hosted runners (we manage everything) or self-hosted for compliance and specialized hardware."
                 },
                 {
-                    "click": "Configure the new capability",
-                    "say": "Here's the new feature — this directly addresses common pain points."
+                    "click": "Show the runner logs or trigger a workflow to demonstrate",
+                    "say": "This is where you get visibility into build times, resource usage, and troubleshooting."
+                },
+            ]
+        elif "reusable" in all_text or "composite" in all_text:
+            context["navigation"] = "Repository → .github/workflows/ → workflow file"
+            context["demo_flow"] = [
+                {
+                    "click": "Open a workflow YAML file that uses 'uses: ./.github/actions/' or 'workflow_call'",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Trigger a workflow to demonstrate",
-                    "say": "Let me run something so you can see it in action."
+                    "click": "Show the reusable workflow or composite action definition",
+                    "say": f"{feature_benefits}" if feature_benefits else "Reusable workflows let you define CI/CD logic once and call it from multiple repos — DRY principle for DevOps."
+                },
+                {
+                    "click": "Trigger the workflow and show the execution graph",
+                    "say": "The Actions UI shows exactly which reusable components ran and their individual status."
                 },
             ]
         else:
-            context["navigation"] = "Repository → Actions"
+            context["navigation"] = "Repository → Actions tab"
             context["demo_flow"] = [
                 {
-                    "click": "Click the 'Actions' tab",
-                    "say": f"This is {feature_title}. {feature_highlight}"
+                    "click": "Click the 'Actions' tab in any repository",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Show the workflow configuration",
-                    "say": "Actions is GitHub's native CI/CD — one less tool to manage."
+                    "click": "Click into a recent workflow run to show the execution details",
+                    "say": f"{feature_benefits}" if feature_benefits else "Actions gives you native CI/CD without managing separate infrastructure — one less tool in your stack."
                 },
                 {
-                    "click": "Demo the new capability",
-                    "say": "Here's what this means for your team's workflow."
-                },
-                {
-                    "click": "Show the results",
-                    "say": "Full visibility, all in one place."
+                    "click": "Show the workflow YAML and how it maps to the visual execution",
+                    "say": "Everything is code. Version controlled, reviewable, and auditable."
                 },
             ]
     
     elif "security" in all_text or "dependabot" in all_text or "secret" in all_text or "vulnerability" in all_text or "ghas" in all_text or "codeql" in all_text:
         context["area"] = "security"
         if "dependabot" in all_text:
-            context["navigation"] = "Repository → Security → Dependabot"
+            context["navigation"] = "Repository → Security tab → Dependabot"
             context["demo_flow"] = [
                 {
-                    "click": "Go to Security tab → Dependabot alerts",
-                    "say": f"This is {feature_title}. {feature_highlight}"
+                    "click": "Go to any repository → Security tab → Dependabot alerts",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Show vulnerability alerts",
-                    "say": "Dependabot scans dependencies continuously. When something's vulnerable, you know immediately."
+                    "click": "Click into a vulnerability alert to show the details and remediation",
+                    "say": f"{feature_benefits}" if feature_benefits else "Dependabot continuously scans your dependency tree and alerts you to known vulnerabilities."
                 },
                 {
-                    "click": "Show the auto-generated fix PR",
+                    "click": "Show a Dependabot PR that auto-updates a vulnerable package",
                     "say": "It doesn't just report problems — it opens PRs with fixes. Your team just reviews and merges."
-                },
-                {
-                    "click": "Show the dependency graph",
-                    "say": "Full visibility into your dependency tree."
                 },
             ]
         elif "secret" in all_text:
             context["navigation"] = "Repository → Settings → Code security → Secret scanning"
             context["demo_flow"] = [
                 {
-                    "click": "Go to Settings → Code security",
-                    "say": f"This is {feature_title}. {feature_highlight}"
+                    "click": "Go to Settings → Code security and analysis → Secret scanning",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Show Secret scanning and Push protection",
-                    "say": "Secret scanning finds leaked credentials. Push protection blocks them before they land."
+                    "click": "Show the Push protection toggle and explain what it does",
+                    "say": f"{feature_benefits}" if feature_benefits else "Push protection blocks secrets BEFORE they're committed — not after the damage is done."
                 },
                 {
-                    "click": "Demo the detection/blocking",
-                    "say": "Let me show you what happens when someone tries to commit a secret."
-                },
-                {
-                    "click": "Show the alerts dashboard",
-                    "say": "Full audit trail. Your security team has complete visibility."
+                    "click": "Go to Security tab → Secret scanning alerts to show detected secrets",
+                    "say": "Full audit trail of what was found, when, and remediation status. This is what your security team needs."
                 },
             ]
         elif "code scanning" in all_text or "codeql" in all_text:
-            context["navigation"] = "Repository → Security → Code scanning"
+            context["navigation"] = "Repository → Security tab → Code scanning"
             context["demo_flow"] = [
                 {
-                    "click": "Go to Security → Code scanning",
-                    "say": f"This is {feature_title}. {feature_highlight}"
+                    "click": "Go to Security tab → Code scanning alerts",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Show the alerts",
-                    "say": "CodeQL does semantic analysis — it finds vulnerabilities that pattern matching misses."
+                    "click": "Click into a finding to show the data flow visualization",
+                    "say": f"{feature_benefits}" if feature_benefits else "CodeQL does semantic analysis — it traces how untrusted input flows to sensitive operations. This catches real vulnerabilities, not just pattern matches."
                 },
                 {
-                    "click": "Click into a finding",
-                    "say": "Full data flow visualization. See exactly how user input reaches the vulnerable code."
-                },
-                {
-                    "click": "Show PR integration",
-                    "say": "This runs on every PR — vulnerabilities caught before they merge."
+                    "click": "Show a PR where code scanning blocked a vulnerability from merging",
+                    "say": "This runs on every PR automatically. Vulnerabilities get caught before they hit main branch."
                 },
             ]
         else:
-            context["navigation"] = "Repository → Security"
+            context["navigation"] = "Repository → Security tab → Overview"
             context["demo_flow"] = [
                 {
-                    "click": "Go to the Security tab",
-                    "say": f"This is {feature_title}. {feature_highlight}"
+                    "click": "Click the Security tab → Security overview",
+                    "say": f"{feature_title} — {feature_highlight}"
                 },
                 {
-                    "click": "Walk through the overview",
-                    "say": "This is your security command center."
+                    "click": "Walk through the different security features shown",
+                    "say": f"{feature_benefits}" if feature_benefits else "This is your security command center — one place to see Dependabot, secret scanning, and code scanning status."
                 },
                 {
-                    "click": "Demo the new capability",
-                    "say": "Here's the new feature in action."
+                    "click": "Click into specific alerts to show remediation workflows",
+                    "say": "Security teams get visibility, developers get actionable fixes. That's the balance you need."
                 },
             ]
     
     elif "issues" in all_text or "projects" in all_text or "project" in all_text:
         context["area"] = "projects"
-        context["navigation"] = "Organization or Repository → Projects"
+        context["navigation"] = "Repository or Organization → Projects tab"
         context["demo_flow"] = [
             {
-                "click": "Go to Projects tab",
-                "say": f"This is {feature_title}. {feature_highlight}"
+                "click": "Go to a repository or org → Projects tab → Open a project board",
+                "say": f"{feature_title} — {feature_highlight}"
             },
             {
-                "click": "Open or create a project",
-                "say": "GitHub Projects is built-in planning that lives where your code lives."
+                "click": "Show the different views: Board, Table, Roadmap",
+                "say": f"{feature_benefits}" if feature_benefits else "GitHub Projects is planning that lives where your code lives — no context switching to Jira or Monday."
             },
             {
-                "click": "Demo the new capability",
-                "say": "Here's the new feature and how it improves workflow."
-            },
-            {
-                "click": "Show automation options",
-                "say": "Automations keep things moving without manual work."
+                "click": "Demo adding an item, changing status, or using automation",
+                "say": "Issues and PRs automatically flow through the board based on their state. Less manual status updates."
             },
         ]
     
-    elif "pull request" in all_text or "merge" in all_text:
+    elif "pull request" in all_text or "merge" in all_text or " pr " in all_text:
         context["area"] = "pull_requests"
-        context["navigation"] = "Repository → Pull requests"
+        context["navigation"] = "Repository → Pull requests tab"
         context["demo_flow"] = [
             {
-                "click": "Go to Pull requests tab",
-                "say": f"This is {feature_title}. {feature_highlight}"
+                "click": "Go to Pull requests tab and open a PR with active discussion",
+                "say": f"{feature_title} — {feature_highlight}"
             },
             {
-                "click": "Open or create a PR",
-                "say": "Pull requests are the heart of code collaboration on GitHub."
+                "click": "Show the specific feature in the PR interface",
+                "say": f"{feature_benefits}" if feature_benefits else "Pull requests are the heart of code collaboration on GitHub."
             },
             {
-                "click": "Demo the new feature",
-                "say": "Here's what just shipped and how it helps your team."
-            },
-            {
-                "click": "Show it in a review workflow",
-                "say": "See how it fits naturally into the process."
+                "click": "Walk through how this improves the review or merge workflow",
+                "say": "This directly addresses pain points teams have with code review velocity and quality."
             },
         ]
     
     elif "codespace" in all_text:
         context["area"] = "codespaces"
-        context["navigation"] = "Repository → Code → Codespaces"
+        context["navigation"] = "Repository → Code button → Codespaces tab"
         context["demo_flow"] = [
             {
-                "click": "Click the green 'Code' button",
-                "say": f"This is {feature_title}. {feature_highlight}"
+                "click": "Go to any repository → Click green 'Code' button → Codespaces tab",
+                "say": f"{feature_title} — {feature_highlight}"
             },
             {
-                "click": "Create a new Codespace",
-                "say": "Full dev environment spinning up. Compare this to setting up a new laptop."
+                "click": "Click 'Create codespace on main' and wait for it to spin up",
+                "say": f"{feature_benefits}" if feature_benefits else "Full dev environment in the cloud — VS Code, terminal, extensions, everything. Compare this to 'works on my machine' problems."
             },
             {
-                "click": "Show VS Code in the browser",
-                "say": "Real environment. Real terminal. Ready to code on any device."
-            },
-            {
-                "click": "Demo the new capability",
-                "say": "Here's the improvement and what it means for developers."
+                "click": "Show the devcontainer.json that defines the environment",
+                "say": "This is infrastructure as code for dev environments. Every developer gets an identical setup."
             },
         ]
     
@@ -804,42 +799,34 @@ def infer_feature_context(entry: ChangelogEntry) -> dict:
         context["navigation"] = "docs.github.com/rest or GraphQL Explorer"
         context["demo_flow"] = [
             {
-                "click": "Open the API documentation",
-                "say": f"This is {feature_title}. {feature_highlight}"
+                "click": "Open docs.github.com/rest and search for the relevant endpoint",
+                "say": f"{feature_title} — {feature_highlight}"
             },
             {
-                "click": "Find the relevant endpoint",
-                "say": "GitHub is API-first. Anything in the UI can be automated."
+                "click": "Show the endpoint documentation with request/response examples",
+                "say": f"{feature_benefits}" if feature_benefits else "GitHub is API-first — anything you can do in the UI, you can automate via API."
             },
             {
-                "click": "Demo with curl or gh CLI",
-                "say": "Quick demo from the command line."
-            },
-            {
-                "click": "Show the response",
-                "say": "Everything you need to build automation or custom tooling."
+                "click": "Demo a curl command or show the GitHub CLI equivalent",
+                "say": "Quick demo: here's what the response looks like. Everything you need for custom integrations."
             },
         ]
     
     else:
-        # Default: create demo based on extracted content
-        context["navigation"] = "GitHub.com"
+        # Default: create demo based on extracted content with specific feature info
+        context["navigation"] = "github.com"
         context["demo_flow"] = [
             {
-                "click": "Navigate to the feature area",
-                "say": f"Let me show you {feature_title}. {feature_highlight}"
+                "click": "Navigate to the feature area in GitHub",
+                "say": f"{feature_title} — {feature_highlight}"
             },
             {
-                "click": "Locate the new capability",
-                "say": "Here's where this lives in GitHub."
+                "click": "Locate and demonstrate the new capability",
+                "say": f"{feature_benefits}" if feature_benefits else "Here's the key value: this addresses a common pain point teams face."
             },
             {
-                "click": "Demo the feature",
-                "say": "Let me show you what it looks like in practice."
-            },
-            {
-                "click": "Highlight the key benefit",
-                "say": "This is how it improves your team's workflow."
+                "click": "Show a real-world example of how this helps developers",
+                "say": "This is how it fits into day-to-day workflows — less friction, faster delivery."
             },
         ]
     
