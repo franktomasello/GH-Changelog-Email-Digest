@@ -184,116 +184,129 @@ def search_github_docs(query: str) -> Optional[str]:
                 full_url = f"https://docs.github.com{href}"
                 return full_url
         
-        # Alternative: Try direct URL construction for common patterns
-        return construct_docs_url_from_keywords(keywords)
+        return None
         
     except Exception as e:
         print(f"  ⚠️  Docs search failed for '{query[:50]}...': {e}")
         return None
 
 
-def construct_docs_url_from_keywords(keywords: list[str]) -> Optional[str]:
+def validate_docs_url(url: str, title: str, summary: str = "", strict: bool = False) -> bool:
     """
-    Construct a likely docs URL based on keywords.
-    Maps common GitHub features to their documentation paths.
+    Validate that a documentation URL is actually relevant to the changelog entry.
+    Fetches the page and checks if its content meaningfully relates to the entry.
+    
+    Args:
+        url: The candidate documentation URL.
+        title: The changelog entry title.
+        summary: The changelog entry summary text.
+        strict: If True, requires a higher match threshold (used for search results
+                which are less trustworthy than embedded links).
+    
+    Returns True only if the page content matches the entry topic.
     """
-    keywords_lower = [k.lower() for k in keywords]
-    keywords_set = set(keywords_lower)
-    
-    # Map of feature keywords to documentation paths
-    docs_mapping = {
-        # Copilot
-        frozenset(['copilot']): 'https://docs.github.com/en/copilot',
-        frozenset(['copilot', 'chat']): 'https://docs.github.com/en/copilot/using-github-copilot/asking-github-copilot-questions-in-your-ide',
-        frozenset(['copilot', 'agent']): 'https://docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent-to-work-on-tasks',
-        frozenset(['copilot', 'review']): 'https://docs.github.com/en/copilot/using-github-copilot/code-review/using-copilot-code-review',
-        frozenset(['copilot', 'extensions']): 'https://docs.github.com/en/copilot/using-github-copilot/using-extensions-to-integrate-external-tools-with-copilot-chat',
-        
-        # Actions
-        frozenset(['actions']): 'https://docs.github.com/en/actions',
-        frozenset(['actions', 'runner']): 'https://docs.github.com/en/actions/using-github-hosted-runners',
-        frozenset(['actions', 'workflow']): 'https://docs.github.com/en/actions/writing-workflows',
-        frozenset(['actions', 'cache']): 'https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows',
-        
-        # Security
-        frozenset(['security']): 'https://docs.github.com/en/code-security',
-        frozenset(['dependabot']): 'https://docs.github.com/en/code-security/dependabot',
-        frozenset(['secret', 'scanning']): 'https://docs.github.com/en/code-security/secret-scanning',
-        frozenset(['code', 'scanning']): 'https://docs.github.com/en/code-security/code-scanning',
-        frozenset(['codeql']): 'https://docs.github.com/en/code-security/code-scanning/introduction-to-code-scanning/about-code-scanning-with-codeql',
-        frozenset(['security', 'advisories']): 'https://docs.github.com/en/code-security/security-advisories',
-        
-        # Codespaces
-        frozenset(['codespaces']): 'https://docs.github.com/en/codespaces',
-        frozenset(['codespace']): 'https://docs.github.com/en/codespaces',
-        
-        # Projects & Issues
-        frozenset(['projects']): 'https://docs.github.com/en/issues/planning-and-tracking-with-projects',
-        frozenset(['issues']): 'https://docs.github.com/en/issues',
-        
-        # Pull Requests
-        frozenset(['pull', 'request']): 'https://docs.github.com/en/pull-requests',
-        frozenset(['merge']): 'https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request',
-        
-        # Repositories
-        frozenset(['repository']): 'https://docs.github.com/en/repositories',
-        frozenset(['branch', 'protection']): 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches',
-        frozenset(['rulesets']): 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets',
-        
-        # API
-        frozenset(['api']): 'https://docs.github.com/en/rest',
-        frozenset(['graphql']): 'https://docs.github.com/en/graphql',
-        frozenset(['rest', 'api']): 'https://docs.github.com/en/rest',
-        
-        # Enterprise
-        frozenset(['enterprise']): 'https://docs.github.com/en/enterprise-cloud@latest',
-        frozenset(['audit', 'log']): 'https://docs.github.com/en/enterprise-cloud@latest/admin/monitoring-activity-in-your-enterprise/reviewing-audit-logs-for-your-enterprise',
-        
-        # Packages
-        frozenset(['packages']): 'https://docs.github.com/en/packages',
-        frozenset(['container', 'registry']): 'https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry',
-        
-        # Mobile
-        frozenset(['mobile']): 'https://docs.github.com/en/get-started/using-github/github-mobile',
-        
-        # CLI
-        frozenset(['cli']): 'https://docs.github.com/en/github-cli',
-        frozenset(['gh']): 'https://docs.github.com/en/github-cli',
-    }
-    
-    # Find best matching docs URL
-    best_match = None
-    best_match_score = 0
-    
-    for feature_keywords, url in docs_mapping.items():
-        # Count how many feature keywords match
-        match_score = len(feature_keywords & keywords_set)
-        if match_score > best_match_score:
-            best_match_score = match_score
-            best_match = url
-    
-    return best_match
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        }
+        response = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        page_text = soup.get_text(separator=" ", strip=True).lower()
+        page_title = (soup.title.get_text().lower() if soup.title else "")
+
+        # Extract meaningful keywords from the changelog entry title
+        stop_words = {
+            'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been',
+            'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will',
+            'would', 'could', 'should', 'may', 'might', 'must', 'shall',
+            'can', 'need', 'to', 'of', 'in', 'for', 'on', 'with', 'at',
+            'by', 'from', 'as', 'into', 'through', 'during', 'before',
+            'after', 'now', 'generally', 'available', 'new', 'and', 'or',
+            'but', 'if', 'this', 'that', 'these', 'those', 'it', 'its',
+            'all', 'each', 'every', 'both', 'few', 'more', 'most', 'other',
+            'some', 'such', 'no', 'not', 'only', 'own', 'same', 'so',
+            'than', 'too', 'very', 'just', 'also', 'github', 'support',
+            'supports', 'update', 'updates', 'feature', 'features',
+            'track', 'additional', 'changes', 'are', 'preview', 'technical',
+        }
+
+        title_words = re.findall(r'\b[a-zA-Z][a-zA-Z0-9+#.-]*\b', title.lower())
+        keywords = [w for w in title_words if w not in stop_words and len(w) > 2]
+
+        if not keywords:
+            return False
+
+        # Check how many keywords from the entry title appear in the page content
+        matches = sum(1 for kw in keywords if kw in page_text)
+        match_ratio = matches / len(keywords) if keywords else 0
+
+        # Also check page title for keyword overlap
+        title_matches = sum(1 for kw in keywords if kw in page_title)
+        title_ratio = title_matches / len(keywords) if keywords else 0
+
+        # Thresholds depend on source trustworthiness:
+        # - Embedded links (strict=False): 40% body OR 30% page title
+        #   These come from GitHub's own changelog HTML, so moderate confidence is fine.
+        # - Search results (strict=True): 60% body OR 50% page title
+        #   Search results are often tangential; require strong evidence of relevance.
+        if strict:
+            body_threshold = 0.60
+            title_threshold = 0.50
+        else:
+            body_threshold = 0.40
+            title_threshold = 0.30
+
+        if match_ratio >= body_threshold or title_ratio >= title_threshold:
+            return True
+
+        return False
+
+    except Exception as e:
+        print(f"  ⚠️  Could not validate docs URL '{url}': {e}")
+        return False
 
 
-def search_docs_for_release(title: str, content_html: str = "") -> Optional[str]:
+def search_docs_for_release(title: str, content_html: str = "", summary: str = "") -> Optional[str]:
     """
     Find the most accurate documentation URL for a release.
-    Combines multiple search strategies for best results.
-    """
-    # Strategy 1: First check if docs URL is embedded in the content
-    embedded_url = extract_docs_url(content_html) if content_html else None
-    if embedded_url and "docs.github.com" in embedded_url:
-        return embedded_url
+    Only returns a URL if it has been validated as genuinely relevant
+    to the specific changelog entry.
     
-    # Strategy 2: Search GitHub docs using the title
+    Priority order:
+      1. docs.github.com link embedded in the changelog HTML (most trustworthy)
+      2. Any other embedded link (blog post, feature page) from the changelog HTML
+      3. GitHub docs search result (least trustworthy — uses strict validation)
+    """
+    embedded_url = extract_docs_url(content_html) if content_html else None
+
+    # Strategy 1: Embedded docs.github.com link — placed by GitHub in the changelog.
+    if embedded_url and "docs.github.com" in embedded_url:
+        if validate_docs_url(embedded_url, title, summary, strict=False):
+            return embedded_url
+        else:
+            print(f"  ⚠️  Embedded docs URL rejected (not relevant): {embedded_url}")
+
+    # Strategy 2: Other embedded link (blog post, feature page) from changelog HTML.
+    if embedded_url and "docs.github.com" not in embedded_url:
+        if validate_docs_url(embedded_url, title, summary, strict=False):
+            return embedded_url
+        else:
+            print(f"  ⚠️  Embedded link rejected (not relevant): {embedded_url}")
+
+    # Strategy 3: Search GitHub docs — least trustworthy, requires strict validation.
     search_result = search_github_docs(title)
     if search_result:
-        return search_result
-    
-    # Strategy 3: Return embedded non-docs URL if available
-    if embedded_url:
-        return embedded_url
-    
+        if validate_docs_url(search_result, title, summary, strict=True):
+            return search_result
+        else:
+            print(f"  ⚠️  Search docs URL rejected (not relevant enough): {search_result}")
+
+    # No verified documentation found — return None so the template
+    # does NOT show a "View Documentation" link.
+    print(f"  ❌ No verified docs URL found for: {title[:60]}")
     return None
 
 
@@ -875,9 +888,9 @@ def enrich_entries_with_demo_outlines(entries: list[ChangelogEntry]) -> list[Cha
         entry.key_features = extract_key_features(entry)
         
         # Search for the most accurate documentation URL
-        # This uses web search + keyword mapping for best results
+        # Only sets docs_url if the page is verified as genuinely relevant
         print(f"  🔍 Searching docs for: {entry.title[:50]}...")
-        entry.docs_url = search_docs_for_release(entry.title, entry.content_html)
+        entry.docs_url = search_docs_for_release(entry.title, entry.content_html, entry.summary or "")
         
         # Also extract all relevant links for reference
         entry.all_links = extract_all_relevant_links(entry.content_html)
