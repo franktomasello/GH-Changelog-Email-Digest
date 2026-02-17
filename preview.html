@@ -39,9 +39,18 @@
     }
     
     body, html { margin: 0 !important; padding: 0 !important; background-color: #0d1117 !important; width: 100% !important; color-scheme: dark only; }
+    html { scroll-behavior: smooth; }
     * { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; box-sizing: border-box; }
-    table, td { mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; }
+    table, td { mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; mso-line-height-rule: exactly; }
     img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; max-width: 100%; }
+    
+    /* Fluid text wrapping - prevents horizontal overflow on narrow screens (incl. Gmail mobile) */
+    .card-title, .card-summary, .card-feature { word-wrap: break-word; overflow-wrap: break-word; }
+    
+    /* Accessibility - focus states for keyboard navigation (web & webmail) */
+    a:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; border-radius: 4px; }
+    .card:focus-within { border-color: #58a6ff60 !important; box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.15) !important; }
+    .stat-card:focus-within { box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important; }
     
     /* Gmail app dark mode color overrides */
     [data-ogsc] .dark-bg { background-color: #0d1117 !important; }
@@ -99,6 +108,15 @@
     
     /* Base responsive table */
     .email-container { width: 100% !important; max-width: 720px !important; }
+    
+    /* Desktop web - floating card with cinematic shadow on wide screens */
+    @media only screen and (min-width: 769px) {
+      .outer-padding { padding: 24px 16px !important; }
+      .email-container {
+        border-radius: 16px !important;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.05) !important;
+      }
+    }
     
     /* Tablet and smaller desktop */
     @media only screen and (max-width: 768px) {
@@ -168,9 +186,10 @@
       .card-feature { font-size: 13px !important; line-height: 1.5 !important; }
       .card-top-padding { padding-top: 12px !important; }
       
-      /* Docs links */
-      .docs-btn { padding: 11px 16px !important; border-radius: 10px !important; }
+      /* Docs links - full width on mobile for better tap targets */
+      .docs-btn { padding: 14px 16px !important; border-radius: 10px !important; }
       .docs-btn-text { font-size: 13px !important; }
+      .docs-btn-wrap { width: 100% !important; }
       
       /* Footer - minimal and elegant */
       .footer-padding { padding: 28px 20px 36px !important; }
@@ -191,14 +210,25 @@
         border-radius: 12px !important;
       }
       
-      /* Back to top - subtle */
+      /* Back to top - bigger touch target on mobile */
       .back-to-top { padding-top: 20px !important; }
-      .back-to-top-link { font-size: 12px !important; padding: 8px 16px !important; }
+      .back-to-top-link { font-size: 12px !important; padding: 12px 24px !important; min-height: 44px !important; line-height: 20px !important; }
       
       /* Empty state */
       .empty-state { padding: 48px 20px !important; }
       .empty-emoji { font-size: 44px !important; margin-bottom: 16px !important; }
       .empty-text { font-size: 15px !important; line-height: 1.5 !important; }
+      
+      /* Card meta labels - flex wrap on narrow screens */
+      .card-meta-wrap { display: block !important; width: 100% !important; }
+      .card-meta-wrap tr { display: flex !important; flex-wrap: wrap !important; gap: 4px 8px !important; align-items: center !important; }
+      .card-meta-wrap td { display: block !important; padding: 0 !important; }
+      
+      /* Word wrapping for all card text content */
+      .card-title, .card-summary, .card-feature { word-wrap: break-word !important; overflow-wrap: break-word !important; word-break: break-word !important; }
+      
+      /* Section dividers - tighter on mobile */
+      .section-divider-inner { padding: 0 5% !important; }
     }
     
     /* Extra small devices (iPhone SE, iPhone Mini) */
@@ -232,15 +262,20 @@
 </head>
 <body class="body email-bg" style="margin: 0 !important; padding: 0 !important; background-color: #0d1117 !important; width: 100% !important; color-scheme: dark only;" bgcolor="#0d1117">
   
-  <!-- Preheader text -->
+  <!-- Preheader text (with zero-width padding to prevent body text leaking into preview) -->
   <div style="display: none; font-size: 1px; color: #0d1117; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
     5 GitHub updates: 2 releases, 1 improvements, 1 retirements
+    &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
   </div>
 
   <!-- Main wrapper table -->
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="dark-bg" style="background-color: #0d1117 !important; width: 100% !important; color-scheme: dark only;" bgcolor="#0d1117">
     <tr>
       <td align="center" style="padding: 12px 0; background-color: #0d1117 !important;" class="outer-padding dark-bg" bgcolor="#0d1117">
+        
+        <!--[if mso]>
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="720" align="center" style="width:720px;"><tr><td>
+        <![endif]-->
         
         <!-- Email container -->
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container card-bg" style="max-width: 720px; width: 100%; border-radius: 16px; overflow: hidden; background-color: #161b22 !important;" bgcolor="#161b22">
@@ -386,7 +421,7 @@
                             <span class="card-arrow" style="display: inline-block; margin-left: 4px; font-size: 12px; color: #3fb950;">→</span>
                           </h3>
                           <!-- Card Meta -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-meta-wrap" style="margin-bottom: 12px;">
                             <tr>
                               <td style="padding-right: 10px;">
                                 <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">Feb 13, 2026 at 9:00 AM PT</span>
@@ -461,7 +496,7 @@
                           <!-- Separator -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; background-color: #30363d40;"></td></tr></table>
                           <!-- Docs Link -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
                               <td class="docs-btn docs-btn-green" style="padding: 11px 18px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-left: 3px solid #3fb950; border-radius: 10px;" bgcolor="#21262d">
                                 <a href="#" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #3fb950; text-decoration: none;">
@@ -494,7 +529,7 @@
                             <span class="card-arrow" style="display: inline-block; margin-left: 4px; font-size: 12px; color: #3fb950;">→</span>
                           </h3>
                           <!-- Card Meta -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-meta-wrap" style="margin-bottom: 12px;">
                             <tr>
                               <td style="padding-right: 10px;">
                                 <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">Feb 10, 2026 at 2:00 PM PT</span>
@@ -543,7 +578,7 @@
                           <!-- Separator -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; background-color: #30363d40;"></td></tr></table>
                           <!-- Docs Link -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
                               <td class="docs-btn docs-btn-green" style="padding: 11px 18px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-left: 3px solid #3fb950; border-radius: 10px;" bgcolor="#21262d">
                                 <a href="#" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #3fb950; text-decoration: none;">
@@ -576,7 +611,7 @@
               <!-- Section Divider -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 8px 0 32px;">
                 <tr>
-                  <td style="padding: 0 15%;">
+                  <td class="section-divider-inner" style="padding: 0 15%;">
                     <div style="height: 1px; background: linear-gradient(to right, transparent, #30363d60, transparent);"></div>
                   </td>
                 </tr>
@@ -618,7 +653,7 @@
                             <a href="#" class="title-link title-link-blue" style="color: #ffffff; text-decoration: none;">Network configuration changes for Copilot coding agent</a>
                             <span class="card-arrow" style="display: inline-block; margin-left: 4px; font-size: 12px; color: #58a6ff;">→</span>
                           </h3>
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-meta-wrap" style="margin-bottom: 12px;">
                             <tr>
                               <td style="padding-right: 10px;">
                                 <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">Feb 13, 2026</span>
@@ -667,7 +702,7 @@
                           <!-- Separator -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; background-color: #30363d40;"></td></tr></table>
                           <!-- Docs Link -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
                               <td class="docs-btn docs-btn-blue" style="padding: 11px 18px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-left: 3px solid #58a6ff; border-radius: 10px;" bgcolor="#21262d">
                                 <a href="#" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #58a6ff; text-decoration: none;">
@@ -700,7 +735,7 @@
               <!-- Section Divider -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 8px 0 32px;">
                 <tr>
-                  <td style="padding: 0 15%;">
+                  <td class="section-divider-inner" style="padding: 0 15%;">
                     <div style="height: 1px; background: linear-gradient(to right, transparent, #30363d60, transparent);"></div>
                   </td>
                 </tr>
@@ -742,7 +777,7 @@
                             <a href="#" class="title-link title-link-amber" style="color: #ffffff; text-decoration: none;">Legacy Copilot metrics APIs closing down</a>
                             <span class="card-arrow" style="display: inline-block; margin-left: 4px; font-size: 12px; color: #d29922;">→</span>
                           </h3>
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-meta-wrap" style="margin-bottom: 12px;">
                             <tr>
                               <td style="padding-right: 10px;">
                                 <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">Feb 08, 2026</span>
@@ -791,7 +826,7 @@
                           <!-- Separator -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; background-color: #30363d40;"></td></tr></table>
                           <!-- Docs Link -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
                               <td class="docs-btn docs-btn-amber" style="padding: 11px 18px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-left: 3px solid #d29922; border-radius: 10px;" bgcolor="#21262d">
                                 <a href="#" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #d29922; text-decoration: none;">
@@ -864,6 +899,10 @@
 
         </table>
         <!-- End Email Container -->
+        
+        <!--[if mso]>
+        </td></tr></table>
+        <![endif]-->
 
       </td>
     </tr>
