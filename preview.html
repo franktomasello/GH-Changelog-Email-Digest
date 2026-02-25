@@ -17,6 +17,16 @@
     </xml>
   </noscript>
   <![endif]-->
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td, p, a, h1, h2, h3 { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
+    h1, h2, h3, p { mso-line-height-rule: exactly; margin: 0; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    td { mso-line-height-rule: exactly; }
+    a { color: #58a6ff; }
+    .section-icon-mso { width: 36px; height: 36px; text-align: center; vertical-align: middle; font-size: 18px; }
+  </style>
+  <![endif]-->
   <style>
     /* Force dark mode everywhere */
     :root { color-scheme: dark only; supported-color-schemes: dark only; }
@@ -49,7 +59,7 @@
     
     /* Accessibility - focus states for keyboard navigation (web & webmail) */
     a:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; border-radius: 4px; }
-    .card:focus-within { border-color: #58a6ff60 !important; box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.15) !important; }
+    .card:focus-within { border-color: rgba(88, 166, 255, 0.38) !important; box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.15) !important; }
     .stat-card:focus-within { box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important; }
     
     /* Gmail app dark mode color overrides */
@@ -74,22 +84,22 @@
     /* Card hover - lift effect */
     .card { transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important; }
     .card:hover { transform: translateY(-1px) !important; }
-    .card-green:hover { border-color: #3fb95060 !important; box-shadow: 0 4px 16px rgba(63, 185, 80, 0.12), 0 0 1px rgba(63, 185, 80, 0.2) !important; }
-    .card-blue:hover { border-color: #58a6ff60 !important; box-shadow: 0 4px 16px rgba(88, 166, 255, 0.12), 0 0 1px rgba(88, 166, 255, 0.2) !important; }
-    .card-amber:hover { border-color: #d2992260 !important; box-shadow: 0 4px 16px rgba(210, 153, 34, 0.12), 0 0 1px rgba(210, 153, 34, 0.2) !important; }
+    .card-green:hover { border-color: rgba(63, 185, 80, 0.38) !important; box-shadow: 0 4px 16px rgba(63, 185, 80, 0.12), 0 0 1px rgba(63, 185, 80, 0.2) !important; }
+    .card-blue:hover { border-color: rgba(88, 166, 255, 0.38) !important; box-shadow: 0 4px 16px rgba(88, 166, 255, 0.12), 0 0 1px rgba(88, 166, 255, 0.2) !important; }
+    .card-amber:hover { border-color: rgba(210, 153, 34, 0.38) !important; box-shadow: 0 4px 16px rgba(210, 153, 34, 0.12), 0 0 1px rgba(210, 153, 34, 0.2) !important; }
     
     /* Stat cards - glow on hover */
     .stat-card { transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease !important; }
     .stat-card:hover { transform: translateY(-2px) !important; }
-    a.nav-link:hover .stat-card-green { box-shadow: 0 4px 16px rgba(63, 185, 80, 0.15) !important; border-color: #3fb95070 !important; }
-    a.nav-link:hover .stat-card-blue { box-shadow: 0 4px 16px rgba(88, 166, 255, 0.15) !important; border-color: #58a6ff70 !important; }
-    a.nav-link:hover .stat-card-amber { box-shadow: 0 4px 16px rgba(210, 153, 34, 0.15) !important; border-color: #d2992270 !important; }
+    a.nav-link:hover .stat-card-green { box-shadow: 0 4px 16px rgba(63, 185, 80, 0.15) !important; border-color: rgba(63, 185, 80, 0.44) !important; }
+    a.nav-link:hover .stat-card-blue { box-shadow: 0 4px 16px rgba(88, 166, 255, 0.15) !important; border-color: rgba(88, 166, 255, 0.44) !important; }
+    a.nav-link:hover .stat-card-amber { box-shadow: 0 4px 16px rgba(210, 153, 34, 0.15) !important; border-color: rgba(210, 153, 34, 0.44) !important; }
     
     /* Docs buttons - color-matched glow on hover */
     .docs-btn { transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important; }
-    .docs-btn-green:hover { box-shadow: 0 2px 12px rgba(63, 185, 80, 0.12) !important; border-color: #3fb95060 !important; }
-    .docs-btn-blue:hover { box-shadow: 0 2px 12px rgba(88, 166, 255, 0.12) !important; border-color: #58a6ff60 !important; }
-    .docs-btn-amber:hover { box-shadow: 0 2px 12px rgba(210, 153, 34, 0.12) !important; border-color: #d2992260 !important; }
+    .docs-btn-green:hover { box-shadow: 0 2px 12px rgba(63, 185, 80, 0.12) !important; border-color: rgba(63, 185, 80, 0.38) !important; }
+    .docs-btn-blue:hover { box-shadow: 0 2px 12px rgba(88, 166, 255, 0.12) !important; border-color: rgba(88, 166, 255, 0.38) !important; }
+    .docs-btn-amber:hover { box-shadow: 0 2px 12px rgba(210, 153, 34, 0.12) !important; border-color: rgba(210, 153, 34, 0.38) !important; }
     
     /* Back to top - subtle brighten */
     .back-to-top-link { transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease !important; }
@@ -101,7 +111,7 @@
     
     /* Header badge */
     .header-badge { transition: border-color 0.2s ease, box-shadow 0.2s ease !important; }
-    .header-badge:hover { border-color: #3fb95040 !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 20px rgba(63, 185, 80, 0.08) !important; }
+    .header-badge:hover { border-color: rgba(63, 185, 80, 0.25) !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 20px rgba(63, 185, 80, 0.08) !important; }
     
     /* Section icons */
     .section-icon { transition: box-shadow 0.2s ease, transform 0.2s ease !important; }
@@ -264,7 +274,7 @@
   
   <!-- Preheader text (with zero-width padding to prevent body text leaking into preview) -->
   <div style="display: none; font-size: 1px; color: #0d1117; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-    5 GitHub updates: 2 releases, 1 improvements, 1 retirements
+    4 GitHub updates: 2 releases, 1 improvements, 1 retirements
     &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
   </div>
 
@@ -307,7 +317,7 @@
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                             <tr>
                               <td valign="middle" style="padding-right: 8px; font-size: 13px;">✨</td>
-                              <td valign="middle"><span class="header-badge-text text-secondary" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #c9d1d9 !important; letter-spacing: 0.1px;">5 updates this week</span></td>
+                              <td valign="middle"><span class="header-badge-text text-secondary" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #c9d1d9 !important; letter-spacing: 0.1px;">4 updates this week</span></td>
                             </tr>
                           </table>
                         </td>
@@ -324,7 +334,7 @@
             <td class="stats-wrapper card-bg" style="padding: 0 28px 20px; background-color: #161b22 !important;" bgcolor="#161b22">
               <!-- Subtle top fade from header -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 16px;">
-                <tr><td style="height: 1px; background: linear-gradient(to right, transparent, #30363d50, transparent);"></td></tr>
+                <tr><td style="height: 1px; font-size: 1px; line-height: 1px; background: linear-gradient(to right, transparent, rgba(48, 54, 61, 0.31), transparent);" bgcolor="#30363d">&nbsp;</td></tr>
               </table>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="stats-table">
                 <tr class="nav-hint-row">
@@ -338,10 +348,12 @@
                     <a href="#releases-section" class="nav-link" style="text-decoration: none; display: block;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-green" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1a12 100%); border: 1px solid #23863650; border-radius: 14px; box-shadow: 0 2px 8px rgba(35, 134, 54, 0.06);" bgcolor="#0d1117">
-                            <span class="stat-emoji" style="display: block; font-size: 22px; margin: 0 auto 8px; line-height: 1;">🚀</span>
-                            <span class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #3fb950; display: block; letter-spacing: -1.5px; line-height: 1;">2</span>
-                            <span class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #7ee787; display: block; margin-top: 6px;">Releases</span>
+                          <td align="center" class="stat-card stat-card-green" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1a12 100%); border: 1px solid rgba(35, 134, 54, 0.31); border-radius: 14px; box-shadow: 0 2px 8px rgba(35, 134, 54, 0.06);" bgcolor="#0d1117">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                              <tr><td align="center" class="stat-emoji" style="font-size: 22px; padding: 0 0 8px; line-height: 1; mso-line-height-rule: exactly;">🚀</td></tr>
+                              <tr><td align="center" class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #3fb950; letter-spacing: -1.5px; line-height: 1; mso-line-height-rule: exactly;">2</td></tr>
+                              <tr><td align="center" class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #7ee787; padding-top: 6px; mso-line-height-rule: exactly;">Releases</td></tr>
+                            </table>
                           </td>
                         </tr>
                       </table>
@@ -352,10 +364,12 @@
                     <a href="#improvements-section" class="nav-link" style="text-decoration: none; display: block;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-blue" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1219 100%); border: 1px solid #1f6feb50; border-radius: 14px; box-shadow: 0 2px 8px rgba(31, 111, 235, 0.06);" bgcolor="#0d1117">
-                            <span class="stat-emoji" style="display: block; font-size: 22px; margin: 0 auto 8px; line-height: 1;">🔧</span>
-                            <span class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #58a6ff; display: block; letter-spacing: -1.5px; line-height: 1;">1</span>
-                            <span class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #a5d6ff; display: block; margin-top: 6px;">Updates</span>
+                          <td align="center" class="stat-card stat-card-blue" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1219 100%); border: 1px solid rgba(31, 111, 235, 0.31); border-radius: 14px; box-shadow: 0 2px 8px rgba(31, 111, 235, 0.06);" bgcolor="#0d1117">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                              <tr><td align="center" class="stat-emoji" style="font-size: 22px; padding: 0 0 8px; line-height: 1; mso-line-height-rule: exactly;">🔧</td></tr>
+                              <tr><td align="center" class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #58a6ff; letter-spacing: -1.5px; line-height: 1; mso-line-height-rule: exactly;">1</td></tr>
+                              <tr><td align="center" class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #a5d6ff; padding-top: 6px; mso-line-height-rule: exactly;">Updates</td></tr>
+                            </table>
                           </td>
                         </tr>
                       </table>
@@ -366,10 +380,12 @@
                     <a href="#retirements-section" class="nav-link" style="text-decoration: none; display: block;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-amber" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #15120d 100%); border: 1px solid #9e6a0350; border-radius: 14px; box-shadow: 0 2px 8px rgba(158, 106, 3, 0.06);" bgcolor="#0d1117">
-                            <span class="stat-emoji" style="display: block; font-size: 22px; margin: 0 auto 8px; line-height: 1;">📦</span>
-                            <span class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #d29922; display: block; letter-spacing: -1.5px; line-height: 1;">1</span>
-                            <span class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #e3b341; display: block; margin-top: 6px;">Retired</span>
+                          <td align="center" class="stat-card stat-card-amber" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #15120d 100%); border: 1px solid rgba(158, 106, 3, 0.31); border-radius: 14px; box-shadow: 0 2px 8px rgba(158, 106, 3, 0.06);" bgcolor="#0d1117">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                              <tr><td align="center" class="stat-emoji" style="font-size: 22px; padding: 0 0 8px; line-height: 1; mso-line-height-rule: exactly;">📦</td></tr>
+                              <tr><td align="center" class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #d29922; letter-spacing: -1.5px; line-height: 1; mso-line-height-rule: exactly;">1</td></tr>
+                              <tr><td align="center" class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #e3b341; padding-top: 6px; mso-line-height-rule: exactly;">Retired</td></tr>
+                            </table>
                           </td>
                         </tr>
                       </table>
@@ -394,10 +410,14 @@
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
                         <td width="36" valign="middle">
-                          <div class="section-icon" style="width: 36px; height: 36px; background: linear-gradient(135deg, #238636 0%, #2ea043 100%); border-radius: 10px; text-align: center; line-height: 36px; font-size: 18px; box-shadow: 0 2px 6px rgba(35, 134, 54, 0.3);">🚀</div>
+                          <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="36"><tr><td align="center" valign="middle" width="36" height="36" class="section-icon-mso" style="background-color: #238636; font-size: 18px; color: #ffffff;"><![endif]-->
+                          <!--[if !mso]><!--><div class="section-icon" style="width: 36px; height: 36px; background: linear-gradient(135deg, #238636 0%, #2ea043 100%); border-radius: 10px; text-align: center; line-height: 36px; font-size: 18px; box-shadow: 0 2px 6px rgba(35, 134, 54, 0.3);"><!--<![endif]-->
+                          🚀
+                          <!--[if !mso]><!--></div><!--<![endif]-->
+                          <!--[if mso]></td></tr></table><![endif]-->
                         </td>
                         <td style="padding-left: 12px;" valign="middle">
-                          <h2 class="section-title text-primary" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px;">New Releases</h2>
+                          <h2 class="section-title text-primary" style="margin: 0; mso-line-height-rule: exactly; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px;">New Releases</h2>
                           <p class="section-subtitle text-muted" style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e !important;">Fresh features and capabilities</p>
                         </td>
                         <td align="right" valign="middle" class="section-count-cell">
@@ -428,11 +448,11 @@
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #23863630; border: 1px solid #23863660; border-radius: 4px; color: #7ee787;">Actions</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(35, 134, 54, 0.19); border: 1px solid rgba(35, 134, 54, 0.38); border-radius: 4px; color: #7ee787;">Actions</span>
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #23863630; border: 1px solid #23863660; border-radius: 4px; color: #7ee787;">Copilot</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(35, 134, 54, 0.19); border: 1px solid rgba(35, 134, 54, 0.38); border-radius: 4px; color: #7ee787;">Copilot</span>
                               </td>
                               
                             </tr>
@@ -494,7 +514,7 @@
 
                           
                           <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; background-color: #30363d40;"></td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: rgba(48, 54, 61, 0.25);" bgcolor="#30363d">&nbsp;</td></tr></table>
                           <!-- Docs Link -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
@@ -536,7 +556,7 @@
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #23863630; border: 1px solid #23863660; border-radius: 4px; color: #7ee787;">Copilot</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(35, 134, 54, 0.19); border: 1px solid rgba(35, 134, 54, 0.38); border-radius: 4px; color: #7ee787;">Copilot</span>
                               </td>
                               
                             </tr>
@@ -576,7 +596,7 @@
 
                           
                           <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; background-color: #30363d40;"></td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: rgba(48, 54, 61, 0.25);" bgcolor="#30363d">&nbsp;</td></tr></table>
                           <!-- Docs Link -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
@@ -612,7 +632,8 @@
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 8px 0 32px;">
                 <tr>
                   <td class="section-divider-inner" style="padding: 0 15%;">
-                    <div style="height: 1px; background: linear-gradient(to right, transparent, #30363d60, transparent);"></div>
+                    <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #30363d;" bgcolor="#30363d">&nbsp;</td></tr></table><![endif]-->
+                    <!--[if !mso]><!--><div style="height: 1px; background: linear-gradient(to right, transparent, rgba(48, 54, 61, 0.38), transparent);"></div><!--<![endif]-->
                   </td>
                 </tr>
               </table>
@@ -628,10 +649,14 @@
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
                         <td width="36" valign="middle">
-                          <div class="section-icon" style="width: 36px; height: 36px; background: linear-gradient(135deg, #1f6feb 0%, #388bfd 100%); border-radius: 10px; text-align: center; line-height: 36px; font-size: 18px; box-shadow: 0 2px 6px rgba(31, 111, 235, 0.3);">🔧</div>
+                          <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="36"><tr><td align="center" valign="middle" width="36" height="36" class="section-icon-mso" style="background-color: #1f6feb; font-size: 18px; color: #ffffff;"><![endif]-->
+                          <!--[if !mso]><!--><div class="section-icon" style="width: 36px; height: 36px; background: linear-gradient(135deg, #1f6feb 0%, #388bfd 100%); border-radius: 10px; text-align: center; line-height: 36px; font-size: 18px; box-shadow: 0 2px 6px rgba(31, 111, 235, 0.3);"><!--<![endif]-->
+                          🔧
+                          <!--[if !mso]><!--></div><!--<![endif]-->
+                          <!--[if mso]></td></tr></table><![endif]-->
                         </td>
                         <td style="padding-left: 12px;" valign="middle">
-                          <h2 class="section-title text-primary" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px;">Improvements</h2>
+                          <h2 class="section-title text-primary" style="margin: 0; mso-line-height-rule: exactly; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px;">Improvements</h2>
                           <p class="section-subtitle text-muted" style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e !important;">Enhancements to existing features</p>
                         </td>
                         <td align="right" valign="middle" class="section-count-cell">
@@ -660,7 +685,7 @@
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #1f6feb30; border: 1px solid #1f6feb60; border-radius: 4px; color: #a5d6ff;">Copilot</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(31, 111, 235, 0.19); border: 1px solid rgba(31, 111, 235, 0.38); border-radius: 4px; color: #a5d6ff;">Copilot</span>
                               </td>
                               
                             </tr>
@@ -700,7 +725,7 @@
                           
                           
                           <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; background-color: #30363d40;"></td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: rgba(48, 54, 61, 0.25);" bgcolor="#30363d">&nbsp;</td></tr></table>
                           <!-- Docs Link -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
@@ -736,7 +761,8 @@
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 8px 0 32px;">
                 <tr>
                   <td class="section-divider-inner" style="padding: 0 15%;">
-                    <div style="height: 1px; background: linear-gradient(to right, transparent, #30363d60, transparent);"></div>
+                    <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #30363d;" bgcolor="#30363d">&nbsp;</td></tr></table><![endif]-->
+                    <!--[if !mso]><!--><div style="height: 1px; background: linear-gradient(to right, transparent, rgba(48, 54, 61, 0.38), transparent);"></div><!--<![endif]-->
                   </td>
                 </tr>
               </table>
@@ -752,10 +778,14 @@
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
                         <td width="36" valign="middle">
-                          <div class="section-icon" style="width: 36px; height: 36px; background: linear-gradient(135deg, #9e6a03 0%, #bb8009 100%); border-radius: 10px; text-align: center; line-height: 36px; font-size: 18px; box-shadow: 0 2px 6px rgba(158, 106, 3, 0.3);">📦</div>
+                          <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="36"><tr><td align="center" valign="middle" width="36" height="36" class="section-icon-mso" style="background-color: #9e6a03; font-size: 18px; color: #ffffff;"><![endif]-->
+                          <!--[if !mso]><!--><div class="section-icon" style="width: 36px; height: 36px; background: linear-gradient(135deg, #9e6a03 0%, #bb8009 100%); border-radius: 10px; text-align: center; line-height: 36px; font-size: 18px; box-shadow: 0 2px 6px rgba(158, 106, 3, 0.3);"><!--<![endif]-->
+                          📦
+                          <!--[if !mso]><!--></div><!--<![endif]-->
+                          <!--[if mso]></td></tr></table><![endif]-->
                         </td>
                         <td style="padding-left: 12px;" valign="middle">
-                          <h2 class="section-title text-primary" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px;">Retirements</h2>
+                          <h2 class="section-title text-primary" style="margin: 0; mso-line-height-rule: exactly; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px;">Retirements</h2>
                           <p class="section-subtitle text-muted" style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e !important;">Deprecated or removed features</p>
                         </td>
                         <td align="right" valign="middle" class="section-count-cell">
@@ -784,7 +814,7 @@
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #9e6a0330; border: 1px solid #9e6a0360; border-radius: 4px; color: #e3b341;">Deprecation</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(158, 106, 3, 0.19); border: 1px solid rgba(158, 106, 3, 0.38); border-radius: 4px; color: #e3b341;">Deprecation</span>
                               </td>
                               
                             </tr>
@@ -824,7 +854,7 @@
                           
                           
                           <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; background-color: #30363d40;"></td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: rgba(48, 54, 61, 0.25);" bgcolor="#30363d">&nbsp;</td></tr></table>
                           <!-- Docs Link -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
@@ -867,7 +897,7 @@
             <td align="center" class="footer-padding dark-bg" style="padding: 0; background-color: #0d1117 !important;" bgcolor="#0d1117">
               <!-- Gradient divider -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                <tr><td style="padding: 0 15%;"><div style="height: 1px; background: linear-gradient(to right, transparent, #30363d, transparent);"></div></td></tr>
+                <tr><td style="padding: 0 15%;"><!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #30363d;" bgcolor="#30363d">&nbsp;</td></tr></table><![endif]--><!--[if !mso]><!--><div style="height: 1px; background: linear-gradient(to right, transparent, #30363d, transparent);"></div><!--<![endif]--></td></tr>
               </table>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
