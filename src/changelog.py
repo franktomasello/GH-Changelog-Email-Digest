@@ -17,6 +17,10 @@ from bs4 import BeautifulSoup
 CHANGELOG_FEED_URL = "https://github.blog/changelog/feed/"
 DOCS_BASE_URL = "https://docs.github.com"
 
+# Enterprise documentation base paths
+GHEC_DOCS_PREFIX = "/en/enterprise-cloud@latest/"
+GHES_DOCS_PREFIX = "/en/enterprise-server@"
+
 # Pacific Time Zone
 PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
 
@@ -129,10 +133,67 @@ def categorize_entries(entries: list[ChangelogEntry]) -> dict[str, list[Changelo
     return categorized
 
 
+def is_enterprise_docs_url(url: str) -> bool:
+    """
+    Check if a URL points to GitHub Enterprise Cloud or Enterprise Server docs.
+    
+    Valid patterns:
+      - docs.github.com/en/enterprise-cloud@latest/...
+      - docs.github.com/en/enterprise-server@X.Y/...
+      - docs.github.com/en/enterprise-server@latest/...
+    """
+    if "docs.github.com" not in url:
+        return False
+    return GHEC_DOCS_PREFIX in url or GHES_DOCS_PREFIX in url
+
+
+def convert_to_enterprise_docs_urls(url: str) -> list[str]:
+    """
+    Attempt to convert a generic docs.github.com URL to its
+    Enterprise Cloud and Enterprise Server equivalents.
+    
+    For example:
+      docs.github.com/en/repositories/...
+    becomes:
+      docs.github.com/en/enterprise-cloud@latest/repositories/...
+    
+    Returns a list of candidate URLs (GHEC first, then GHES).
+    Returns an empty list if the URL isn't a docs.github.com URL.
+    """
+    if "docs.github.com" not in url:
+        return []
+    
+    # Already an enterprise URL — return as-is
+    if is_enterprise_docs_url(url):
+        return [url]
+    
+    # Convert /en/topic/... → /en/enterprise-cloud@latest/topic/...
+    candidates = []
+    if "/en/" in url:
+        ghec = url.replace("/en/", f"/en/enterprise-cloud@latest/", 1)
+        ghes = url.replace("/en/", f"/en/enterprise-server@latest/", 1)
+        candidates = [ghec, ghes]
+    
+    return candidates
+
+
+def verify_enterprise_url_exists(url: str) -> bool:
+    """Check that an enterprise docs URL actually exists (returns 200)."""
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+            'Accept': 'text/html',
+        }
+        response = requests.head(url, headers=headers, timeout=10, allow_redirects=True)
+        return response.status_code == 200
+    except Exception:
+        return False
+
+
 def search_github_docs(query: str) -> Optional[str]:
     """
     Search GitHub documentation for the most relevant page.
-    Uses the GitHub docs search API to find accurate documentation.
+    Only returns Enterprise Cloud or Enterprise Server docs URLs.
     """
     try:
         # Clean up the query - extract key terms
@@ -162,8 +223,8 @@ def search_github_docs(query: str) -> Optional[str]:
         # Build search query
         search_query = " ".join(keywords[:6])  # Limit to top 6 keywords
         
-        # Use GitHub's docs search (via their REST endpoint)
-        search_url = f"https://docs.github.com/search?query={requests.utils.quote(search_query)}"
+        # Search enterprise-cloud docs specifically
+        search_url = f"https://docs.github.com/en/enterprise-cloud@latest/search?query={requests.utils.quote(search_query)}"
         
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
@@ -175,14 +236,15 @@ def search_github_docs(query: str) -> Optional[str]:
         
         soup = BeautifulSoup(response.text, "html.parser")
         
-        # Look for search result links
-        # GitHub docs search results are in specific elements
+        # Look for search result links — only accept enterprise docs
         for link in soup.find_all("a", href=True):
             href = link["href"]
-            # Look for documentation article links (not search/navigation links)
-            if href.startswith("/en/") and not any(x in href for x in ["/search", "/site-policy", "/get-started/learning-about-github"]):
+            # Only accept enterprise-cloud or enterprise-server article links
+            skip = ["/search", "/site-policy", "/get-started/learning-about-github"]
+            if href.startswith("/en/") and not any(x in href for x in skip):
                 full_url = f"https://docs.github.com{href}"
-                return full_url
+                if is_enterprise_docs_url(full_url):
+                    return full_url
         
         return None
         
@@ -272,86 +334,82 @@ def validate_docs_url(url: str, title: str, summary: str = "", strict: bool = Fa
 def search_docs_for_release(title: str, content_html: str = "", summary: str = "") -> Optional[str]:
     """
     Find the most accurate documentation URL for a release.
-    Only returns a URL if it has been validated as genuinely relevant
-    to the specific changelog entry.
+    Only returns a URL if it points to GitHub Enterprise Cloud or
+    GitHub Enterprise Server documentation and has been validated
+    as genuinely relevant.
     
     Priority order:
-      1. docs.github.com link embedded in the changelog HTML (most trustworthy)
-      2. Any other embedded link (blog post, feature page) from the changelog HTML
-      3. GitHub docs search result (least trustworthy — uses strict validation)
+      1. Enterprise docs link embedded directly in the changelog HTML
+      2. Generic docs.github.com link embedded in changelog, converted to enterprise-cloud
+      3. GitHub enterprise docs search result (uses strict validation)
     """
     embedded_url = extract_docs_url(content_html) if content_html else None
 
-    # Strategy 1: Embedded docs.github.com link — placed by GitHub in the changelog.
-    if embedded_url and "docs.github.com" in embedded_url:
+    # Strategy 1: Embedded link that is already an enterprise docs URL.
+    if embedded_url and is_enterprise_docs_url(embedded_url):
         if validate_docs_url(embedded_url, title, summary, strict=False):
             return embedded_url
         else:
-            print(f"  ⚠️  Embedded docs URL rejected (not relevant): {embedded_url}")
+            print(f"  ⚠️  Embedded enterprise docs URL rejected (not relevant): {embedded_url}")
 
-    # Strategy 2: Other embedded link (blog post, feature page) from changelog HTML.
-    if embedded_url and "docs.github.com" not in embedded_url:
-        if validate_docs_url(embedded_url, title, summary, strict=False):
-            return embedded_url
-        else:
-            print(f"  ⚠️  Embedded link rejected (not relevant): {embedded_url}")
+    # Strategy 2: Embedded docs.github.com link — convert to enterprise-cloud/server.
+    if embedded_url and "docs.github.com" in embedded_url and not is_enterprise_docs_url(embedded_url):
+        candidates = convert_to_enterprise_docs_urls(embedded_url)
+        for candidate in candidates:
+            if verify_enterprise_url_exists(candidate):
+                if validate_docs_url(candidate, title, summary, strict=False):
+                    print(f"  ✅ Converted to enterprise docs: {candidate}")
+                    return candidate
+        print(f"  ⚠️  Embedded docs URL has no enterprise equivalent: {embedded_url}")
 
-    # Strategy 3: Search GitHub docs — least trustworthy, requires strict validation.
+    # Strategy 3: Search GitHub enterprise docs — uses strict validation.
     search_result = search_github_docs(title)
     if search_result:
+        # search_github_docs already returns only enterprise docs URLs
         if validate_docs_url(search_result, title, summary, strict=True):
             return search_result
         else:
             print(f"  ⚠️  Search docs URL rejected (not relevant enough): {search_result}")
 
-    # No verified documentation found — return None so the template
-    # does NOT show a "View Documentation" link.
-    print(f"  ❌ No verified docs URL found for: {title[:60]}")
+    # No verified enterprise documentation found — return None so the
+    # template does NOT show a "View Documentation" link.
+    print(f"  ❌ No verified enterprise docs URL found for: {title[:60]}")
     return None
 
 
 def extract_docs_url(content_html: str) -> Optional[str]:
     """
     Extract the most relevant documentation URL from changelog content.
-    Prioritizes official GitHub docs, then other relevant links.
+    Only returns docs.github.com links (enterprise or generic).
+    Blog posts, feature pages, and other non-docs links are ignored.
     """
     soup = BeautifulSoup(content_html, "html.parser")
     
-    docs_links = []
-    learn_more_links = []
-    github_blog_links = []
-    other_github_links = []
+    enterprise_docs_links = []
+    generic_docs_links = []
     
     for link in soup.find_all("a", href=True):
         href = link["href"]
-        link_text = link.get_text().lower().strip()
         
         # Skip empty or anchor-only links
         if not href or href.startswith("#"):
             continue
         
-        # Prioritize docs.github.com links
-        if "docs.github.com" in href:
-            docs_links.append(href)
-        # "Learn more" or "documentation" links are usually the main docs
-        elif any(phrase in link_text for phrase in ["learn more", "documentation", "read more", "see the docs", "view docs"]):
-            learn_more_links.append(href)
-        # GitHub blog posts about the feature
-        elif "github.blog" in href and "/changelog/" not in href:
-            github_blog_links.append(href)
-        # Other github.com links (could be feature pages, help, etc.)
-        elif "github.com" in href and "/changelog/" not in href:
-            other_github_links.append(href)
+        # Only consider docs.github.com links
+        if "docs.github.com" not in href:
+            continue
+        
+        # Prefer enterprise docs links
+        if is_enterprise_docs_url(href):
+            enterprise_docs_links.append(href)
+        else:
+            generic_docs_links.append(href)
     
-    # Return in priority order
-    if docs_links:
-        return docs_links[0]
-    if learn_more_links:
-        return learn_more_links[0]
-    if github_blog_links:
-        return github_blog_links[0]
-    if other_github_links:
-        return other_github_links[0]
+    # Return enterprise docs first, then generic (will be converted later)
+    if enterprise_docs_links:
+        return enterprise_docs_links[0]
+    if generic_docs_links:
+        return generic_docs_links[0]
     
     return None
 
