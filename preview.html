@@ -20,11 +20,22 @@
   <!--[if mso]>
   <style type="text/css">
     body, table, td, p, a, h1, h2, h3 { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
+    body { background-color: #0d1117 !important; }
     h1, h2, h3, p { mso-line-height-rule: exactly; margin: 0; }
+    h1 { color: #f0f6fc !important; }
+    h2 { color: #f0f6fc !important; }
+    h3 { color: #f0f6fc !important; }
     table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
     td { mso-line-height-rule: exactly; }
-    a { color: #58a6ff; }
+    a { color: #58a6ff; text-decoration: none; }
     .section-icon-mso { width: 36px; height: 36px; text-align: center; vertical-align: middle; font-size: 18px; }
+    /* Card title wrapping */
+    .card-title { word-wrap: break-word; white-space: normal !important; }
+    .card-title a { color: #f0f6fc !important; text-decoration: none !important; }
+    /* Stat card borders for MSO */
+    .stat-card { border-collapse: separate; }
+    /* Prevent MSO from adding extra spacing to spans */
+    span { mso-text-raise: 0; }
   </style>
   <![endif]-->
   <style>
@@ -348,7 +359,7 @@
                     <a href="#releases-section" class="nav-link" style="text-decoration: none; display: block;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-green" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1a12 100%); border: 1px solid rgba(35, 134, 54, 0.31); border-radius: 14px; box-shadow: 0 2px 8px rgba(35, 134, 54, 0.06);" bgcolor="#0d1117">
+                          <td align="center" class="stat-card stat-card-green" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1a12 100%); border: 1px solid #143521; border-radius: 14px; box-shadow: 0 2px 8px rgba(35, 134, 54, 0.06);" bgcolor="#0d1117">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                               <tr><td align="center" class="stat-emoji" style="font-size: 22px; padding: 0 0 8px; line-height: 1; mso-line-height-rule: exactly;">🚀</td></tr>
                               <tr><td align="center" class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #3fb950; letter-spacing: -1.5px; line-height: 1; mso-line-height-rule: exactly;">2</td></tr>
@@ -364,7 +375,7 @@
                     <a href="#improvements-section" class="nav-link" style="text-decoration: none; display: block;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-blue" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1219 100%); border: 1px solid rgba(31, 111, 235, 0.31); border-radius: 14px; box-shadow: 0 2px 8px rgba(31, 111, 235, 0.06);" bgcolor="#0d1117">
+                          <td align="center" class="stat-card stat-card-blue" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1219 100%); border: 1px solid #132e59; border-radius: 14px; box-shadow: 0 2px 8px rgba(31, 111, 235, 0.06);" bgcolor="#0d1117">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                               <tr><td align="center" class="stat-emoji" style="font-size: 22px; padding: 0 0 8px; line-height: 1; mso-line-height-rule: exactly;">🔧</td></tr>
                               <tr><td align="center" class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #58a6ff; letter-spacing: -1.5px; line-height: 1; mso-line-height-rule: exactly;">1</td></tr>
@@ -380,7 +391,7 @@
                     <a href="#retirements-section" class="nav-link" style="text-decoration: none; display: block;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-amber" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #15120d 100%); border: 1px solid rgba(158, 106, 3, 0.31); border-radius: 14px; box-shadow: 0 2px 8px rgba(158, 106, 3, 0.06);" bgcolor="#0d1117">
+                          <td align="center" class="stat-card stat-card-amber" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #15120d 100%); border: 1px solid #3a2d11; border-radius: 14px; box-shadow: 0 2px 8px rgba(158, 106, 3, 0.06);" bgcolor="#0d1117">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                               <tr><td align="center" class="stat-emoji" style="font-size: 22px; padding: 0 0 8px; line-height: 1; mso-line-height-rule: exactly;">📦</td></tr>
                               <tr><td align="center" class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #d29922; letter-spacing: -1.5px; line-height: 1; mso-line-height-rule: exactly;">1</td></tr>
@@ -448,11 +459,11 @@
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(35, 134, 54, 0.19); border: 1px solid rgba(35, 134, 54, 0.38); border-radius: 4px; color: #7ee787;">Actions</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #11271d; border: 1px solid #153d23; border-radius: 4px; color: #7ee787;">Actions</span>
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(35, 134, 54, 0.19); border: 1px solid rgba(35, 134, 54, 0.38); border-radius: 4px; color: #7ee787;">Copilot</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #11271d; border: 1px solid #153d23; border-radius: 4px; color: #7ee787;">Copilot</span>
                               </td>
                               
                             </tr>
@@ -514,7 +525,7 @@
 
                           
                           <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: rgba(48, 54, 61, 0.25);" bgcolor="#30363d">&nbsp;</td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #161a21;" bgcolor="#30363d">&nbsp;</td></tr></table>
                           <!-- Docs Link -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
@@ -556,7 +567,7 @@
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(35, 134, 54, 0.19); border: 1px solid rgba(35, 134, 54, 0.38); border-radius: 4px; color: #7ee787;">Copilot</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #11271d; border: 1px solid #153d23; border-radius: 4px; color: #7ee787;">Copilot</span>
                               </td>
                               
                             </tr>
@@ -596,7 +607,7 @@
 
                           
                           <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: rgba(48, 54, 61, 0.25);" bgcolor="#30363d">&nbsp;</td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #161a21;" bgcolor="#30363d">&nbsp;</td></tr></table>
                           <!-- Docs Link -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
@@ -685,7 +696,7 @@
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(31, 111, 235, 0.19); border: 1px solid rgba(31, 111, 235, 0.38); border-radius: 4px; color: #a5d6ff;">Copilot</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #10233f; border: 1px solid #143568; border-radius: 4px; color: #a5d6ff;">Copilot</span>
                               </td>
                               
                             </tr>
@@ -725,7 +736,7 @@
                           
                           
                           <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: rgba(48, 54, 61, 0.25);" bgcolor="#30363d">&nbsp;</td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #161a21;" bgcolor="#30363d">&nbsp;</td></tr></table>
                           <!-- Docs Link -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
@@ -814,7 +825,7 @@
                               </td>
                               
                               <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: rgba(158, 106, 3, 0.19); border: 1px solid rgba(158, 106, 3, 0.38); border-radius: 4px; color: #e3b341;">Deprecation</span>
+                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #292213; border: 1px solid #44330f; border-radius: 4px; color: #e3b341;">Deprecation</span>
                               </td>
                               
                             </tr>
@@ -854,7 +865,7 @@
                           
                           
                           <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: rgba(48, 54, 61, 0.25);" bgcolor="#30363d">&nbsp;</td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 14px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #161a21;" bgcolor="#30363d">&nbsp;</td></tr></table>
                           <!-- Docs Link -->
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
                             <tr>
