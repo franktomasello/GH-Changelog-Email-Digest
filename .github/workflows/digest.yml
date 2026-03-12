@@ -2,7 +2,8 @@ name: GitHub Changelog Digest
 
 on:
   schedule:
-    - cron: '0 16 * * *'  # 8 AM PT daily
+    - cron: '0 16 * * *'  # 8 AM PST (Nov–Mar)
+    - cron: '0 15 * * *'  # 8 AM PDT (Mar–Nov)
   workflow_dispatch:
     inputs:
       test_email:
@@ -29,6 +30,13 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: DST guard – skip if not 8 AM PT
+        if: github.event_name == 'schedule'
+        run: |
+          PT_HOUR=$(TZ=America/Los_Angeles date +%H)
+          echo "Current PT hour: $PT_HOUR"
+          [[ "$PT_HOUR" == "08" ]] || { echo "Not 8 AM PT – skipping"; exit 1; }
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
