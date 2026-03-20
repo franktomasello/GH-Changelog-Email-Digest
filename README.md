@@ -2,7 +2,7 @@
 
 # 🚀 GitHub Changelog Email Digest
 
-**Your daily briefing on what's new in GitHub — delivered at 8 AM PT**
+**Your daily briefing on what's new in GitHub**
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
 [![Gmail SMTP](https://img.shields.io/badge/Email-Gmail%20SMTP-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](https://support.google.com/mail/answer/7126229)
@@ -59,7 +59,7 @@
 <td width="50%">
 
 ### ⚡ Fully Automated
-- **Daily at 8 AM PT** via GitHub Actions
+- **Daily** via GitHub Actions
 - **Manual triggers** available
 - **Test email mode** — send to yourself only
 - **Dry run mode** for testing
@@ -122,7 +122,7 @@ python main.py --preview    # Output HTML to stdout
 
 ```
 ══════════════════════════════════════════════════════════════════════════════
-                               DAILY @ 8 AM PT                                
+                              DAILY AUTOMATION                                
 ══════════════════════════════════════════════════════════════════════════════
                                                                               
    ① FETCH              ② PARSE               ③ DEDUPE                      
@@ -174,7 +174,7 @@ Each entry includes an **actionable demo outline** with:
 
 ### GitHub Actions (Automated)
 
-The workflow runs **daily at 8 AM Pacific Time**.
+The workflow runs **daily** via GitHub Actions.
 
 #### Repository Secrets
 
@@ -205,7 +205,7 @@ GH-Changelog-Email-Digest/
 │
 ├── 📂 .github/
 │   └── workflows/
-│       └── digest.yml              # ⏰ Daily cron job (8 AM PT)
+│       └── digest.yml              # ⏰ Daily cron job
 │
 ├── 📂 src/
 │   ├── main.py                     # 🎯 Entry point & orchestration
