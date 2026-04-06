@@ -489,86 +489,181 @@ def extract_navigation_path(docs_url: str) -> Optional[str]:
         return None
 
 
+def _clean_html_to_text(html: str) -> str:
+    """Strip HTML to clean text, removing boilerplate and normalizing whitespace."""
+    soup = BeautifulSoup(html, "html.parser")
+    for element in soup(["script", "style", "table", "h1", "h2", "h3", "h4", "h5", "h6"]):
+        element.decompose()
+    text = soup.get_text(separator=" ", strip=True)
+
+    boilerplate_patterns = [
+        r"The post .+ appeared first on The GitHub Blog\.",
+        r"The post .+ appeared first on GitHub Blog\.",
+        r"appeared first on The GitHub Blog\.",
+        r"appeared first on GitHub Blog\.",
+        r"Learn more\s*$",
+    ]
+    for pattern in boilerplate_patterns:
+        text = re.sub(pattern, "", text, flags=re.IGNORECASE).strip()
+
+    # Normalize whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
+    # Fix spaces before punctuation (artifact of stripping inline links/tags)
+    text = re.sub(r'\s+([,;:.!?])', r'\1', text)
+    # Fix double punctuation like .… or ..
+    text = re.sub(r'\.…', '.', text)
+    text = re.sub(r'\.\.+', '.', text)
+    text = re.sub(r'…\.', '.', text)
+    return text
+
+
+# Filler/preamble patterns that don't add value in a summary
+_FILLER_PATTERNS = [
+    re.compile(p, re.IGNORECASE) for p in [
+        r"^(we('re|are)\s+)?(excited|happy|pleased|thrilled|proud)\s+to\s+announce",
+        r"^(we('re|are)\s+)?(excited|happy|pleased|thrilled|proud)\s+to\s+share",
+        r"^(we('re|are)\s+)?(excited|happy|pleased|thrilled|proud)\s+to\s+introduce",
+        r"^read more below",
+        r"^here'?s what'?s (new|changed|coming|happening)",
+        r"^check (it )?out",
+        r"^what'?s new\??$",
+        r"^overview:?$",
+        r"^introduction:?$",
+        r"^summary:?$",
+        r"^in this (update|release|post)",
+        r"^today,?\s+we('re|are)\s+(releasing|launching|announcing|introducing|shipping)",
+        r"^(starting|beginning)\s+(today|now),?\s+",
+    ]
+]
+
+
+def _is_filler_sentence(sentence: str) -> bool:
+    """Return True if the sentence is preamble/filler that doesn't describe the feature."""
+    return any(p.search(sentence.strip()) for p in _FILLER_PATTERNS)
+
+
+def _normalize_summary_text(text: str) -> str:
+    """Ensure the summary ends cleanly with proper punctuation."""
+    text = text.strip()
+    if not text:
+        return text
+    # Clean up punctuation artifacts
+    text = re.sub(r'\.…', '.', text)
+    text = re.sub(r'…\.', '.', text)
+    text = re.sub(r'\.\.+', '.', text)
+    # Remove trailing ellipsis (incomplete thought)
+    text = re.sub(r'\s*…\s*$', '.', text)
+    # Remove trailing fragments after the last sentence-ending punctuation
+    match = re.match(r'^(.*[.!?])\s+\S[^.!?]*$', text, re.DOTALL)
+    if match:
+        text = match.group(1).strip()
+    # Ensure it ends with punctuation
+    if text and text[-1] not in '.!?':
+        text += '.'
+    return text
+
+
 def extract_detailed_summary(entry: ChangelogEntry) -> str:
     """
-    Extract a concise, SE-focused summary from the changelog entry.
-    Focuses on what the feature does and its value proposition.
+    Extract a concise, well-formed summary from the changelog entry.
+    Skips filler/preamble sentences and focuses on what the feature does.
     """
-    # Start with content_html if available
     if entry.content_html:
-        soup = BeautifulSoup(entry.content_html, "html.parser")
-        
-        # Remove script and style elements
-        for element in soup(["script", "style"]):
-            element.decompose()
-        
-        # Get text content
-        text = soup.get_text(separator=" ", strip=True)
-        
-        # Remove common boilerplate
-        boilerplate_patterns = [
-            r"The post .+ appeared first on The GitHub Blog\.",
-            r"The post .+ appeared first on GitHub Blog\.",
-            r"appeared first on The GitHub Blog\.",
-            r"appeared first on GitHub Blog\.",
-            r"Learn more\s*$",
-        ]
-        for pattern in boilerplate_patterns:
-            text = re.sub(pattern, "", text, flags=re.IGNORECASE).strip()
-        
-        # Keep it concise for SE use - focus on first 2-3 key sentences (~350 chars)
+        text = _clean_html_to_text(entry.content_html)
+
+        # Split into sentences and select meaningful ones
         sentences = re.split(r'(?<=[.!?])\s+', text)
         summary_sentences = []
         char_count = 0
         for sentence in sentences:
-            # Skip sentences that are just links or very short
+            sentence = sentence.strip()
+            # Skip very short fragments
             if len(sentence) < 15:
+                continue
+            # Skip filler/preamble
+            if _is_filler_sentence(sentence):
                 continue
             if char_count + len(sentence) <= 350:
                 summary_sentences.append(sentence)
                 char_count += len(sentence)
             else:
                 break
-        
+
         if summary_sentences:
-            return " ".join(summary_sentences)
-    
+            return _normalize_summary_text(" ".join(summary_sentences))
+
     # Fall back to RSS summary
     if entry.summary:
-        soup = BeautifulSoup(entry.summary, "html.parser")
-        text = soup.get_text().strip()
-        # Remove boilerplate
-        text = re.sub(r"The post .+ appeared first on The GitHub Blog\.", "", text, flags=re.IGNORECASE).strip()
-        return text
-    
+        text = _clean_html_to_text(entry.summary)
+        if text:
+            return _normalize_summary_text(text)
+
     return ""
+
+
+def _normalize_feature_text(text: str) -> str:
+    """Clean and normalize a single feature bullet point."""
+    text = re.sub(r'\s+', ' ', text).strip()
+    # Fix spaces before punctuation
+    text = re.sub(r'\s+([,;:.!?])', r'\1', text)
+    # Strip leading bullets, dashes, or numbering
+    text = re.sub(r'^[\-\u2022\u2013\u2014\*]\s*', '', text)
+    text = re.sub(r'^\d+[.)]\s*', '', text)
+    # Strip trailing colons (leftover from headers used as list items)
+    text = re.sub(r':+\s*$', '', text)
+    # Replace underscores with spaces in display text (e.g., Find_symbol -> Find symbol)
+    # but not in code-like strings (e.g., npm install, pip install, dotnet add)
+    if not any(kw in text.lower() for kw in ['install', 'import', 'go get', 'dotnet', 'pip', 'npm', 'require']):
+        text = re.sub(r'(?<=[a-zA-Z])_(?=[a-zA-Z])', ' ', text)
+    # Capitalize the first letter (skip if starts with a code token like .NET or a lowercase package name)
+    if text and text[0].islower() and not text.startswith(('.', '@')):
+        text = text[0].upper() + text[1:]
+    # Bullet points never need trailing periods — keep them consistent
+    text = text.rstrip('.')
+    return text
 
 
 def extract_key_features(entry: ChangelogEntry) -> list[str]:
     """
     Extract key features relevant to SE demos.
     Focuses on capabilities, not implementation details.
+    Returns up to 4 clean, deduplicated bullet points.
     """
     features = []
-    
+    title_lower = entry.title.lower()
+
     if entry.content_html:
         soup = BeautifulSoup(entry.content_html, "html.parser")
-        
-        # Look for list items (common in changelogs) - these are usually the key capabilities
+
+        # Look for list items (common in changelogs)
         for li in soup.find_all("li"):
             text = li.get_text().strip()
-            if 15 < len(text) < 150:  # Concise feature descriptions
-                # Clean up the text
-                text = re.sub(r'\s+', ' ', text)
-                features.append(text)
-        
+            if 15 < len(text) < 150:
+                text = _normalize_feature_text(text)
+                if text:
+                    features.append(text)
+
         # Also look for bold/strong text as key points
         for strong in soup.find_all(["strong", "b"]):
             text = strong.get_text().strip()
-            if 5 < len(text) < 80 and text not in features:
-                features.append(text)
-    
-    return features[:4]  # Keep it focused - top 4 key features for demos
+            if 5 < len(text) < 80:
+                text = _normalize_feature_text(text)
+                if text and text not in features:
+                    features.append(text)
+
+    # Deduplicate: remove features that are substrings of the title or of each other
+    deduped = []
+    for f in features:
+        f_lower = f.lower()
+        # Skip if it's essentially the title restated
+        if f_lower in title_lower or title_lower in f_lower:
+            continue
+        # Skip if it's a substring of an already-kept feature
+        if any(f_lower in kept.lower() or kept.lower() in f_lower for kept in deduped):
+            continue
+        deduped.append(f)
+
+    return deduped[:4]
 
 
 def infer_feature_context(entry: ChangelogEntry) -> dict:
@@ -944,7 +1039,7 @@ def enrich_entries_with_demo_outlines(entries: list[ChangelogEntry]) -> list[Cha
         # Extract detailed summary for ALL entries (not just releases)
         entry.detailed_summary = extract_detailed_summary(entry)
         entry.key_features = extract_key_features(entry)
-        
+
         # Search for the most accurate documentation URL
         # Only sets docs_url if the page is verified as genuinely relevant
         print(f"  🔍 Searching docs for: {entry.title[:50]}...")
@@ -971,27 +1066,14 @@ def entries_to_dict(entries: list[ChangelogEntry]) -> list[dict]:
     """Convert entries to dictionaries for JSON serialization and templating."""
     result = []
     for e in entries:
-        # Clean up summary - remove the "appeared first on The GitHub Blog" boilerplate
-        summary_text = ""
-        if e.summary:
-            summary_text = BeautifulSoup(e.summary, "html.parser").get_text().strip()
-            # Remove common RSS boilerplate patterns
-            boilerplate_patterns = [
-                r"The post .+ appeared first on The GitHub Blog\.",
-                r"The post .+ appeared first on GitHub Blog\.",
-                r"appeared first on The GitHub Blog\.",
-                r"appeared first on GitHub Blog\.",
-            ]
-            import re
-            for pattern in boilerplate_patterns:
-                summary_text = re.sub(pattern, "", summary_text, flags=re.IGNORECASE).strip()
-        
-        # Use detailed_summary if available and summary is empty or short
+        # Prefer the cleaned detailed_summary; fall back to RSS summary
         detailed_summary = getattr(e, 'detailed_summary', '')
-        if detailed_summary and (not summary_text or len(summary_text) < 50):
+        if detailed_summary:
             summary_text = detailed_summary
-        elif detailed_summary and len(detailed_summary) > len(summary_text):
-            summary_text = detailed_summary
+        elif e.summary:
+            summary_text = _clean_html_to_text(e.summary)
+        else:
+            summary_text = ""
         
         result.append({
             "title": e.title,
