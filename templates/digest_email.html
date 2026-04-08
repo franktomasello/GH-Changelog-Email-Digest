@@ -290,7 +290,7 @@
   
   <!-- Preheader text (with zero-width padding to prevent body text leaking into preview) -->
   <div style="display: none; font-size: 1px; color: #0d1117; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-    {{ total_count }} GitHub updates: {{ releases|length }} releases, {{ improvements|length }} improvements, {{ retirements|length }} retirements
+    {{ total_count }} GitHub {{ 'update' if total_count == 1 else 'updates' }}: {{ releases|length }} releases, {{ improvements|length }} improvements, {{ retirements|length }} retirements
     &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
   </div>
 
@@ -334,7 +334,7 @@
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                             <tr>
                               <td valign="middle" style="padding-right: 8px; font-size: 13px;">✨</td>
-                              <td valign="middle"><span class="header-badge-text text-secondary" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #c9d1d9 !important; letter-spacing: 0.1px;">{{ total_count }} updates today</span></td>
+                              <td valign="middle"><span class="header-badge-text text-secondary" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #c9d1d9 !important; letter-spacing: 0.1px;">{{ total_count }} {{ 'update' if total_count == 1 else 'updates' }} today</span></td>
                             </tr>
                           </table>
                         </td>
