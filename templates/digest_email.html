@@ -453,18 +453,16 @@
                             <a href="{{ release.url }}" class="title-link title-link-green" style="color: #ffffff; text-decoration: none;">{{ release.title }}&#xfeff;<span class="card-arrow" style="display: inline-block; margin-left: 4px; font-size: 12px; color: #3fb950; white-space: nowrap;">→</span></a>
                           </h3>
                           <!-- Card Meta -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-meta-wrap" style="margin-bottom: 12px;">
-                            <tr>
-                              <td style="padding-right: 10px;">
-                                <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">{{ release.published }}</span>
-                              </td>
-                              {% for label in release.labels %}
-                              <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #11271d; border: 1px solid #153d23; border-radius: 6px; color: #7ee787;">{{ label }}</span>
-                              </td>
-                              {% endfor %}
-                            </tr>
-                          </table>
+                          <div class="card-meta-wrap" style="margin-bottom: 12px;">
+                            <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">{{ release.published }}</span>
+                          </div>
+                          {% if release.labels %}
+                          <div class="card-labels-wrap" style="margin-bottom: 12px; line-height: 1.8;">
+                            {% for label in release.labels %}
+                            <span class="card-label" style="display: inline-block; padding: 4px 10px; margin-right: 6px; margin-bottom: 4px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #11271d; border: 1px solid #153d23; border-radius: 6px; color: #7ee787; white-space: nowrap;">{{ label }}</span>
+                            {% endfor %}
+                          </div>
+                          {% endif %}
                           {% if release.summary %}
                           <p class="card-summary" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #c9d1d9; line-height: 1.55;">{{ release.summary }}</p>
                           {% endif %}
@@ -570,18 +568,16 @@
                           <h3 class="card-title" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; letter-spacing: -0.2px;">
                             <a href="{{ improvement.url }}" class="title-link title-link-blue" style="color: #ffffff; text-decoration: none;">{{ improvement.title }}&#xfeff;<span class="card-arrow" style="display: inline-block; margin-left: 4px; font-size: 12px; color: #58a6ff; white-space: nowrap;">→</span></a>
                           </h3>
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-meta-wrap" style="margin-bottom: 12px;">
-                            <tr>
-                              <td style="padding-right: 10px;">
-                                <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">{{ improvement.published }}</span>
-                              </td>
-                              {% for label in improvement.labels %}
-                              <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #10233f; border: 1px solid #143568; border-radius: 6px; color: #a5d6ff;">{{ label }}</span>
-                              </td>
-                              {% endfor %}
-                            </tr>
-                          </table>
+                          <div class="card-meta-wrap" style="margin-bottom: 12px;">
+                            <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">{{ improvement.published }}</span>
+                          </div>
+                          {% if improvement.labels %}
+                          <div class="card-labels-wrap" style="margin-bottom: 12px; line-height: 1.8;">
+                            {% for label in improvement.labels %}
+                            <span class="card-label" style="display: inline-block; padding: 4px 10px; margin-right: 6px; margin-bottom: 4px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #10233f; border: 1px solid #143568; border-radius: 6px; color: #a5d6ff; white-space: nowrap;">{{ label }}</span>
+                            {% endfor %}
+                          </div>
+                          {% endif %}
                           {% if improvement.summary %}
                           <p class="card-summary" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #c9d1d9; line-height: 1.55;">{{ improvement.summary }}</p>
                           {% endif %}
@@ -687,18 +683,16 @@
                           <h3 class="card-title" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; letter-spacing: -0.2px;">
                             <a href="{{ retirement.url }}" class="title-link title-link-amber" style="color: #ffffff; text-decoration: none;">{{ retirement.title }}&#xfeff;<span class="card-arrow" style="display: inline-block; margin-left: 4px; font-size: 12px; color: #d29922; white-space: nowrap;">→</span></a>
                           </h3>
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-meta-wrap" style="margin-bottom: 12px;">
-                            <tr>
-                              <td style="padding-right: 10px;">
-                                <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">{{ retirement.published }}</span>
-                              </td>
-                              {% for label in retirement.labels %}
-                              <td style="padding-right: 6px;">
-                                <span class="card-label" style="display: inline-block; padding: 3px 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #292213; border: 1px solid #44330f; border-radius: 6px; color: #e3b341;">{{ label }}</span>
-                              </td>
-                              {% endfor %}
-                            </tr>
-                          </table>
+                          <div class="card-meta-wrap" style="margin-bottom: 12px;">
+                            <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">{{ retirement.published }}</span>
+                          </div>
+                          {% if retirement.labels %}
+                          <div class="card-labels-wrap" style="margin-bottom: 12px; line-height: 1.8;">
+                            {% for label in retirement.labels %}
+                            <span class="card-label" style="display: inline-block; padding: 4px 10px; margin-right: 6px; margin-bottom: 4px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #292213; border: 1px solid #44330f; border-radius: 6px; color: #e3b341; white-space: nowrap;">{{ label }}</span>
+                            {% endfor %}
+                          </div>
+                          {% endif %}
                           {% if retirement.summary %}
                           <p class="card-summary" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #c9d1d9; line-height: 1.55;">{{ retirement.summary }}</p>
                           {% endif %}
