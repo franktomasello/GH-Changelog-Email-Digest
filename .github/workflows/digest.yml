@@ -26,6 +26,9 @@ concurrency:
   group: changelog-digest
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -84,6 +87,9 @@ jobs:
       - name: Deploy digest
         id: run
         env:
+          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+          INPUT_FORCE: ${{ github.event.inputs.force || 'false' }}
+          INPUT_DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
@@ -92,11 +98,16 @@ jobs:
           DIGEST_TO_EMAIL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_email || secrets.DIGEST_TO_EMAIL }}
         run: |
           mkdir -p data
-          
-          ARGS="${{ github.event_name == 'workflow_dispatch' && '--all' || '' }} ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' && '--force' || '' }} ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}"
-          
-          echo "dry_run=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}" >> $GITHUB_OUTPUT
-          cd src && python main.py $ARGS
+
+          ARGS=()
+          if [ "$IS_DISPATCH" = "true" ]; then
+            ARGS+=("--all")
+            [ "$INPUT_FORCE" = "true" ] && ARGS+=("--force")
+            [ "$INPUT_DRY_RUN" = "true" ] && ARGS+=("--dry-run")
+          fi
+
+          echo "dry_run=$INPUT_DRY_RUN" >> $GITHUB_OUTPUT
+          cd src && python main.py "${ARGS[@]}"
 
       - name: Persist state
         if: success() && steps.run.outputs.dry_run != 'true'
