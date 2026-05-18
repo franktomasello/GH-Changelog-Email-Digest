@@ -89,17 +89,17 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
-          DIGEST_TO_EMAIL: ${{ github.event_name == 'workflow_dispatch' && inputs.test_email || secrets.DIGEST_TO_EMAIL }}
+          DIGEST_TO_EMAIL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_email || secrets.DIGEST_TO_EMAIL }}
         run: |
           mkdir -p data
           
-          ARGS="${{ github.event_name == 'workflow_dispatch' && '--all' || '' }} ${{ github.event_name == 'workflow_dispatch' && inputs.force && '--force' || '' }} ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '--dry-run' || '' }}"
+          ARGS="${{ github.event_name == 'workflow_dispatch' && '--all' || '' }} ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' && '--force' || '' }} ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}"
           
-          echo "dry_run=${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}" >> $GITHUB_OUTPUT
+          echo "dry_run=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}" >> $GITHUB_OUTPUT
           cd src && python main.py $ARGS
 
       - name: Persist state
-        if: success() && !inputs.dry_run
+        if: success() && steps.run.outputs.dry_run != 'true'
         run: |
           git diff --quiet data/state.json 2>/dev/null && exit 0
           git config user.name "github-actions[bot]"
@@ -112,9 +112,9 @@ jobs:
            ## 📧 Changelog Digest
            | | |
            |---|---|
-            | Status | ${{ job.status == 'success' && '✅' || '❌' }} |
+           | Status | ${{ job.status == 'success' && '✅' || '❌' }} |
            | Trigger | `${{ github.event_name }}` |
-           | Test Email | `${{ github.event_name == 'workflow_dispatch' && inputs.test_email || 'all recipients' }}` |
-           | Force | `${{ github.event_name == 'workflow_dispatch' && inputs.force || false }}` |
-           | Dry Run | `${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}` |
+           | Test Email | `${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_email || 'all recipients' }}` |
+           | Force | `${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force || false }}` |
+           | Dry Run | `${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || false }}` |
            EOF
