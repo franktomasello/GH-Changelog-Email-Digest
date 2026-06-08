@@ -94,12 +94,7 @@ export SMTP_PORT=587
 export SMTP_USER=your@gmail.com
 export SMTP_PASSWORD=your_app_password
 export SMTP_FROM_EMAIL=your@gmail.com
-```
-
-Then add at least one email to [`recipients.txt`](./recipients.txt):
-
-```bash
-echo "you@example.com" >> recipients.txt
+export DIGEST_TO_EMAIL=recipient@email.com   # comma-separated for multiple
 ```
 
 ### 3️⃣ Run
@@ -177,46 +172,14 @@ Each entry includes an **actionable demo outline** with:
 
 ## ⚙️ Configuration
 
-### 👥 Recipient list — `recipients.txt`
+### 👥 Recipients
 
-Recipients live in [`recipients.txt`](./recipients.txt) at the repo root. **One email per line.** Lines starting with `#` are ignored, blank lines are ignored, and trailing inline comments (`email # note`) are stripped.
+Recipients are configured through the **`DIGEST_TO_EMAIL`** secret — a comma-separated list of addresses. The daily digest is sent to everyone on the list.
 
-> ⚠️ **Public repo?** This file is committed to git history. While the repository is **public**, keep real addresses in the encrypted `DIGEST_TO_EMAIL` secret (the digest reads it automatically when this file is empty) and use `recipients.txt` only if the repo is private.
+- **Add or remove someone:** edit the `DIGEST_TO_EMAIL` secret under **Settings → Secrets and variables → Actions** (the value is the full comma-separated list).
+- **Send a one-off test:** trigger a manual run and fill in the **Test email** input. It sets `DIGEST_TEST_EMAIL`, which overrides the list for that run only.
 
-```text
-# Daily readers
-frank@example.com
-alice@example.com   # alice — frontend lead
-
-# Paused — uncomment to re-enable
-# bob@example.com
-```
-
-#### Add a recipient — pick whichever is closer
-
-**From your terminal** (one command, handles validate + dedupe + commit + push):
-
-```bash
-bin/add-recipient alice@example.com
-```
-
-You can pass several at once: `bin/add-recipient alice@example.com bob@example.com`. Already-listed addresses are skipped silently. Pass `--no-push` to commit only, or `--dry-run` to preview.
-
-**From your phone or any browser** (no terminal needed): GitHub → **Actions** → **Add recipient** → **Run workflow** → type the email → **Run**. The workflow appends it, commits as `github-actions[bot]`, and pushes.
-
-**The hand-edit path is still there** if you prefer it: open `recipients.txt`, add a line, commit, push.
-
-#### Pause / remove someone
-
-Comment the line out with a leading `#`, or delete it. Same commit-push flow.
-
-#### Resolution order
-
-When the digest runs, it picks recipients from the first non-empty source:
-
-1. `DIGEST_TEST_EMAIL` env var — set automatically when you trigger a manual run with the **Test email** input. Overrides everything else and sends only to that address.
-2. `recipients.txt` — the canonical list.
-3. `DIGEST_TO_EMAIL` env var — legacy fallback. Still honoured if the file is empty/missing, so the migration is non-breaking.
+Keeping recipients in the secret rather than a tracked file means addresses never land in this repository's public git history.
 
 ### GitHub Actions (Automated)
 
@@ -233,7 +196,7 @@ Navigate to **Settings → Secrets and variables → Actions**:
 | `SMTP_USER` | Your Gmail address |
 | `SMTP_PASSWORD` | Gmail App Password |
 | `SMTP_FROM_EMAIL` | Sender email address |
-| `DIGEST_TO_EMAIL` | _(optional, legacy)_ comma-separated recipients used only when `recipients.txt` is empty |
+| `DIGEST_TO_EMAIL` | Recipient email(s), comma-separated |
 
 #### Manual Trigger
 
