@@ -181,6 +181,8 @@ Each entry includes an **actionable demo outline** with:
 
 Recipients live in [`recipients.txt`](./recipients.txt) at the repo root. **One email per line.** Lines starting with `#` are ignored, blank lines are ignored, and trailing inline comments (`email # note`) are stripped.
 
+> ⚠️ **Public repo?** This file is committed to git history. While the repository is **public**, keep real addresses in the encrypted `DIGEST_TO_EMAIL` secret (the digest reads it automatically when this file is empty) and use `recipients.txt` only if the repo is private.
+
 ```text
 # Daily readers
 frank@example.com
