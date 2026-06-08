@@ -11,12 +11,22 @@ from zoneinfo import ZoneInfo
 
 from jinja2 import Environment, FileSystemLoader
 
-import recipients as _recipients
-
 # Pacific Time Zone
 PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
+
+
+def _mask_email(email: str) -> str:
+    """Mask an address for logging, e.g. 'alice@github.com' -> 'a***@github.com'.
+
+    Keeps the domain (handy for debugging delivery) but not the full identity,
+    so recipient addresses never land in (public) CI logs.
+    """
+    name, sep, domain = email.partition("@")
+    if not sep:
+        return (name[:1] or "") + "***"
+    return (name[:1] or "") + "***@" + domain
 
 
 def build_email_html(
@@ -84,10 +94,10 @@ def send_email(
 
                     # Send
                     server.sendmail(from_email, email, msg.as_string())
-                    print(f"  ✓ Email sent to {email}")
+                    print(f"  ✓ Email sent to {_mask_email(email)}")
                     success_count += 1
                 except Exception as e:
-                    print(f"  ✗ Failed to send to {email}: {e}")
+                    print(f"  ✗ Failed to send to {_mask_email(email)}: {e}")
                     failed_recipients.append(email)
 
     except Exception as e:
@@ -97,7 +107,7 @@ def send_email(
     print(f"Email delivery complete: {success_count}/{len(to_emails)} successful")
 
     if failed_recipients:
-        print(f"Failed recipients: {', '.join(failed_recipients)}")
+        print(f"Failed recipients: {', '.join(_mask_email(e) for e in failed_recipients)}")
 
     return success_count > 0
 
@@ -109,15 +119,20 @@ def send_digest_email(
     to_emails: Optional[list[str]] = None,
 ) -> bool:
     """Build and send the changelog digest email."""
-    to_emails, source = _recipients.resolve(explicit=to_emails)
-    print(f"📬 Recipients source: {source}")
-    print(f"📬 Resolved {len(to_emails)} recipient(s): {to_emails}")
+    if not to_emails:
+        # DIGEST_TEST_EMAIL (a manual test-run override) takes precedence over
+        # the normal DIGEST_TO_EMAIL recipient list when it is set.
+        raw = os.environ.get("DIGEST_TEST_EMAIL", "").strip() or os.environ.get("DIGEST_TO_EMAIL", "")
+        to_emails = [e.strip() for e in raw.split(",") if e.strip()]
+
+    # Log the count only — avoid writing recipient addresses to CI logs.
+    print(f"📬 Resolved {len(to_emails)} recipient(s)")
 
     if not to_emails:
         raise ValueError(
-            "No recipients found. Add at least one email to recipients.txt at "
-            "the repo root, or set the DIGEST_TO_EMAIL env var (comma-separated "
-            "for multiple)."
+            "No recipients configured. Set the DIGEST_TO_EMAIL environment "
+            "variable (comma-separated for multiple), or DIGEST_TEST_EMAIL for "
+            "a one-off test send."
         )
 
     # Build email content
