@@ -43,7 +43,13 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
-          DIGEST_TO_EMAIL: ${{ inputs.test_email || secrets.DIGEST_TO_EMAIL }}
+          # Test-email override (manual run input). When set, replaces the file
+          # and goes only to this address. Leave the workflow input empty for
+          # normal runs and the recipient list comes from `recipients.txt`.
+          DIGEST_TEST_EMAIL: ${{ inputs.test_email }}
+          # Legacy fallback. Used only if `recipients.txt` is empty/missing.
+          # Safe to delete this secret once you've migrated to the file.
+          DIGEST_TO_EMAIL: ${{ secrets.DIGEST_TO_EMAIL }}
         run: |
           uv venv && source .venv/bin/activate
           uv pip install -r requirements.txt

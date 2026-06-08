@@ -1,0 +1,16 @@
+# GitHub Changelog Digest — recipient list
+#
+# To add a recipient:    append a line with their email and commit + push.
+# To remove a recipient: delete the line, or comment it out with a leading `#`.
+#
+# Rules:
+#   - One email address per line.
+#   - Lines starting with `#` are ignored.
+#   - Blank lines are ignored.
+#   - A trailing comment is allowed if separated by whitespace then `#`,
+#     e.g.  alice@example.com   # alice — paused while travelling
+#
+# Examples:
+#   frank@example.com
+#   alice@example.com
+#   # bob@example.com           # off the list — re-enable when he's back

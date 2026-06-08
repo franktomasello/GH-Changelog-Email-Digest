@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""Add one or more emails to recipients.txt, then commit + push.
+
+Usage:
+    bin/add-recipient alice@example.com
+    bin/add-recipient alice@example.com bob@example.com
+    bin/add-recipient --no-push alice@example.com   # commit only
+    bin/add-recipient --no-commit alice@example.com # edit file only
+    bin/add-recipient --dry-run alice@example.com   # change nothing
+
+Idempotent: emails already on the list (case-insensitive) are skipped.
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import re
+import subprocess
+import sys
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RECIPIENTS_FILE = os.path.join(REPO_ROOT, "recipients.txt")
+
+# Make `src/` importable so we can share the parser with email_sender.
+sys.path.insert(0, os.path.join(REPO_ROOT, "src"))
+import recipients as _recipients  # noqa: E402
+
+# Pragmatic email check — RFC 5321 is much more permissive, but this catches
+# the common typos (missing `@`, no TLD, trailing comma) without bothering
+# anyone in practice.
+EMAIL_RE = re.compile(r"^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$")
+
+
+# ---- file helpers -----------------------------------------------------------
+
+def _file_ends_with_newline(path: str) -> bool:
+    """True if ``path`` is empty/missing or its last byte is ``\\n``.
+
+    Reads only the trailing byte, so it's safe on arbitrarily large files.
+    """
+    if not os.path.exists(path) or os.path.getsize(path) == 0:
+        return True
+    with open(path, "rb") as f:
+        f.seek(-1, os.SEEK_END)
+        return f.read(1) == b"\n"
+
+
+def append_emails(path: str, emails: list[str]) -> None:
+    """Append ``emails`` (one per line) to ``path``, creating it if needed."""
+    needs_separator = os.path.exists(path) and not _file_ends_with_newline(path)
+    with open(path, "a", encoding="utf-8") as f:
+        if needs_separator:
+            f.write("\n")
+        for email in emails:
+            f.write(email + "\n")
+
+
+# ---- git helpers ------------------------------------------------------------
+
+class GitError(RuntimeError):
+    """Wraps a failing ``git`` invocation with its captured stderr."""
+
+
+def _git(*args: str) -> str:
+    """Run a git command in REPO_ROOT. Returns stdout, raises ``GitError`` on
+    non-zero exit so callers can produce a clean message instead of a
+    traceback."""
+    res = subprocess.run(
+        ["git", *args],
+        cwd=REPO_ROOT, text=True, capture_output=True,
+    )
+    if res.returncode != 0:
+        raise GitError(
+            f"git {' '.join(args)} failed (exit {res.returncode}):\n"
+            f"{res.stderr.strip() or res.stdout.strip()}"
+        )
+    return res.stdout
+
+
+def recipients_dirty() -> bool:
+    """True if recipients.txt is tracked AND has unstaged or staged changes.
+
+    Untracked (never-committed) files are *not* considered dirty — those are
+    the new-repo case we want to allow.
+    """
+    out = _git("status", "--porcelain", "--untracked-files=no",
+               "--", "recipients.txt")
+    return bool(out.strip())
+
+
+# ---- main -------------------------------------------------------------------
+
+def _classify(emails: list[str]) -> tuple[list[str], list[str]]:
+    """Split an input list into ``(valid, invalid)`` according to ``EMAIL_RE``."""
+    valid: list[str] = []
+    invalid: list[str] = []
+    for raw in emails:
+        e = raw.strip()
+        if EMAIL_RE.match(e):
+            valid.append(e)
+        else:
+            invalid.append(raw)
+    return valid, invalid
+
+
+def _select_new(valid: list[str], existing_lower: set[str]) -> tuple[list[str], list[str]]:
+    """From ``valid`` emails, pick those not already present (case-insensitive)
+    and not duplicated within the same call. Returns ``(to_add, already)``."""
+    to_add: list[str] = []
+    already: list[str] = []
+    seen: set[str] = set()
+    for e in valid:
+        key = e.lower()
+        if key in existing_lower or key in seen:
+            already.append(e)
+            continue
+        seen.add(key)
+        to_add.append(e)
+    return to_add, already
+
+
+def main(argv: list[str]) -> int:
+    p = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p.add_argument("emails", nargs="+", help="One or more email addresses to add")
+    p.add_argument("--no-push", action="store_true", help="Commit but don't push")
+    p.add_argument("--no-commit", action="store_true", help="Edit the file only, no commit")
+    p.add_argument("--dry-run", action="store_true", help="Show what would happen, change nothing")
+    args = p.parse_args(argv)
+
+    valid, invalid = _classify(args.emails)
+    for e in invalid:
+        print(f"  skipping (not a valid email): {e}", file=sys.stderr)
+    if not valid:
+        print("nothing valid to add", file=sys.stderr)
+        return 1
+
+    existing_lower = {e.lower() for e in _recipients.load_from_file(RECIPIENTS_FILE)}
+    to_add, already = _select_new(valid, existing_lower)
+    for e in already:
+        print(f"  already on the list: {e}")
+
+    if not to_add:
+        print("nothing to add — list unchanged")
+        return 0
+
+    if args.dry_run:
+        print("--dry-run: would add:")
+        for e in to_add:
+            print(f"  + {e}")
+        return 0
+
+    # Refuse to silently sweep up unrelated edits to recipients.txt into our
+    # commit. Skip the check when we're not committing anyway.
+    if not args.no_commit:
+        try:
+            if recipients_dirty():
+                print(
+                    "error: recipients.txt has uncommitted changes; "
+                    "commit or stash them before running this script.",
+                    file=sys.stderr,
+                )
+                return 2
+        except GitError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+
+    append_emails(RECIPIENTS_FILE, to_add)
+
+    if args.no_commit:
+        print("✓ added (no commit):")
+        for e in to_add:
+            print(f"  + {e}")
+        return 0
+
+    msg = (
+        f"Add {to_add[0]} to digest recipients"
+        if len(to_add) == 1
+        else f"Add {len(to_add)} recipients to digest"
+    )
+    try:
+        _git("add", "recipients.txt")
+        _git("commit", "-m", msg)
+    except GitError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 3
+
+    if args.no_push:
+        print("✓ committed (not pushed):")
+        for e in to_add:
+            print(f"  + {e}")
+        print("  push later with:  git push")
+        return 0
+
+    try:
+        _git("push")
+    except GitError as exc:
+        print(
+            "✗ commit was created but push failed. "
+            "Run `git push` manually after resolving the issue below:\n"
+            f"{exc}",
+            file=sys.stderr,
+        )
+        return 4
+
+    print("✓ added & pushed:")
+    for e in to_add:
+        print(f"  + {e}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
