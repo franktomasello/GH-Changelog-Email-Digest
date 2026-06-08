@@ -7,7 +7,7 @@
   <meta name="color-scheme" content="dark only">
   <meta name="supported-color-schemes" content="dark only">
   <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
-  <title>GitHub Changelog Digest</title>
+  <title>GitHub Changelog</title>
   <!--[if mso]>
   <noscript>
     <xml>
@@ -19,37 +19,25 @@
   <![endif]-->
   <!--[if mso]>
   <style type="text/css">
-    body, table, td, p, a, h1, h2, h3 { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
+    body, table, td, p, a, h1, h2, h3 { font-family: 'Mona Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
     body { background-color: #0d1117 !important; }
     h1, h2, h3, p { mso-line-height-rule: exactly; margin: 0; }
-    h1 { color: #f0f6fc !important; }
-    h2 { color: #f0f6fc !important; }
-    h3 { color: #f0f6fc !important; }
+    h1, h2, h3 { color: #f0f6fc !important; }
     table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
     td { mso-line-height-rule: exactly; }
-    a { color: #58a6ff; text-decoration: none; }
-    .section-icon-mso { width: 36px; height: 36px; text-align: center; vertical-align: middle; font-size: 18px; }
-    /* Card title wrapping */
+    a { color: #2f81f7; text-decoration: none; }
     .card-title { word-wrap: break-word; white-space: normal !important; }
     .card-title a { color: #f0f6fc !important; text-decoration: none !important; }
-    /* Stat card borders for MSO */
-    .stat-card { border-collapse: separate; }
-    /* Prevent MSO from adding extra spacing to spans */
     span { mso-text-raise: 0; }
   </style>
   <![endif]-->
   <style>
-    /* Force dark mode everywhere */
     :root { color-scheme: dark only; supported-color-schemes: dark only; }
-    
-    /* Gmail iOS dark mode prevention - keeps our dark colors */
+
     u + .body { background-color: #0d1117 !important; }
-    
-    /* Prevent Gmail from inverting colors */
     [data-ogsc] { background-color: #0d1117 !important; }
     [data-ogsb] { background-color: #0d1117 !important; }
-    
-    /* Force dark mode in all scenarios */
+
     @media (prefers-color-scheme: dark) {
       body, .body, .email-bg { background-color: #0d1117 !important; }
       .email-container { background-color: #161b22 !important; }
@@ -58,285 +46,167 @@
       body, .body, .email-bg { background-color: #0d1117 !important; }
       .email-container { background-color: #161b22 !important; }
     }
-    
+
     body, html { margin: 0 !important; padding: 0 !important; background-color: #0d1117 !important; width: 100% !important; color-scheme: dark only; }
     html { scroll-behavior: smooth; }
     * { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; box-sizing: border-box; }
     table, td { mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; mso-line-height-rule: exactly; }
     img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; max-width: 100%; }
-    
-    /* Fluid text wrapping - prevents horizontal overflow on narrow screens (incl. Gmail mobile) */
+
     .card-title, .card-summary, .card-feature { word-wrap: break-word; overflow-wrap: break-word; }
-    
-    /* Accessibility - focus states for keyboard navigation (web & webmail) */
-    a:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; border-radius: 4px; }
-    .card:focus-within { border-color: rgba(88, 166, 255, 0.38) !important; box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.15) !important; }
-    .stat-card:focus-within { box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important; }
-    
-    /* Gmail app dark mode color overrides */
+
+    /* Keyboard focus (a11y) */
+    a:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; border-radius: 6px; }
+    .card:focus-within { border-color: #58a6ff !important; }
+    .stat-card:focus-within { border-color: #58a6ff !important; }
+
+    /* Gmail app dark-mode color holds */
     [data-ogsc] .dark-bg { background-color: #0d1117 !important; }
     [data-ogsc] .card-bg { background-color: #161b22 !important; }
     [data-ogsc] .text-primary { color: #f0f6fc !important; }
     [data-ogsc] .text-secondary { color: #c9d1d9 !important; }
     [data-ogsc] .text-muted { color: #8b949e !important; }
-    
-    /* Link styles - smooth color transitions on all clickable elements */
-    a.title-link { color: #f0f6fc !important; text-decoration: none !important; transition: color 0.2s ease !important; }
-    a.title-link-green:hover { color: #7ee787 !important; }
-    a.title-link-blue:hover { color: #79c0ff !important; }
-    a.title-link-amber:hover { color: #e3b341 !important; }
-    a.nav-link { color: #c9d1d9 !important; text-decoration: none !important; transition: all 0.2s ease !important; }
-    a.nav-link:hover { color: #ffffff !important; }
-    a.docs-link { color: #a5d6ff !important; text-decoration: none !important; transition: color 0.2s ease !important; }
-    a.docs-link:hover { color: #79c0ff !important; }
-    a.footer-link { color: #8b949e !important; text-decoration: none !important; transition: all 0.2s ease !important; }
-    a.footer-link:hover { color: #c9d1d9 !important; }
-    
-    /* Card hover - lift effect */
-    .card { transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important; }
-    .card:hover { transform: translateY(-1px) !important; }
-    .card-green:hover { border-color: rgba(63, 185, 80, 0.38) !important; box-shadow: 0 4px 16px rgba(63, 185, 80, 0.12), 0 0 1px rgba(63, 185, 80, 0.2) !important; }
-    .card-blue:hover { border-color: rgba(88, 166, 255, 0.38) !important; box-shadow: 0 4px 16px rgba(88, 166, 255, 0.12), 0 0 1px rgba(88, 166, 255, 0.2) !important; }
-    .card-amber:hover { border-color: rgba(210, 153, 34, 0.38) !important; box-shadow: 0 4px 16px rgba(210, 153, 34, 0.12), 0 0 1px rgba(210, 153, 34, 0.2) !important; }
-    
-    /* Stat cards - glow on hover */
-    .stat-card { transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease !important; }
-    .stat-card:hover { transform: translateY(-2px) !important; }
-    a.nav-link:hover .stat-card-green { box-shadow: 0 4px 16px rgba(63, 185, 80, 0.15) !important; border-color: rgba(63, 185, 80, 0.44) !important; }
-    a.nav-link:hover .stat-card-blue { box-shadow: 0 4px 16px rgba(88, 166, 255, 0.15) !important; border-color: rgba(88, 166, 255, 0.44) !important; }
-    a.nav-link:hover .stat-card-amber { box-shadow: 0 4px 16px rgba(210, 153, 34, 0.15) !important; border-color: rgba(210, 153, 34, 0.44) !important; }
-    
-    /* Docs buttons - color-matched glow on hover */
-    .docs-btn { transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important; }
-    .docs-btn-green:hover { box-shadow: 0 2px 12px rgba(63, 185, 80, 0.12) !important; border-color: rgba(63, 185, 80, 0.38) !important; }
-    .docs-btn-blue:hover { box-shadow: 0 2px 12px rgba(88, 166, 255, 0.12) !important; border-color: rgba(88, 166, 255, 0.38) !important; }
-    .docs-btn-amber:hover { box-shadow: 0 2px 12px rgba(210, 153, 34, 0.12) !important; border-color: rgba(210, 153, 34, 0.38) !important; }
-    
-    /* Back to top - subtle brighten */
-    .back-to-top-link { transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease !important; }
-    .back-to-top-link:hover { color: #8b949e !important; border-color: #484f58 !important; background: linear-gradient(135deg, #21262d 0%, #282e36 100%) !important; }
-    
-    /* Footer buttons */
-    .footer-btn { transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease !important; }
-    .footer-btn:hover { color: #c9d1d9 !important; border-color: #484f58 !important; background: linear-gradient(135deg, #21262d 0%, #282e36 100%) !important; }
-    
-    /* Header badge */
-    .header-badge { transition: border-color 0.2s ease, box-shadow 0.2s ease !important; }
-    .header-badge:hover { border-color: rgba(201, 209, 217, 0.2) !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 20px rgba(201, 209, 217, 0.1) !important; }
-    
-    /* Section icons */
-    .section-icon { transition: box-shadow 0.2s ease, transform 0.2s ease !important; }
-    
-    /* Base responsive table */
-    .email-container { width: 100% !important; max-width: 720px !important; }
-    
-    /* Desktop web - floating card with cinematic shadow on wide screens */
+
+    /* Links & hover — quiet, colour-only */
+    a.title-link { color: #f0f6fc !important; text-decoration: none !important; transition: color 0.15s ease !important; }
+    a.title-link:hover { color: #58a6ff !important; }
+    a.nav-link { text-decoration: none !important; }
+    a.docs-link { color: #58a6ff !important; text-decoration: none !important; transition: color 0.15s ease !important; }
+    a.docs-link:hover { color: #79c0ff !important; text-decoration: underline !important; }
+    a.footer-link { text-decoration: none !important; }
+    a.back-to-top-link { color: #6e7681 !important; text-decoration: none !important; transition: color 0.15s ease !important; }
+    a.back-to-top-link:hover { color: #8b949e !important; }
+
+    .card { transition: border-color 0.15s ease !important; }
+    .card-green:hover { border-color: #3fb950 !important; }
+    .card-blue:hover { border-color: #58a6ff !important; }
+    .card-amber:hover { border-color: #d29922 !important; }
+
+    .stat-card { transition: border-color 0.15s ease !important; }
+    a.nav-link:hover .stat-card { border-color: #8b949e !important; }
+
+    .footer-btn { transition: border-color 0.15s ease !important; }
+    a.footer-link:hover .footer-btn { border-color: #484f58 !important; }
+
+    .header-badge { transition: border-color 0.15s ease !important; }
+
+    .email-container { width: 100% !important; max-width: 680px !important; }
+
+    /* Desktop — centred panel, hairline border, no shadow */
     @media only screen and (min-width: 769px) {
       .outer-padding { padding: 24px 16px !important; }
-      .email-container {
-        border-radius: 16px !important;
-        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.05) !important;
-      }
+      .email-container { border-radius: 14px !important; border: 1px solid #30363d !important; }
     }
-    
-    /* Tablet and smaller desktop */
     @media only screen and (max-width: 768px) {
       .email-container { max-width: 100% !important; border-radius: 0 !important; }
       .outer-padding { padding: 0 !important; }
     }
-    
-    /* Mobile-first responsive styles - iPhone optimized */
+
+    /* Mobile */
     @media only screen and (max-width: 600px) {
-      /* Container - edge-to-edge on mobile */
       .email-container { width: 100% !important; min-width: 100% !important; border-radius: 0 !important; }
       .outer-padding { padding: 0 !important; }
-      .mobile-padding { padding: 20px 16px !important; }
-      
-      /* Header - clean and spacious */
-      .header-padding { padding: 36px 24px 32px !important; }
-      .header-title { font-size: 24px !important; letter-spacing: -0.5px !important; }
-      .header-subtitle { font-size: 15px !important; }
+      .mobile-padding { padding: 24px 16px !important; }
+
+      .header-padding { padding: 36px 20px 28px !important; }
+      .header-title { font-size: 24px !important; letter-spacing: -0.4px !important; }
+      .header-subtitle { font-size: 14px !important; }
       .header-logo { width: 44px !important; height: 44px !important; }
-      .header-badge { padding: 10px 18px !important; }
-      .header-badge-text { font-size: 14px !important; }
-      
-      /* Stats navigation - beautiful horizontal compact cards */
-      .stats-wrapper { padding: 16px !important; }
-      .stats-table { width: 100% !important; }
-      .stat-cell { 
-        width: 33.33% !important;
-        padding: 0 3px !important;
-      }
-      .stat-card {
-        padding: 12px 6px !important;
-        border-radius: 12px !important;
-      }
-      .stat-emoji { 
-        font-size: 18px !important; 
-        margin-bottom: 4px !important;
-      }
-      .stat-number { 
-        font-size: 22px !important; 
-        margin-top: 2px !important;
-        letter-spacing: -0.5px !important;
-      }
-      .stat-label { 
-        font-size: 9px !important; 
-        letter-spacing: 0.3px !important;
-        margin-top: 2px !important;
-      }
-      .stat-jump { display: none !important; }
-      .nav-hint-row { display: none !important; }
-      
-      /* Section headers - refined */
-      .section-header { padding-bottom: 14px !important; }
-      .section-icon { width: 34px !important; height: 34px !important; line-height: 34px !important; font-size: 17px !important; border-radius: 10px !important; }
-      .section-title { font-size: 17px !important; letter-spacing: -0.3px !important; }
-      .section-subtitle { font-size: 12px !important; opacity: 0.8 !important; }
-      .section-count { padding: 5px 10px !important; font-size: 11px !important; }
+
+      .stats-wrapper { padding: 0 16px 24px !important; }
+      .stat-cell { width: 33.33% !important; padding: 0 4px !important; }
+      .stat-card { padding: 12px 6px !important; }
+      .stat-number { font-size: 22px !important; }
+      .stat-emoji { font-size: 13px !important; }
+      .stat-label { font-size: 11px !important; }
+
+      .section-header { padding-bottom: 12px !important; }
+      .section-title { font-size: 17px !important; }
       .section-count-cell { display: none !important; }
-      
-      /* Cards - sleek and readable */
-      .card { border-radius: 14px !important; border-left-width: 3px !important; }
+
       .card-content { padding: 16px !important; }
-      .card-title { font-size: 15px !important; line-height: 1.45 !important; letter-spacing: -0.2px !important; }
+      .card-title { font-size: 16px !important; line-height: 1.4 !important; }
       .card-arrow { display: none !important; }
       .card-meta { font-size: 12px !important; }
-      .card-label { padding: 3px 8px !important; font-size: 9px !important; border-radius: 4px !important; }
-      .card-summary { font-size: 14px !important; line-height: 1.55 !important; }
-      .card-feature { font-size: 13px !important; line-height: 1.5 !important; }
-      .card-top-padding { padding-top: 12px !important; }
-      
-      /* Docs links - full width on mobile for better tap targets */
-      .docs-btn { padding: 14px 16px !important; border-radius: 10px !important; }
-      .docs-btn-text { font-size: 13px !important; }
-      .docs-btn-wrap { width: 100% !important; }
-      
-      /* Footer - minimal and elegant */
-      .footer-padding { padding: 28px 20px 36px !important; }
-      .footer-logo { width: 26px !important; height: 26px !important; margin-bottom: 14px !important; }
-      .footer-text { font-size: 13px !important; line-height: 1.6 !important; margin-bottom: 18px !important; }
-      .footer-links { width: 100% !important; }
-      .footer-link-cell { 
-        display: block !important; 
-        width: 100% !important; 
-        padding: 0 0 10px 0 !important;
-      }
-      .footer-link-spacer { display: none !important; }
-      .footer-btn { 
-        display: block !important; 
-        width: 100% !important; 
-        text-align: center !important;
-        padding: 14px 20px !important;
-        border-radius: 12px !important;
-      }
-      
-      /* Back to top - bigger touch target on mobile */
-      .back-to-top { padding-top: 20px !important; }
-      .back-to-top-link { font-size: 12px !important; padding: 12px 24px !important; min-height: 44px !important; line-height: 20px !important; }
-      
-      /* Empty state */
-      .empty-state { padding: 48px 20px !important; }
-      .empty-emoji { font-size: 44px !important; margin-bottom: 16px !important; }
-      .empty-text { font-size: 15px !important; line-height: 1.5 !important; }
-      
-      /* Card meta labels - flex wrap on narrow screens */
+      .card-summary { font-size: 15px !important; line-height: 1.6 !important; }
+      .card-feature { font-size: 14px !important; line-height: 1.55 !important; }
+
+      .footer-padding { padding: 32px 20px 36px !important; }
+      .footer-link-cell { display: block !important; width: 100% !important; padding: 0 0 10px 0 !important; }
+      .footer-btn { display: block !important; width: 100% !important; text-align: center !important; }
+
       .card-meta-wrap { display: block !important; width: 100% !important; }
-      .card-meta-wrap tr { display: flex !important; flex-wrap: wrap !important; gap: 4px 8px !important; align-items: center !important; }
-      .card-meta-wrap td { display: block !important; padding: 0 !important; }
-      
-      /* Word wrapping for all card text content */
-      .card-title, .card-summary, .card-feature { word-wrap: break-word !important; overflow-wrap: break-word !important; word-break: break-word !important; }
-      
-      /* Section dividers - tighter on mobile */
-      .section-divider-inner { padding: 0 5% !important; }
+      .card-title, .card-summary, .card-feature { word-break: break-word !important; }
+      .section-divider-inner { padding: 0 6% !important; }
     }
-    
-    /* Extra small devices (iPhone SE, iPhone Mini) */
-    @media only screen and (max-width: 375px) {
-      .header-padding { padding: 28px 20px 24px !important; }
+
+    @media only screen and (max-width: 380px) {
+      .header-padding { padding: 28px 18px 24px !important; }
       .header-title { font-size: 22px !important; }
       .header-logo { width: 40px !important; height: 40px !important; }
-      .mobile-padding { padding: 16px 14px !important; }
-      .stats-wrapper { padding: 14px 10px !important; }
-      .stat-card { padding: 10px 4px !important; border-radius: 10px !important; }
-      .stat-emoji { font-size: 16px !important; }
+      .mobile-padding { padding: 18px 14px !important; }
+      .stat-card { padding: 11px 5px !important; }
       .stat-number { font-size: 20px !important; }
-      .stat-label { font-size: 8px !important; letter-spacing: 0.2px !important; }
-      .card-content { padding: 14px !important; }
-      .card-title { font-size: 14px !important; }
-      .card-summary { font-size: 13px !important; }
-      .section-icon { width: 30px !important; height: 30px !important; line-height: 30px !important; font-size: 15px !important; }
-      .section-title { font-size: 16px !important; }
-      .footer-padding { padding: 24px 16px 32px !important; }
-    }
-    
-    /* iPhone Pro Max / larger phones */
-    @media only screen and (min-width: 414px) and (max-width: 600px) {
-      .header-title { font-size: 26px !important; }
-      .stat-number { font-size: 26px !important; }
       .stat-label { font-size: 10px !important; }
-      .card-title { font-size: 16px !important; }
-      .card-summary { font-size: 15px !important; }
+      .card-content { padding: 14px !important; }
+      .section-title { font-size: 16px !important; }
     }
   </style>
 </head>
-<body class="body email-bg" style="margin: 0 !important; padding: 0 !important; background-color: #0d1117 !important; width: 100% !important; color-scheme: dark only;" bgcolor="#0d1117">
+<body class="body email-bg dark-bg" style="margin: 0 !important; padding: 0 !important; background-color: #0d1117 !important; width: 100% !important; color-scheme: dark only;" bgcolor="#0d1117">
   <!--[if gte mso 9]>
   <v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
     <v:fill type="tile" color="#0d1117"/>
   </v:background>
   <![endif]-->
-  
-  <!-- Preheader text (with zero-width padding to prevent body text leaking into preview) -->
+
+  <!-- Preheader -->
   <div style="display: none; font-size: 1px; color: #0d1117; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
     {{ total_count }} GitHub {{ 'update' if total_count == 1 else 'updates' }}: {{ releases|length }} releases, {{ improvements|length }} improvements, {{ retirements|length }} retirements
     &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
   </div>
 
-  <!-- Main wrapper table -->
-  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="dark-bg" style="background-color: #0d1117 !important; width: 100% !important; color-scheme: dark only;" bgcolor="#0d1117">
+  <!-- Main wrapper -->
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="dark-bg" style="background-color: #0d1117 !important; width: 100% !important;" bgcolor="#0d1117">
     <tr>
-      <td align="center" style="padding: 12px 0; background-color: #0d1117 !important;" class="outer-padding dark-bg" bgcolor="#0d1117">
-        
+      <td align="center" style="padding: 24px 0; background-color: #0d1117 !important;" class="outer-padding dark-bg" bgcolor="#0d1117">
+
         <!--[if mso]>
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="720" align="center" style="width:720px;" bgcolor="#0d1117"><tr><td bgcolor="#0d1117" style="background-color:#0d1117;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="680" align="center" style="width:680px;" bgcolor="#161b22"><tr><td bgcolor="#161b22" style="background-color:#161b22;">
         <![endif]-->
-        
-        <!-- Email container -->
+
         <a name="email-top"></a>
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container card-bg" style="max-width: 720px; width: 100%; border-radius: 16px; overflow: hidden; background-color: #161b22 !important;" bgcolor="#161b22">
-          
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container card-bg" style="max-width: 680px; width: 100%; border-radius: 14px; overflow: hidden; background-color: #161b22 !important;" bgcolor="#161b22">
+
           <!-- Header -->
           <tr>
-            <td align="center" style="padding: 48px 40px 40px; background: linear-gradient(180deg, #0d1117 0%, #0f1319 50%, #131820 100%);" class="header-padding dark-bg" bgcolor="#0d1117">
+            <td align="center" style="padding: 44px 32px 36px; background-color: #0d1117;" class="header-padding dark-bg" bgcolor="#0d1117">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center">
-                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="48" height="48" class="header-logo" style="display: block; border-radius: 50%; box-shadow: 0 0 20px rgba(201, 209, 217, 0.15), 0 0 40px rgba(201, 209, 217, 0.06);">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr>
+                      <td class="header-logo" align="center" valign="middle" width="52" height="52" style="width: 52px; height: 52px; background-color: #161b22; border: 1px solid #30363d; border-radius: 50%; text-align: center;" bgcolor="#161b22">
+                        <img src="https://github.githubassets.com/favicons/favicon-dark.png" alt="GitHub" width="28" height="28" style="display: inline-block; width: 28px; height: 28px; vertical-align: middle;">
+                      </td>
+                    </tr></table>
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" style="padding-top: 20px;">
-                    <h1 class="header-title text-primary" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 700; color: #f0f6fc !important; letter-spacing: -0.8px;">GitHub Changelog</h1>
+                  <td align="center" style="padding-top: 18px;">
+                    <h1 class="header-title text-primary" style="margin: 0; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 28px; font-weight: 700; color: #f0f6fc !important; letter-spacing: -0.5px; line-height: 1.2;">GitHub Changelog</h1>
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" style="padding-top: 8px;">
-                    <p class="header-subtitle text-muted" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #6e7681 !important; font-weight: 400; letter-spacing: 0.3px;">{{ digest_date }}</p>
+                  <td align="center" style="padding-top: 6px;">
+                    <p class="header-subtitle text-muted" style="margin: 0; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; color: #8b949e !important; font-weight: 400; line-height: 1.4;">{{ digest_date }}</p>
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" style="padding-top: 20px;">
+                  <td align="center" style="padding-top: 18px;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                       <tr>
-                        <td class="header-badge" style="padding: 10px 22px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border-radius: 100px; border: 1px solid #30363d; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 24px rgba(201, 209, 217, 0.08), 0 0 8px rgba(201, 209, 217, 0.04);" bgcolor="#21262d">
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                            <tr>
-                              <td valign="middle" style="padding-right: 8px; font-size: 13px;">✨</td>
-                              <td valign="middle"><span class="header-badge-text text-secondary" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #c9d1d9 !important; letter-spacing: 0.1px;">{{ total_count }} {{ 'update' if total_count == 1 else 'updates' }} today</span></td>
-                            </tr>
-                          </table>
+                        <td class="header-badge" style="padding: 8px 16px; background-color: #21262d; border-radius: 100px; border: 1px solid #30363d;" bgcolor="#21262d">
+                          <span class="header-badge-text" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #8b949e; line-height: 1;"><span style="color: #f0f6fc; font-weight: 600;">{{ total_count }}</span> {{ 'update' if total_count == 1 else 'updates' }}</span>
                         </td>
                       </tr>
                     </table>
@@ -346,58 +216,59 @@
             </td>
           </tr>
 
-          <!-- Quick Navigation Stats Bar -->
+          <!-- Quick navigation -->
           <tr>
-            <td class="stats-wrapper card-bg" style="padding: 0 32px 24px; background-color: #161b22 !important;" bgcolor="#161b22">
-              <!-- Subtle top fade from header -->
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 16px;">
-                <tr><td style="height: 1px; font-size: 1px; line-height: 1px; background: linear-gradient(to right, transparent, rgba(48, 54, 61, 0.31), transparent);" bgcolor="#30363d">&nbsp;</td></tr>
+            <td class="stats-wrapper card-bg" style="padding: 0 32px 28px; background-color: #161b22 !important;" bgcolor="#161b22">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 24px;">
+                <tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr>
               </table>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="stats-table">
-
                 <tr>
-                  <!-- Releases Stat -->
-                  <td align="center" width="33%" style="padding: 0 5px;" class="stat-cell">
+                  <!-- Releases -->
+                  <td align="center" width="33%" style="padding: 0 6px 0 0;" class="stat-cell">
                     <a href="#releases-section" class="nav-link" style="text-decoration: none; display: block;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-green" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1a12 100%); border: 1px solid #143521; border-radius: 14px; box-shadow: 0 2px 8px rgba(35, 134, 54, 0.06);" bgcolor="#0d1117">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                              <tr><td align="center" class="stat-emoji" style="font-size: 22px; padding: 0 0 8px; line-height: 1; mso-line-height-rule: exactly;">🚀</td></tr>
-                              <tr><td align="center" class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #3fb950; letter-spacing: -1.5px; line-height: 1; mso-line-height-rule: exactly;">{{ releases|length }}</td></tr>
-                              <tr><td align="center" class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #7ee787; padding-top: 6px; mso-line-height-rule: exactly;">Releases</td></tr>
+                          <td align="center" class="stat-card stat-card-green" style="padding: 14px 10px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #3fb950; border-radius: 8px;" bgcolor="#161b22">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                              <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{{ releases|length }}</td></tr>
+                              <tr><td align="center" style="padding-top: 6px; line-height: 1;">
+                                <span class="stat-emoji" style="font-size: 14px; vertical-align: middle;">🚀</span><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; vertical-align: middle; padding-left: 6px;">Releases</span>
+                              </td></tr>
                             </table>
                           </td>
                         </tr>
                       </table>
                     </a>
                   </td>
-                  <!-- Improvements Stat -->
-                  <td align="center" width="33%" style="padding: 0 5px;" class="stat-cell">
+                  <!-- Improvements -->
+                  <td align="center" width="33%" style="padding: 0 3px;" class="stat-cell">
                     <a href="#improvements-section" class="nav-link" style="text-decoration: none; display: block;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-blue" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #0f1219 100%); border: 1px solid #132e59; border-radius: 14px; box-shadow: 0 2px 8px rgba(31, 111, 235, 0.06);" bgcolor="#0d1117">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                              <tr><td align="center" class="stat-emoji" style="font-size: 22px; padding: 0 0 8px; line-height: 1; mso-line-height-rule: exactly;">🔧</td></tr>
-                              <tr><td align="center" class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #58a6ff; letter-spacing: -1.5px; line-height: 1; mso-line-height-rule: exactly;">{{ improvements|length }}</td></tr>
-                              <tr><td align="center" class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #a5d6ff; padding-top: 6px; mso-line-height-rule: exactly;">Improvements</td></tr>
+                          <td align="center" class="stat-card stat-card-blue" style="padding: 14px 10px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #58a6ff; border-radius: 8px;" bgcolor="#161b22">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                              <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{{ improvements|length }}</td></tr>
+                              <tr><td align="center" style="padding-top: 6px; line-height: 1;">
+                                <span class="stat-emoji" style="font-size: 14px; vertical-align: middle;">🔧</span><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; vertical-align: middle; padding-left: 6px;">Improvements</span>
+                              </td></tr>
                             </table>
                           </td>
                         </tr>
                       </table>
                     </a>
                   </td>
-                  <!-- Retirements Stat -->
-                  <td align="center" width="33%" style="padding: 0 5px;" class="stat-cell">
+                  <!-- Retirements -->
+                  <td align="center" width="33%" style="padding: 0 0 0 6px;" class="stat-cell">
                     <a href="#retirements-section" class="nav-link" style="text-decoration: none; display: block;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-amber" style="padding: 18px 8px 16px; background: linear-gradient(165deg, #0d1117 0%, #15120d 100%); border: 1px solid #3a2d11; border-radius: 14px; box-shadow: 0 2px 8px rgba(158, 106, 3, 0.06);" bgcolor="#0d1117">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                              <tr><td align="center" class="stat-emoji" style="font-size: 22px; padding: 0 0 8px; line-height: 1; mso-line-height-rule: exactly;">📦</td></tr>
-                              <tr><td align="center" class="stat-number" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 30px; font-weight: 800; color: #d29922; letter-spacing: -1.5px; line-height: 1; mso-line-height-rule: exactly;">{{ retirements|length }}</td></tr>
-                              <tr><td align="center" class="stat-label" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #e3b341; padding-top: 6px; mso-line-height-rule: exactly;">Retired</td></tr>
+                          <td align="center" class="stat-card stat-card-amber" style="padding: 14px 10px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #d29922; border-radius: 8px;" bgcolor="#161b22">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                              <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{{ retirements|length }}</td></tr>
+                              <tr><td align="center" style="padding-top: 6px; line-height: 1;">
+                                <span class="stat-emoji" style="font-size: 14px; vertical-align: middle;">📦</span><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; vertical-align: middle; padding-left: 6px;">Retirements</span>
+                              </td></tr>
                             </table>
                           </td>
                         </tr>
@@ -409,100 +280,68 @@
             </td>
           </tr>
 
-          <!-- Content Area -->
+          <!-- Content -->
           <tr>
-            <td style="padding: 28px 32px; background-color: #161b22 !important;" class="mobile-padding card-bg" bgcolor="#161b22">
+            <td style="padding: 32px; background-color: #161b22 !important;" class="mobile-padding card-bg" bgcolor="#161b22">
 
               {% if releases %}
-              <!-- Releases Section -->
               <a name="releases-section"></a>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 28px;" id="releases-section">
-                <!-- Section Header -->
                 <tr>
-                  <td class="section-header" style="padding-bottom: 16px; border-bottom: 1px solid #30363d;">
+                  <td class="section-header" style="padding-bottom: 14px; border-bottom: 1px solid #21262d;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
-                        <td width="36" valign="middle">
-                          <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="36"><tr><td align="center" valign="middle" width="36" height="36" class="section-icon-mso" style="background-color: #122117; font-size: 18px; color: #ffffff;"><![endif]-->
-                          <!--[if !mso]><!--><div class="section-icon" style="width: 36px; height: 36px; background: rgba(46, 160, 67, 0.15); border: 1px solid rgba(46, 160, 67, 0.3); border-radius: 10px; text-align: center; line-height: 34px; font-size: 18px;"><!--<![endif]-->
-                          🚀
-                          <!--[if !mso]><!--></div><!--<![endif]-->
-                          <!--[if mso]></td></tr></table><![endif]-->
+                        <td width="14" valign="middle" style="width: 14px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td width="10" height="10" bgcolor="#3fb950" style="width: 10px; height: 10px; background-color: #3fb950; border-radius: 50%; font-size: 0; line-height: 0;">&nbsp;</td></tr></table>
                         </td>
-                        <td style="padding-left: 12px;" valign="middle">
-                          <h2 class="section-title text-primary" style="margin: 0; mso-line-height-rule: exactly; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px;">New Releases</h2>
-                          <p class="section-subtitle text-muted" style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e !important;">Fresh features and capabilities</p>
+                        <td valign="middle" style="padding-left: 10px;">
+                          <h2 class="section-title text-primary" style="margin: 0; mso-line-height-rule: exactly; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px; line-height: 1.3;">Releases</h2>
                         </td>
                         <td align="right" valign="middle" class="section-count-cell">
-                          <span class="section-count" style="display: inline-block; padding: 6px 12px; background: rgba(46, 160, 67, 0.15); border: 1px solid rgba(46, 160, 67, 0.3); border-radius: 10px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #3fb950;">{{ releases|length }}</span>
+                          <span class="section-count" style="display: inline-block; padding: 2px 9px; background-color: #21262d; border: 1px solid #30363d; border-radius: 100px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; color: #8b949e;">{{ releases|length }}</span>
                         </td>
                       </tr>
                     </table>
                   </td>
                 </tr>
-                
+
                 {% for release in releases %}
-                <!-- Release Card -->
                 <tr>
-                  <td class="card-top-padding" style="padding-top: 16px;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card card-green dark-bg" style="background-color: #0d1117 !important; border: 1px solid #30363d; border-left: 4px solid #3fb950; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(63, 185, 80, 0.1); border-top: 1px solid rgba(63, 185, 80, 0.15);" bgcolor="#0d1117">
+                  <td class="card-top-padding" style="padding-top: 14px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card card-green dark-bg" style="background-color: #0d1117 !important; border: 1px solid #30363d; border-radius: 12px;" bgcolor="#0d1117">
                       <tr>
-                        <td class="card-content" style="padding: 20px 22px;">
-                          <!-- Card Title -->
-                          <h3 class="card-title" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; letter-spacing: -0.2px;">
-                            <a href="{{ release.url }}" class="title-link title-link-green" style="color: #ffffff; text-decoration: none;">{% set _p = release.title.rstrip().rsplit(' ', 1) %}{% if _p|length == 2 %}{{ _p[0] }} {% endif %}<span style="white-space: nowrap;">{{ _p[-1] }}<span class="card-arrow" style="font-size: 12px; color: #3fb950;">&nbsp;→</span></span></a>
+                        <td class="card-content" style="padding: 20px;">
+                          <h3 class="card-title" style="margin: 0 0 10px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.4; letter-spacing: -0.2px;">
+                            <a href="{{ release.url }}" class="title-link" style="color: #f0f6fc; text-decoration: none;">{% set _p = release.title.rstrip().rsplit(' ', 1) %}{% if _p|length == 2 %}{{ _p[0] }} {% endif %}<span style="white-space: nowrap;">{{ _p[-1] }}<span class="card-arrow" style="font-size: 13px; color: #8b949e;">&nbsp;→</span></span></a>
                           </h3>
-                          <!-- Card Meta -->
                           <div class="card-meta-wrap" style="margin-bottom: 12px;">
-                            <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">{{ release.published }}</span>
+                            <span class="card-meta" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; color: #8b949e; line-height: 1.3;">{{ release.published }}</span>
                           </div>
                           {% if release.labels %}
-                          <div class="card-labels-wrap" style="margin-bottom: 12px; line-height: 1.8;">
+                          <div class="card-labels-wrap" style="margin-bottom: 12px; line-height: 2;">
                             {% for label in release.labels %}
-                            <span class="card-label" style="display: inline-block; padding: 4px 10px; margin-right: 6px; margin-bottom: 4px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #11271d; border: 1px solid #153d23; border-radius: 6px; color: #7ee787; white-space: nowrap;">{{ label }}</span>
+                            <span class="card-label" style="display: inline-block; padding: 3px 9px; margin-right: 6px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; background-color: #21262d; border: 1px solid #30363d; border-radius: 100px; color: #c9d1d9; white-space: nowrap;">{{ label }}</span>
                             {% endfor %}
                           </div>
                           {% endif %}
                           {% if release.summary %}
-                          <p class="card-summary" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #c9d1d9; line-height: 1.55;">{{ release.summary }}</p>
+                          <p class="card-summary" style="margin: 0 0 14px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #c9d1d9; line-height: 1.6;">{{ release.summary }}</p>
                           {% endif %}
-                          
+
                           {% if release.key_features %}
-                          <!-- Key Features -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 10px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
                             {% for feature in release.key_features[:4] %}
                             <tr>
-                              <td style="padding: 4px 0;">
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                                  <tr>
-                                    <td valign="top" style="width: 14px; min-width: 14px; max-width: 14px; font-size: 6px; color: #3fb950; line-height: 21px;">●</td>
-                                    <td valign="top" style="padding-left: 6px;"><span class="card-feature" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #8b949e; line-height: 1.5;">{{ feature }}</span></td>
-                                  </tr>
-                                </table>
-                              </td>
+                              <td valign="top" style="width: 14px; min-width: 14px; max-width: 14px; font-size: 5px; color: #6e7681; line-height: 22px;">&#9679;</td>
+                              <td valign="top" style="padding-left: 6px;"><span class="card-feature" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #8b949e; line-height: 1.55;">{{ feature }}</span></td>
                             </tr>
                             {% endfor %}
                           </table>
                           {% endif %}
 
                           {% if release.docs_url %}
-                          <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 16px; margin-bottom: 16px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background: linear-gradient(to right, transparent, #30363d, transparent);" bgcolor="#30363d">&nbsp;</td></tr></table>
-                          <!-- Docs Link -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
-                            <tr>
-                              <td class="docs-btn docs-btn-green" style="padding: 11px 18px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-left: 3px solid #3fb950; border-radius: 10px;" bgcolor="#21262d">
-                                <a href="{{ release.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #3fb950; text-decoration: none;">
-                                  <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                                    <tr>
-                                      <td valign="middle" style="font-size: 13px;">📖</td>
-                                      <td valign="middle" style="padding-left: 8px;"><span class="docs-btn-text" style="color: #7ee787;">View Documentation →</span></td>
-                                    </tr>
-                                  </table>
-                                </a>
-                              </td>
-                            </tr>
-                          </table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 16px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr></table>
+                          <a href="{{ release.docs_url }}" class="docs-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #58a6ff; text-decoration: none;">Read the docs <span style="font-size: 12px;">→</span></a>
                           {% endif %}
                         </td>
                       </tr>
@@ -510,114 +349,81 @@
                   </td>
                 </tr>
                 {% endfor %}
-                
-                <!-- Back to top link -->
+
                 <tr>
-                  <td align="center" class="back-to-top" style="padding-top: 20px;">
-                    <a href="#email-top" class="back-to-top-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 500; color: #484f58; text-decoration: none; padding: 7px 16px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-radius: 20px;">↑ Back to top</a>
+                  <td align="center" class="back-to-top" style="padding-top: 18px;">
+                    <a href="#email-top" class="back-to-top-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #6e7681; text-decoration: none;">↑ Back to top</a>
                   </td>
                 </tr>
               </table>
 
-              <!-- Section Divider -->
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 12px 0 28px;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0 28px;">
                 <tr>
                   <td class="section-divider-inner" style="padding: 0 15%;">
-                    <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #30363d;" bgcolor="#30363d">&nbsp;</td></tr></table><![endif]-->
-                    <!--[if !mso]><!--><div style="height: 1px; background: linear-gradient(to right, transparent, rgba(48, 54, 61, 0.38), transparent);"></div><!--<![endif]-->
+                    <div style="height: 1px; background-color: #21262d;"></div>
                   </td>
                 </tr>
               </table>
               {% endif %}
 
               {% if improvements %}
-              <!-- Improvements Section -->
               <a name="improvements-section"></a>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 28px;" id="improvements-section">
-                <!-- Section Header -->
                 <tr>
-                  <td class="section-header" style="padding-bottom: 16px; border-bottom: 1px solid #30363d;">
+                  <td class="section-header" style="padding-bottom: 14px; border-bottom: 1px solid #21262d;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
-                        <td width="36" valign="middle">
-                          <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="36"><tr><td align="center" valign="middle" width="36" height="36" class="section-icon-mso" style="background-color: #0d1d30; font-size: 18px; color: #ffffff;"><![endif]-->
-                          <!--[if !mso]><!--><div class="section-icon" style="width: 36px; height: 36px; background: rgba(56, 139, 253, 0.15); border: 1px solid rgba(56, 139, 253, 0.3); border-radius: 10px; text-align: center; line-height: 34px; font-size: 18px;"><!--<![endif]-->
-                          🔧
-                          <!--[if !mso]><!--></div><!--<![endif]-->
-                          <!--[if mso]></td></tr></table><![endif]-->
+                        <td width="14" valign="middle" style="width: 14px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td width="10" height="10" bgcolor="#58a6ff" style="width: 10px; height: 10px; background-color: #58a6ff; border-radius: 50%; font-size: 0; line-height: 0;">&nbsp;</td></tr></table>
                         </td>
-                        <td style="padding-left: 12px;" valign="middle">
-                          <h2 class="section-title text-primary" style="margin: 0; mso-line-height-rule: exactly; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px;">Improvements</h2>
-                          <p class="section-subtitle text-muted" style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e !important;">Enhancements to existing features</p>
+                        <td valign="middle" style="padding-left: 10px;">
+                          <h2 class="section-title text-primary" style="margin: 0; mso-line-height-rule: exactly; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px; line-height: 1.3;">Improvements</h2>
                         </td>
                         <td align="right" valign="middle" class="section-count-cell">
-                          <span class="section-count" style="display: inline-block; padding: 6px 12px; background: rgba(56, 139, 253, 0.15); border: 1px solid rgba(56, 139, 253, 0.3); border-radius: 10px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #58a6ff;">{{ improvements|length }}</span>
+                          <span class="section-count" style="display: inline-block; padding: 2px 9px; background-color: #21262d; border: 1px solid #30363d; border-radius: 100px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; color: #8b949e;">{{ improvements|length }}</span>
                         </td>
                       </tr>
                     </table>
                   </td>
                 </tr>
-                
+
                 {% for improvement in improvements %}
-                <!-- Improvement Card -->
                 <tr>
-                  <td class="card-top-padding" style="padding-top: 16px;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card card-blue dark-bg" style="background-color: #0d1117 !important; border: 1px solid #30363d; border-left: 4px solid #58a6ff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(88, 166, 255, 0.1); border-top: 1px solid rgba(88, 166, 255, 0.15);" bgcolor="#0d1117">
+                  <td class="card-top-padding" style="padding-top: 14px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card card-blue dark-bg" style="background-color: #0d1117 !important; border: 1px solid #30363d; border-radius: 12px;" bgcolor="#0d1117">
                       <tr>
-                        <td class="card-content" style="padding: 20px 22px;">
-                          <h3 class="card-title" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; letter-spacing: -0.2px;">
-                            <a href="{{ improvement.url }}" class="title-link title-link-blue" style="color: #ffffff; text-decoration: none;">{% set _p = improvement.title.rstrip().rsplit(' ', 1) %}{% if _p|length == 2 %}{{ _p[0] }} {% endif %}<span style="white-space: nowrap;">{{ _p[-1] }}<span class="card-arrow" style="font-size: 12px; color: #58a6ff;">&nbsp;→</span></span></a>
+                        <td class="card-content" style="padding: 20px;">
+                          <h3 class="card-title" style="margin: 0 0 10px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.4; letter-spacing: -0.2px;">
+                            <a href="{{ improvement.url }}" class="title-link" style="color: #f0f6fc; text-decoration: none;">{% set _p = improvement.title.rstrip().rsplit(' ', 1) %}{% if _p|length == 2 %}{{ _p[0] }} {% endif %}<span style="white-space: nowrap;">{{ _p[-1] }}<span class="card-arrow" style="font-size: 13px; color: #8b949e;">&nbsp;→</span></span></a>
                           </h3>
                           <div class="card-meta-wrap" style="margin-bottom: 12px;">
-                            <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">{{ improvement.published }}</span>
+                            <span class="card-meta" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; color: #8b949e; line-height: 1.3;">{{ improvement.published }}</span>
                           </div>
                           {% if improvement.labels %}
-                          <div class="card-labels-wrap" style="margin-bottom: 12px; line-height: 1.8;">
+                          <div class="card-labels-wrap" style="margin-bottom: 12px; line-height: 2;">
                             {% for label in improvement.labels %}
-                            <span class="card-label" style="display: inline-block; padding: 4px 10px; margin-right: 6px; margin-bottom: 4px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #10233f; border: 1px solid #143568; border-radius: 6px; color: #a5d6ff; white-space: nowrap;">{{ label }}</span>
+                            <span class="card-label" style="display: inline-block; padding: 3px 9px; margin-right: 6px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; background-color: #21262d; border: 1px solid #30363d; border-radius: 100px; color: #c9d1d9; white-space: nowrap;">{{ label }}</span>
                             {% endfor %}
                           </div>
                           {% endif %}
                           {% if improvement.summary %}
-                          <p class="card-summary" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #c9d1d9; line-height: 1.55;">{{ improvement.summary }}</p>
+                          <p class="card-summary" style="margin: 0 0 14px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #c9d1d9; line-height: 1.6;">{{ improvement.summary }}</p>
                           {% endif %}
-                          
+
                           {% if improvement.key_features %}
-                          <!-- Key Features -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 10px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
                             {% for feature in improvement.key_features[:4] %}
                             <tr>
-                              <td style="padding: 4px 0;">
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                                  <tr>
-                                    <td valign="top" style="width: 14px; min-width: 14px; max-width: 14px; font-size: 6px; color: #58a6ff; line-height: 21px;">●</td>
-                                    <td valign="top" style="padding-left: 6px;"><span class="card-feature" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #8b949e; line-height: 1.5;">{{ feature }}</span></td>
-                                  </tr>
-                                </table>
-                              </td>
+                              <td valign="top" style="width: 14px; min-width: 14px; max-width: 14px; font-size: 5px; color: #6e7681; line-height: 22px;">&#9679;</td>
+                              <td valign="top" style="padding-left: 6px;"><span class="card-feature" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #8b949e; line-height: 1.55;">{{ feature }}</span></td>
                             </tr>
                             {% endfor %}
                           </table>
                           {% endif %}
-                          
+
                           {% if improvement.docs_url %}
-                          <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 16px; margin-bottom: 16px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background: linear-gradient(to right, transparent, #30363d, transparent);" bgcolor="#30363d">&nbsp;</td></tr></table>
-                          <!-- Docs Link -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
-                            <tr>
-                              <td class="docs-btn docs-btn-blue" style="padding: 11px 18px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-left: 3px solid #58a6ff; border-radius: 10px;" bgcolor="#21262d">
-                                <a href="{{ improvement.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #58a6ff; text-decoration: none;">
-                                  <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                                    <tr>
-                                      <td valign="middle" style="font-size: 13px;">📖</td>
-                                      <td valign="middle" style="padding-left: 8px;"><span class="docs-btn-text" style="color: #a5d6ff;">View Documentation →</span></td>
-                                    </tr>
-                                  </table>
-                                </a>
-                              </td>
-                            </tr>
-                          </table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 16px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr></table>
+                          <a href="{{ improvement.docs_url }}" class="docs-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #58a6ff; text-decoration: none;">Read the docs <span style="font-size: 12px;">→</span></a>
                           {% endif %}
                         </td>
                       </tr>
@@ -625,114 +431,81 @@
                   </td>
                 </tr>
                 {% endfor %}
-                
-                <!-- Back to top link -->
+
                 <tr>
-                  <td align="center" class="back-to-top" style="padding-top: 20px;">
-                    <a href="#email-top" class="back-to-top-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 500; color: #484f58; text-decoration: none; padding: 7px 16px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-radius: 20px;">↑ Back to top</a>
+                  <td align="center" class="back-to-top" style="padding-top: 18px;">
+                    <a href="#email-top" class="back-to-top-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #6e7681; text-decoration: none;">↑ Back to top</a>
                   </td>
                 </tr>
               </table>
 
-              <!-- Section Divider -->
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 12px 0 28px;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0 28px;">
                 <tr>
                   <td class="section-divider-inner" style="padding: 0 15%;">
-                    <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #30363d;" bgcolor="#30363d">&nbsp;</td></tr></table><![endif]-->
-                    <!--[if !mso]><!--><div style="height: 1px; background: linear-gradient(to right, transparent, rgba(48, 54, 61, 0.38), transparent);"></div><!--<![endif]-->
+                    <div style="height: 1px; background-color: #21262d;"></div>
                   </td>
                 </tr>
               </table>
               {% endif %}
 
               {% if retirements %}
-              <!-- Retirements Section -->
               <a name="retirements-section"></a>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" id="retirements-section">
-                <!-- Section Header -->
                 <tr>
-                  <td class="section-header" style="padding-bottom: 16px; border-bottom: 1px solid #30363d;">
+                  <td class="section-header" style="padding-bottom: 14px; border-bottom: 1px solid #21262d;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                       <tr>
-                        <td width="36" valign="middle">
-                          <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="36"><tr><td align="center" valign="middle" width="36" height="36" class="section-icon-mso" style="background-color: #231c0d; font-size: 18px; color: #ffffff;"><![endif]-->
-                          <!--[if !mso]><!--><div class="section-icon" style="width: 36px; height: 36px; background: rgba(187, 128, 9, 0.15); border: 1px solid rgba(187, 128, 9, 0.3); border-radius: 10px; text-align: center; line-height: 34px; font-size: 18px;"><!--<![endif]-->
-                          📦
-                          <!--[if !mso]><!--></div><!--<![endif]-->
-                          <!--[if mso]></td></tr></table><![endif]-->
+                        <td width="14" valign="middle" style="width: 14px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td width="10" height="10" bgcolor="#d29922" style="width: 10px; height: 10px; background-color: #d29922; border-radius: 50%; font-size: 0; line-height: 0;">&nbsp;</td></tr></table>
                         </td>
-                        <td style="padding-left: 12px;" valign="middle">
-                          <h2 class="section-title text-primary" style="margin: 0; mso-line-height-rule: exactly; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px;">Retirements</h2>
-                          <p class="section-subtitle text-muted" style="margin: 2px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e !important;">Deprecated or removed features</p>
+                        <td valign="middle" style="padding-left: 10px;">
+                          <h2 class="section-title text-primary" style="margin: 0; mso-line-height-rule: exactly; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; color: #f0f6fc !important; letter-spacing: -0.3px; line-height: 1.3;">Retirements</h2>
                         </td>
                         <td align="right" valign="middle" class="section-count-cell">
-                          <span class="section-count" style="display: inline-block; padding: 6px 12px; background: rgba(187, 128, 9, 0.15); border: 1px solid rgba(187, 128, 9, 0.3); border-radius: 10px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; color: #d29922;">{{ retirements|length }}</span>
+                          <span class="section-count" style="display: inline-block; padding: 2px 9px; background-color: #21262d; border: 1px solid #30363d; border-radius: 100px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; color: #8b949e;">{{ retirements|length }}</span>
                         </td>
                       </tr>
                     </table>
                   </td>
                 </tr>
-                
+
                 {% for retirement in retirements %}
-                <!-- Retirement Card -->
                 <tr>
-                  <td class="card-top-padding" style="padding-top: 16px;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card card-amber dark-bg" style="background-color: #0d1117 !important; border: 1px solid #30363d; border-left: 4px solid #d29922; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(210, 153, 34, 0.1); border-top: 1px solid rgba(210, 153, 34, 0.15);" bgcolor="#0d1117">
+                  <td class="card-top-padding" style="padding-top: 14px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card card-amber dark-bg" style="background-color: #0d1117 !important; border: 1px solid #30363d; border-radius: 12px;" bgcolor="#0d1117">
                       <tr>
-                        <td class="card-content" style="padding: 20px 22px;">
-                          <h3 class="card-title" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; letter-spacing: -0.2px;">
-                            <a href="{{ retirement.url }}" class="title-link title-link-amber" style="color: #ffffff; text-decoration: none;">{% set _p = retirement.title.rstrip().rsplit(' ', 1) %}{% if _p|length == 2 %}{{ _p[0] }} {% endif %}<span style="white-space: nowrap;">{{ _p[-1] }}<span class="card-arrow" style="font-size: 12px; color: #d29922;">&nbsp;→</span></span></a>
+                        <td class="card-content" style="padding: 20px;">
+                          <h3 class="card-title" style="margin: 0 0 10px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.4; letter-spacing: -0.2px;">
+                            <a href="{{ retirement.url }}" class="title-link" style="color: #f0f6fc; text-decoration: none;">{% set _p = retirement.title.rstrip().rsplit(' ', 1) %}{% if _p|length == 2 %}{{ _p[0] }} {% endif %}<span style="white-space: nowrap;">{{ _p[-1] }}<span class="card-arrow" style="font-size: 13px; color: #8b949e;">&nbsp;→</span></span></a>
                           </h3>
                           <div class="card-meta-wrap" style="margin-bottom: 12px;">
-                            <span class="card-meta" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #8b949e;">{{ retirement.published }}</span>
+                            <span class="card-meta" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; color: #8b949e; line-height: 1.3;">{{ retirement.published }}</span>
                           </div>
                           {% if retirement.labels %}
-                          <div class="card-labels-wrap" style="margin-bottom: 12px; line-height: 1.8;">
+                          <div class="card-labels-wrap" style="margin-bottom: 12px; line-height: 2;">
                             {% for label in retirement.labels %}
-                            <span class="card-label" style="display: inline-block; padding: 4px 10px; margin-right: 6px; margin-bottom: 4px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: #292213; border: 1px solid #44330f; border-radius: 6px; color: #e3b341; white-space: nowrap;">{{ label }}</span>
+                            <span class="card-label" style="display: inline-block; padding: 3px 9px; margin-right: 6px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; background-color: #21262d; border: 1px solid #30363d; border-radius: 100px; color: #c9d1d9; white-space: nowrap;">{{ label }}</span>
                             {% endfor %}
                           </div>
                           {% endif %}
                           {% if retirement.summary %}
-                          <p class="card-summary" style="margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #c9d1d9; line-height: 1.55;">{{ retirement.summary }}</p>
+                          <p class="card-summary" style="margin: 0 0 14px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #c9d1d9; line-height: 1.6;">{{ retirement.summary }}</p>
                           {% endif %}
-                          
+
                           {% if retirement.key_features %}
-                          <!-- Key Features -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 10px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
                             {% for feature in retirement.key_features[:4] %}
                             <tr>
-                              <td style="padding: 4px 0;">
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                                  <tr>
-                                    <td valign="top" style="width: 14px; min-width: 14px; max-width: 14px; font-size: 6px; color: #d29922; line-height: 21px;">●</td>
-                                    <td valign="top" style="padding-left: 6px;"><span class="card-feature" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #8b949e; line-height: 1.5;">{{ feature }}</span></td>
-                                  </tr>
-                                </table>
-                              </td>
+                              <td valign="top" style="width: 14px; min-width: 14px; max-width: 14px; font-size: 5px; color: #6e7681; line-height: 22px;">&#9679;</td>
+                              <td valign="top" style="padding-left: 6px;"><span class="card-feature" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #8b949e; line-height: 1.55;">{{ feature }}</span></td>
                             </tr>
                             {% endfor %}
                           </table>
                           {% endif %}
-                          
+
                           {% if retirement.docs_url %}
-                          <!-- Separator -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 16px; margin-bottom: 16px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background: linear-gradient(to right, transparent, #30363d, transparent);" bgcolor="#30363d">&nbsp;</td></tr></table>
-                          <!-- Docs Link -->
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="docs-btn-wrap" style="">
-                            <tr>
-                              <td class="docs-btn docs-btn-amber" style="padding: 11px 18px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-left: 3px solid #d29922; border-radius: 10px;" bgcolor="#21262d">
-                                <a href="{{ retirement.docs_url }}" class="docs-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #d29922; text-decoration: none;">
-                                  <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                                    <tr>
-                                      <td valign="middle" style="font-size: 13px;">📖</td>
-                                      <td valign="middle" style="padding-left: 8px;"><span class="docs-btn-text" style="color: #e3b341;">View Documentation →</span></td>
-                                    </tr>
-                                  </table>
-                                </a>
-                              </td>
-                            </tr>
-                          </table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 16px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr></table>
+                          <a href="{{ retirement.docs_url }}" class="docs-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #58a6ff; text-decoration: none;">Read the docs <span style="font-size: 12px;">→</span></a>
                           {% endif %}
                         </td>
                       </tr>
@@ -740,23 +513,21 @@
                   </td>
                 </tr>
                 {% endfor %}
-                
-                <!-- Back to top link -->
+
                 <tr>
-                  <td align="center" class="back-to-top" style="padding-top: 20px;">
-                    <a href="#email-top" class="back-to-top-link" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 500; color: #484f58; text-decoration: none; padding: 7px 16px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-radius: 20px;">↑ Back to top</a>
+                  <td align="center" class="back-to-top" style="padding-top: 18px;">
+                    <a href="#email-top" class="back-to-top-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #6e7681; text-decoration: none;">↑ Back to top</a>
                   </td>
                 </tr>
               </table>
               {% endif %}
 
               {% if not releases and not improvements and not retirements %}
-              <!-- Empty State -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center" class="empty-state" style="padding: 56px 20px;">
-                    <img src="https://github.githubassets.com/images/mona-whisper.gif" alt="Mona" width="80" height="80" class="empty-emoji" style="display: block; margin: 0 auto 16px; border-radius: 50%;">
-                    <p class="empty-text" style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 15px; color: #8b949e; line-height: 1.6;">No new changelog entries to report.<br>Check back tomorrow!</p>
+                    <img src="https://github.githubassets.com/images/mona-whisper.gif" alt="Mona" width="72" height="72" class="empty-emoji" style="display: block; margin: 0 auto 16px;">
+                    <p class="empty-text text-muted" style="margin: 0; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #8b949e; line-height: 1.6;">Nothing new in the changelog today.<br>We&rsquo;ll be back tomorrow.</p>
                   </td>
                 </tr>
               </table>
@@ -768,27 +539,26 @@
           <!-- Footer -->
           <tr>
             <td align="center" class="footer-padding dark-bg" style="padding: 0; background-color: #0d1117 !important;" bgcolor="#0d1117">
-              <!-- Gradient divider -->
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                <tr><td style="padding: 0 15%;"><!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #30363d;" bgcolor="#30363d">&nbsp;</td></tr></table><![endif]--><!--[if !mso]><!--><div style="height: 1px; background: linear-gradient(to right, transparent, #30363d, transparent);"></div><!--<![endif]--></td></tr>
+                <tr><td style="padding: 0 15%;" class="section-divider-inner"><div style="height: 1px; background-color: #21262d;"></div></td></tr>
               </table>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
-                  <td align="center" style="padding: 32px 32px 40px;">
-                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="24" height="24" class="footer-logo" style="display: block; margin: 0 auto 18px; border-radius: 50%; opacity: 0.5;">
-                    <p class="footer-text text-muted" style="margin: 0 0 24px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #484f58 !important; line-height: 1.6; letter-spacing: 0.2px;">
-                      Generated from the GitHub Changelog · Delivered daily
+                  <td align="center" style="padding: 36px 32px 40px;">
+                    <img src="https://github.githubassets.com/favicons/favicon-dark.png" alt="GitHub" width="20" height="20" class="footer-logo" style="display: block; margin: 0 auto 16px; opacity: 0.6;">
+                    <p class="footer-text text-muted" style="margin: 0 0 24px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; color: #8b949e !important; line-height: 1.6;">
+                      Your daily digest of the GitHub Changelog
                     </p>
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="footer-links" width="100%" style="max-width: 340px;">
-                      <tr class="footer-links">
-                        <td class="footer-link-cell" width="50%" style="padding: 0 6px;">
-                          <a href="https://github.blog/changelog/" class="footer-link footer-btn" style="display: inline-block; width: 100%; padding: 12px 16px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-radius: 10px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #8b949e; text-decoration: none; text-align: center;">
-                            🌐 Full Changelog
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="footer-links" width="100%" style="max-width: 320px;">
+                      <tr>
+                        <td class="footer-link-cell" width="50%" style="padding: 0 5px;">
+                          <a href="https://github.blog/changelog/" class="footer-link" style="display: inline-block; width: 100%; text-decoration: none;">
+                            <span class="footer-btn" style="display: block; padding: 9px 16px; background-color: #161b22; border: 1px solid #30363d; border-radius: 6px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #c9d1d9; text-align: center;">Full changelog</span>
                           </a>
                         </td>
-                        <td class="footer-link-cell" width="50%" style="padding: 0 6px;">
-                          <a href="https://github.blog/changelog/feed/" class="footer-link footer-btn" style="display: inline-block; width: 100%; padding: 12px 16px; background: linear-gradient(135deg, #1c2128 0%, #21262d 100%); border: 1px solid #30363d; border-radius: 10px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #8b949e; text-decoration: none; text-align: center;">
-                            📡 RSS Feed
+                        <td class="footer-link-cell" width="50%" style="padding: 0 5px;">
+                          <a href="https://github.blog/changelog/feed/" class="footer-link" style="display: inline-block; width: 100%; text-decoration: none;">
+                            <span class="footer-btn" style="display: block; padding: 9px 16px; background-color: #161b22; border: 1px solid #30363d; border-radius: 6px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #c9d1d9; text-align: center;">RSS feed</span>
                           </a>
                         </td>
                       </tr>
@@ -800,8 +570,7 @@
           </tr>
 
         </table>
-        <!-- End Email Container -->
-        
+
         <!--[if mso]>
         </td></tr></table>
         <![endif]-->
@@ -809,7 +578,6 @@
       </td>
     </tr>
   </table>
-  <!-- End Main Wrapper -->
 
 </body>
 </html>
