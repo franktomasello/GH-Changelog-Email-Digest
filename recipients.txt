@@ -1,5 +1,13 @@
 # GitHub Changelog Digest — recipient list
 #
+# ⚠️  THIS REPOSITORY IS PUBLIC.
+#     Anything you put in this file is committed to public git history forever.
+#     Do NOT add real personal/work email addresses here while the repo is
+#     public — keep those in the encrypted DIGEST_TO_EMAIL repository secret
+#     instead (Settings → Secrets and variables → Actions). The digest reads
+#     that secret automatically when this file has no addresses.
+#     Only use this file for real recipients if the repository is private.
+#
 # To add a recipient:    append a line with their email and commit + push.
 # To remove a recipient: delete the line, or comment it out with a leading `#`.
 #
