@@ -40,7 +40,7 @@ def build_email_html(
     template = env.get_template("digest_email.html")
 
     if digest_date is None:
-        digest_date = datetime.now(tz=PACIFIC_TZ).strftime("%B %d, %Y")
+        digest_date = datetime.now(tz=PACIFIC_TZ).strftime("%A, %B %-d, %Y")
 
     html_content = template.render(
         releases=releases,
@@ -140,9 +140,11 @@ def send_digest_email(
 
     # Build subject line
     total_items = len(releases) + len(improvements) + len(retirements)
-    date_str = datetime.now(tz=PACIFIC_TZ).strftime("%b %d")
-    update_word = "update" if total_items == 1 else "updates"
-    subject = f"🚀 GitHub Changelog Digest - {date_str} ({total_items} {update_word})"
+    date_str = datetime.now(tz=PACIFIC_TZ).strftime("%a, %b %-d")
+    if total_items == 0:
+        subject = f"No changelog updates today · {date_str}"
+    else:
+        subject = f"{total_items} new in the GitHub Changelog · {date_str}"
 
     # Send email
     return send_email(to_emails, subject, html_content)

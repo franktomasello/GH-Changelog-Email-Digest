@@ -74,8 +74,8 @@
     a.docs-link { color: #58a6ff !important; text-decoration: none !important; transition: color 0.15s ease !important; }
     a.docs-link:hover { color: #79c0ff !important; text-decoration: underline !important; }
     a.footer-link { text-decoration: none !important; }
-    a.back-to-top-link { color: #6e7681 !important; text-decoration: none !important; transition: color 0.15s ease !important; }
-    a.back-to-top-link:hover { color: #8b949e !important; }
+    a.back-to-top-link { color: #8b949e !important; text-decoration: none !important; transition: color 0.15s ease !important; }
+    a.back-to-top-link:hover { color: #c9d1d9 !important; }
 
     .card { transition: border-color 0.15s ease !important; }
     .card-green:hover { border-color: #3fb950 !important; }
@@ -162,7 +162,7 @@
 
   <!-- Preheader -->
   <div style="display: none; font-size: 1px; color: #0d1117; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-    {{ total_count }} GitHub {{ 'update' if total_count == 1 else 'updates' }}: {{ releases|length }} releases, {{ improvements|length }} improvements, {{ retirements|length }} retirements
+    {% set _all = releases + improvements + retirements %}{% if _all %}{{ _all[0].title }}{% if total_count > 1 %} &mdash; plus {{ total_count - 1 }} more{% endif %}{% else %}Nothing new in the changelog today.{% endif %}
     &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;
   </div>
 
@@ -263,7 +263,7 @@
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{{ retirements|length }}</td></tr>
                               <tr><td align="center" style="padding-top: 6px; line-height: 1;">
-                                <span class="stat-emoji" style="font-size: 14px; vertical-align: middle;">📦</span><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; vertical-align: middle; padding-left: 6px;">Retirements</span>
+                                <span class="stat-emoji" style="font-size: 14px; vertical-align: middle;">🗄️</span><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; vertical-align: middle; padding-left: 6px;">Retirements</span>
                               </td></tr>
                             </table>
                           </td>
@@ -348,7 +348,7 @@
 
                 <tr>
                   <td align="center" class="back-to-top" style="padding-top: 18px;">
-                    <a href="#email-top" class="back-to-top-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #6e7681; text-decoration: none;">↑ Back to top</a>
+                    <a href="#email-top" class="back-to-top-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #8b949e; text-decoration: none;">↑ Back to top</a>
                   </td>
                 </tr>
               </table>
@@ -430,7 +430,7 @@
 
                 <tr>
                   <td align="center" class="back-to-top" style="padding-top: 18px;">
-                    <a href="#email-top" class="back-to-top-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #6e7681; text-decoration: none;">↑ Back to top</a>
+                    <a href="#email-top" class="back-to-top-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #8b949e; text-decoration: none;">↑ Back to top</a>
                   </td>
                 </tr>
               </table>
@@ -512,7 +512,7 @@
 
                 <tr>
                   <td align="center" class="back-to-top" style="padding-top: 18px;">
-                    <a href="#email-top" class="back-to-top-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #6e7681; text-decoration: none;">↑ Back to top</a>
+                    <a href="#email-top" class="back-to-top-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #8b949e; text-decoration: none;">↑ Back to top</a>
                   </td>
                 </tr>
               </table>
@@ -541,7 +541,7 @@
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center" style="padding: 36px 32px 40px;">
-                    <img src="https://github.githubassets.com/favicons/favicon-dark.png" alt="GitHub" width="20" height="20" class="footer-logo" style="display: block; margin: 0 auto 16px; opacity: 0.6;">
+                    <img src="https://github.githubassets.com/favicons/favicon-dark.png" alt="" width="20" height="20" class="footer-logo" style="display: block; margin: 0 auto 16px; opacity: 0.6;">
                     <p class="footer-text text-muted" style="margin: 0 0 24px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; color: #8b949e !important; line-height: 1.6;">
                       Your daily digest of the GitHub Changelog
                     </p>

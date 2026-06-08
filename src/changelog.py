@@ -35,8 +35,8 @@ def convert_to_pst(date_string: str) -> str:
         dt = parsedate_to_datetime(date_string)
         # Convert to Pacific Time
         dt_pst = dt.astimezone(PACIFIC_TZ)
-        # Format nicely: "Jan 15, 2026 at 1:57 PM PT"
-        return dt_pst.strftime("%b %d, %Y at %-I:%M %p PT")
+        # Format nicely: "Jan 15, 2026"
+        return dt_pst.strftime("%b %-d, %Y")
     except Exception:
         # If parsing fails, return original
         return date_string
