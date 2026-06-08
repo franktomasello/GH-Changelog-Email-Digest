@@ -1,0 +1,72 @@
+name: Add recipient
+
+# Run from anywhere (including your phone): GitHub → Actions → "Add recipient"
+# → Run workflow → enter the email. The workflow appends it to recipients.txt
+# and commits + pushes for you. Skips emails already on the list.
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'Email address to add to recipients.txt'
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recipients-list
+  cancel-in-progress: false
+
+jobs:
+  add:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure git author
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add recipient
+        env:
+          INPUT_EMAIL: ${{ inputs.email }}
+        run: |
+          set -euo pipefail
+          ./bin/add-recipient --no-push "$INPUT_EMAIL"
+
+      - name: Push (rebase-aware)
+        # Race-tolerant: another job (e.g. digest.yml) may have pushed a state
+        # commit between our checkout and now. Rebase our recipient commit on
+        # top before pushing. Retry once, since two concurrent recipient adds
+        # are also possible despite the concurrency group (a previous run may
+        # finish between our rebase and our push).
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "push attempt $attempt failed; retrying..."
+            sleep 2
+          done
+          echo "push failed after 3 attempts" >&2
+          exit 1
+
+      - name: Job summary
+        if: always()
+        env:
+          INPUT_EMAIL: ${{ inputs.email }}
+        run: |
+          {
+            echo "## 📬 Add recipient"
+            echo ""
+            echo "| Email | Status |"
+            echo "|---|---|"
+            echo "| \`${INPUT_EMAIL}\` | ${{ job.status == 'success' && '✅ added & pushed' || '❌ failed' }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
