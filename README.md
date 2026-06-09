@@ -1,9 +1,6 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.githubassets.com/favicons/favicon-dark.png">
-  <img src="https://github.githubassets.com/favicons/favicon.png" alt="GitHub" width="48" height="48">
-</picture>
+<img src="https://avatars.githubusercontent.com/u/9919?s=200&v=4" alt="GitHub" width="64" height="64">
 
 # GitHub Changelog Digest
 
