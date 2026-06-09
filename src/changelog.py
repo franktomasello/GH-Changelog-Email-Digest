@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from typing import Optional
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
 from zoneinfo import ZoneInfo
 
 import feedparser
@@ -190,10 +190,14 @@ def verify_enterprise_url_exists(url: str) -> bool:
         return False
 
 
-def search_github_docs(query: str) -> Optional[str]:
+def search_github_docs(query: str, prefer_enterprise: bool = True) -> Optional[str]:
     """
     Search GitHub documentation for the most relevant page.
-    Only returns Enterprise Cloud or Enterprise Server docs URLs.
+
+    With ``prefer_enterprise=True`` only Enterprise Cloud/Server docs URLs are
+    returned (searched against the enterprise-cloud docs); with False the
+    general docs are searched and the first article result is returned.
+    ``query`` may include the entry summary for richer context.
     """
     try:
         # Clean up the query - extract key terms
@@ -223,8 +227,11 @@ def search_github_docs(query: str) -> Optional[str]:
         # Build search query
         search_query = " ".join(keywords[:6])  # Limit to top 6 keywords
         
-        # Search enterprise-cloud docs specifically
-        search_url = f"https://docs.github.com/en/enterprise-cloud@latest/search?query={requests.utils.quote(search_query)}"
+        # Search enterprise docs (default) or the general docs.
+        if prefer_enterprise:
+            search_url = f"https://docs.github.com/en/enterprise-cloud@latest/search?query={requests.utils.quote(search_query)}"
+        else:
+            search_url = f"https://docs.github.com/en/search?query={requests.utils.quote(search_query)}"
         
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
@@ -239,10 +246,11 @@ def search_github_docs(query: str) -> Optional[str]:
         # Look for search result links — only accept enterprise docs
         for link in soup.find_all("a", href=True):
             href = link["href"]
-            # Only accept enterprise-cloud or enterprise-server article links
             skip = ["/search", "/site-policy", "/get-started/learning-about-github"]
             if href.startswith("/en/") and not any(x in href for x in skip):
                 full_url = f"https://docs.github.com{href}"
+                if not prefer_enterprise:
+                    return full_url
                 if is_enterprise_docs_url(full_url):
                     return full_url
         
@@ -310,16 +318,18 @@ def validate_docs_url(url: str, title: str, summary: str = "", strict: bool = Fa
         title_ratio = title_matches / len(keywords) if keywords else 0
 
         # Thresholds depend on source trustworthiness:
-        # - Embedded links (strict=False): 40% body OR 30% page title
-        #   These come from GitHub's own changelog HTML, so moderate confidence is fine.
-        # - Search results (strict=True): 60% body OR 50% page title
-        #   Search results are often tangential; require strong evidence of relevance.
+        # - Embedded links (strict=False): 30% body OR 20% page title.
+        #   These are GitHub's own hand-picked links in the changelog post, so
+        #   they're authoritative — a light relevance check is enough to catch
+        #   the occasional generic/homepage link without dropping good ones.
+        # - Search results (strict=True): 60% body OR 50% page title.
+        #   Search results are often tangential; require strong evidence.
         if strict:
             body_threshold = 0.60
             title_threshold = 0.50
         else:
-            body_threshold = 0.40
-            title_threshold = 0.30
+            body_threshold = 0.30
+            title_threshold = 0.20
 
         if match_ratio >= body_threshold or title_ratio >= title_threshold:
             return True
@@ -333,47 +343,55 @@ def validate_docs_url(url: str, title: str, summary: str = "", strict: bool = Fa
 
 def search_docs_for_release(title: str, content_html: str = "", summary: str = "") -> Optional[str]:
     """
-    Find the most accurate documentation URL for a release.
-    Only returns a URL if it points to GitHub Enterprise Cloud or
-    GitHub Enterprise Server documentation and has been validated
-    as genuinely relevant.
-    
-    Priority order:
-      1. Enterprise docs link embedded directly in the changelog HTML
-      2. Generic docs.github.com link embedded in changelog, converted to enterprise-cloud
-      3. GitHub enterprise docs search result (uses strict validation)
+    Find the most accurate documentation URL for a changelog entry.
+
+    Accuracy-first, with an Enterprise lean. Priority order:
+      1. The most relevant docs.github.com link the changelog itself embeds
+         (the entry's own canonical reference):
+           a. if it's already an Enterprise URL, use it;
+           b. if it's a general URL, prefer a verified Enterprise equivalent;
+           c. otherwise use the accurate general link rather than discarding it.
+      2. Search the docs using the title AND summary — Enterprise docs first,
+         then general docs — each strictly validated for relevance.
+
+    Every candidate is fetched and checked against the entry's keywords before
+    it's used. Returns None if nothing validates, so the template shows no docs
+    link rather than a wrong one.
     """
-    embedded_url = extract_docs_url(content_html) if content_html else None
+    keywords = _relevance_keywords(f"{title} {summary}")
 
-    # Strategy 1: Embedded link that is already an enterprise docs URL.
-    if embedded_url and is_enterprise_docs_url(embedded_url):
-        if validate_docs_url(embedded_url, title, summary, strict=False):
-            return embedded_url
-        else:
+    # 1) The changelog's own best embedded docs link — the canonical source.
+    embedded_url = extract_best_docs_url(content_html, keywords) if content_html else None
+    if embedded_url:
+        embedded_url = _strip_tracking(embedded_url)
+        # 1a. Already an Enterprise docs URL.
+        if is_enterprise_docs_url(embedded_url):
+            if validate_docs_url(embedded_url, title, summary, strict=False):
+                return embedded_url
             print(f"  ⚠️  Embedded enterprise docs URL rejected (not relevant): {embedded_url}")
-
-    # Strategy 2: Embedded docs.github.com link — convert to enterprise-cloud/server.
-    if embedded_url and "docs.github.com" in embedded_url and not is_enterprise_docs_url(embedded_url):
-        candidates = convert_to_enterprise_docs_urls(embedded_url)
-        for candidate in candidates:
-            if verify_enterprise_url_exists(candidate):
-                if validate_docs_url(candidate, title, summary, strict=False):
-                    print(f"  ✅ Converted to enterprise docs: {candidate}")
-                    return candidate
-        print(f"  ⚠️  Embedded docs URL has no enterprise equivalent: {embedded_url}")
-
-    # Strategy 3: Search GitHub enterprise docs — uses strict validation.
-    search_result = search_github_docs(title)
-    if search_result:
-        # search_github_docs already returns only enterprise docs URLs
-        if validate_docs_url(search_result, title, summary, strict=True):
-            return search_result
         else:
-            print(f"  ⚠️  Search docs URL rejected (not relevant enough): {search_result}")
+            # 1b. Prefer a verified Enterprise version of the same page.
+            for candidate in convert_to_enterprise_docs_urls(embedded_url):
+                if verify_enterprise_url_exists(candidate) and validate_docs_url(candidate, title, summary, strict=False):
+                    print(f"  ✅ Using enterprise equivalent: {candidate}")
+                    return candidate
+            # 1c. Otherwise use the accurate general docs link itself.
+            if validate_docs_url(embedded_url, title, summary, strict=False):
+                print(f"  ✅ Using changelog docs link: {embedded_url}")
+                return embedded_url
+            print(f"  ⚠️  Embedded docs URL rejected (not relevant): {embedded_url}")
 
-    # No verified enterprise documentation found — return None so the
-    # template does NOT show a "View Documentation" link.
-    print(f"  ❌ No verified enterprise docs URL found for: {title[:60]}")
+    # 2) Search the docs with full context (title + summary).
+    query = f"{title} {summary}".strip()
+    enterprise_hit = search_github_docs(query, prefer_enterprise=True)
+    if enterprise_hit and validate_docs_url(enterprise_hit, title, summary, strict=True):
+        return enterprise_hit
+    general_hit = search_github_docs(query, prefer_enterprise=False)
+    if general_hit and validate_docs_url(general_hit, title, summary, strict=True):
+        return general_hit
+
+    # Nothing verified — the template omits the docs link entirely.
+    print(f"  ❌ No verified docs URL found for: {title[:60]}")
     return None
 
 
@@ -412,6 +430,65 @@ def extract_docs_url(content_html: str) -> Optional[str]:
         return generic_docs_links[0]
     
     return None
+
+
+def _strip_tracking(url: str) -> str:
+    """Drop marketing/tracking query params (utm_*, ref, source) from a docs
+    URL so the link is the clean canonical page. Keeps any #fragment."""
+    try:
+        parts = urlsplit(url)
+        if not parts.query:
+            return url
+        kept = [
+            (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+            if not k.lower().startswith("utm_") and k.lower() not in ("ref", "source")
+        ]
+        return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(kept), parts.fragment))
+    except Exception:
+        return url
+
+
+def _relevance_keywords(text: str) -> list[str]:
+    """Meaningful keywords from text, for relevance scoring and docs search."""
+    stop = {
+        'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+        'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
+        'should', 'may', 'might', 'must', 'shall', 'can', 'to', 'of', 'in',
+        'for', 'on', 'with', 'at', 'by', 'from', 'as', 'into', 'now',
+        'generally', 'available', 'new', 'and', 'or', 'but', 'if', 'this',
+        'that', 'these', 'those', 'it', 'its', 'all', 'each', 'every', 'both',
+        'more', 'most', 'other', 'some', 'such', 'no', 'not', 'only', 'own',
+        'same', 'so', 'than', 'too', 'very', 'just', 'also', 'github', 'update',
+        'updates', 'feature', 'features', 'support', 'supports', 'preview',
+    }
+    words = re.findall(r'\b[a-zA-Z][a-zA-Z0-9+#.-]*\b', text.lower())
+    return [w for w in words if w not in stop and len(w) > 2]
+
+
+def extract_best_docs_url(content_html: str, keywords: list[str]) -> Optional[str]:
+    """
+    Pick the docs.github.com link in the changelog content that best matches
+    the entry (by keyword overlap with the URL path). Enterprise links win
+    ties. Returns None when the content has no docs link — this is the entry's
+    own canonical reference and the most accurate source available.
+    """
+    if not content_html:
+        return None
+    soup = BeautifulSoup(content_html, "html.parser")
+    best = None
+    best_score = -1.0
+    for link in soup.find_all("a", href=True):
+        href = link["href"]
+        if not href or href.startswith("#") or "docs.github.com" not in href:
+            continue
+        path = href.lower()
+        score = float(sum(1 for kw in keywords if kw in path))
+        if is_enterprise_docs_url(href):
+            score += 0.5  # tie-break toward enterprise docs
+        if score > best_score:
+            best_score = score
+            best = href
+    return best
 
 
 def extract_all_relevant_links(content_html: str) -> dict:
@@ -1043,7 +1120,7 @@ def enrich_entries_with_demo_outlines(entries: list[ChangelogEntry]) -> list[Cha
         # Search for the most accurate documentation URL
         # Only sets docs_url if the page is verified as genuinely relevant
         print(f"  🔍 Searching docs for: {entry.title[:50]}...")
-        entry.docs_url = search_docs_for_release(entry.title, entry.content_html, entry.summary or "")
+        entry.docs_url = search_docs_for_release(entry.title, entry.content_html, entry.detailed_summary or entry.summary or "")
         
         # Also extract all relevant links for reference
         entry.all_links = extract_all_relevant_links(entry.content_html)
