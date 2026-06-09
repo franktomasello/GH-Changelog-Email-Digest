@@ -1,269 +1,202 @@
 <div align="center">
 
-# 🚀 GitHub Changelog Email Digest
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.githubassets.com/favicons/favicon-dark.png">
+  <img src="https://github.githubassets.com/favicons/favicon.png" alt="GitHub" width="48" height="48">
+</picture>
 
-**Your daily briefing on what's new in GitHub**
+# GitHub Changelog Digest
 
-[![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
-[![Gmail SMTP](https://img.shields.io/badge/Email-Gmail%20SMTP-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](https://support.google.com/mail/answer/7126229)
-[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+**A daily email that turns the GitHub Changelog into a field-ready briefing.**
 
-<br />
+[![Python](https://img.shields.io/badge/Python-3.9%2B-c9d1d9?style=flat-square&logo=python&logoColor=white&labelColor=161b22)](https://python.org)
+[![GitHub Actions](https://img.shields.io/badge/Automated-GitHub%20Actions-c9d1d9?style=flat-square&logo=githubactions&logoColor=white&labelColor=161b22)](https://github.com/features/actions)
+[![SMTP](https://img.shields.io/badge/Email-SMTP-c9d1d9?style=flat-square&logo=gmail&logoColor=white&labelColor=161b22)](https://support.google.com/mail/answer/7126229)
+[![License](https://img.shields.io/badge/License-MIT-c9d1d9?style=flat-square&labelColor=161b22)](#license)
 
-<img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="80" />
+Built for **GitHub Solutions Engineers and Sales Reps** — know what shipped before the customer asks.
 
-<br />
-
-*Built for Solutions Engineers who need to stay on top of GitHub's latest releases*
-
----
-
-[Features](#-features) • [Quick Start](#-quick-start) • [How It Works](#-how-it-works) • [Configuration](#%EF%B8%8F-configuration) • [Project Structure](#-project-structure)
+[Who it's for](#who-its-for) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Configuration](#configuration) · [Structure](#project-structure)
 
 </div>
 
 <br />
 
-## ✨ Features
+## Who it's for
 
-<table>
-<tr>
-<td width="50%">
+This digest is built for the **field** — the people who need to know what GitHub shipped before it comes up on a call or in a demo. It runs every day and distills the changelog into one email (and stays quiet on days with nothing new). Each entry is written to serve two audiences at once:
 
-### 📬 Smart Email Digest
-- **Dark mode** premium design
-- **Responsive** tables for all email clients
-- **Pacific Time** formatted dates
-- **No duplicates** — each entry sent once
+- **Solutions Engineers** — every entry lists the top features worth showing plus a relevance-checked docs link, so you can turn a release into a demo quickly.
+- **Sales Reps** — every entry leads with a concise, plain-language summary of what shipped, so you can speak to it on a call without reading the release notes.
 
-</td>
-<td width="50%">
-
-### 🎯 SE-Focused Content
-- **Concise summaries** — the stuff that matters
-- **Demo outlines** — click-by-click navigation
-- **Accurate docs links** — web search powered
-- **Key features** — bullet points for demos
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### 📊 Organized Categories
-- 🚀 **New Releases** — with demo guidance
-- ✨ **Improvements** — enhancements
-- � **Retirements** — deprecations
-
-</td>
-<td width="50%">
-
-### ⚡ Fully Automated
-- **Daily** via GitHub Actions
-- **Manual triggers** available
-- **Test email mode** — send to yourself only
-- **Dry run mode** for testing
-- **State persistence** in JSON
-
-</td>
-</tr>
-</table>
+One email. No duplicates — each update is sent exactly once.
 
 <br />
 
-## 🚀 Quick Start
+## Features
 
-### Prerequisites
+| | |
+|---|---|
+| **Field-ready content** | A concise summary, the top features, and a relevance-checked docs link on every entry — enough to talk through or demo |
+| **Accurate docs links** | Each docs link is fetched and checked against the page content, and omitted when there's no confident match |
+| **GitHub-native design** | Dark Primer theme, Mona Sans, Octicons — responsive, with explicit Outlook/Word-engine handling |
+| **Organized by impact** | Releases, Improvements, and Retirements, each in its own section |
+| **Fully automated** | Runs daily on GitHub Actions, with test, dry-run, and force modes |
+| **No repeats** | Sent entries are tracked in state, so nobody gets the same update twice |
 
-- Python 3.9+
-- Gmail account with [App Password](https://myaccount.google.com/apppasswords) (free — 500 emails/day)
+<br />
 
-### 1️⃣ Clone & Install
+## Quick start
+
+**Prerequisites** — Python 3.9+ and an SMTP account (e.g. a Gmail [App Password](https://myaccount.google.com/apppasswords), free for up to 500 emails/day).
 
 ```bash
-git clone https://github.com/yourusername/GH-Changelog-Email-Digest.git
+git clone https://github.com/franktomasello/GH-Changelog-Email-Digest.git
 cd GH-Changelog-Email-Digest
 pip install -r requirements.txt
 ```
 
-### 2️⃣ Configure Environment
+Configure the environment:
 
 ```bash
 export SMTP_HOST=smtp.gmail.com
 export SMTP_PORT=587
-export SMTP_USER=your@gmail.com
+export SMTP_USER=you@gmail.com
 export SMTP_PASSWORD=your_app_password
-export SMTP_FROM_EMAIL=your@gmail.com
-export DIGEST_TO_EMAIL=recipient@email.com   # comma-separated for multiple
+export SMTP_FROM_EMAIL=you@gmail.com
+export DIGEST_TO_EMAIL=recipient@example.com   # comma-separated for multiple
 ```
 
-### 3️⃣ Run
+Run it:
 
 ```bash
 cd src && python main.py
 ```
 
 <details>
-<summary><strong>📋 CLI Options</strong></summary>
+<summary><strong>Command-line options</strong></summary>
 
-```bash
-python main.py              # Send digest (if new entries exist)
-python main.py --dry-run    # Process without sending email
-python main.py --force      # Send even with no new entries
-python main.py --all        # Include all entries from past week
-python main.py --preview    # Output HTML to stdout
-```
+<br />
+
+| Command | What it does |
+|---|---|
+| `python main.py` | Send the digest if there are new entries |
+| `python main.py --dry-run` | Process everything but don't send or update state |
+| `python main.py --force` | Send even when there are no new entries |
+| `python main.py --all` | Include every entry from the past week |
+| `python main.py --preview` | Print the rendered HTML to stdout |
 
 </details>
 
 <br />
 
-## 🔄 How It Works
+## How it works
+
+Each run walks the same pipeline:
 
 ```
-══════════════════════════════════════════════════════════════════════════════
-                              DAILY AUTOMATION                                
-══════════════════════════════════════════════════════════════════════════════
-                                                                              
-   ① FETCH              ② PARSE               ③ DEDUPE                      
-   ┈┈┈┈┈┈┈┈┈┈┈┈┈┈       ┈┈┈┈┈┈┈┈┈┈┈┈┈┈        ┈┈┈┈┈┈┈┈┈┈┈┈┈┈                  
-   GitHub Changelog     Extract titles,       Check against                   
-   RSS Feed             dates, content        state.json                      
-   (atom.xml)           via feedparser        for seen URLs                   
-                                                                              
-══════════════════════════════════════════════════════════════════════════════
-                                                                              
-   ④ CATEGORIZE         ⑤ ENRICH              ⑥ SEARCH DOCS                 
-   ┈┈┈┈┈┈┈┈┈┈┈┈┈┈       ┈┈┈┈┈┈┈┈┈┈┈┈┈┈        ┈┈┈┈┈┈┈┈┈┈┈┈┈┈                  
-   🚀 Releases          Extract key           Multi-strategy:                 
-   ✨ Improvements      features & SE-        • Embedded links                
-   🔌 Retirements       focused summary       • Web search                    
-                        (~350 chars)          • Keyword mapping               
-                                                                              
-══════════════════════════════════════════════════════════════════════════════
-                                                                              
-   ⑦ RENDER             ⑧ SEND                ⑨ PERSIST                     
-   ┈┈┈┈┈┈┈┈┈┈┈┈┈┈       ┈┈┈┈┈┈┈┈┈┈┈┈┈┈        ┈┈┈┈┈┈┈┈┈┈┈┈┈┈                  
-   Jinja2 template      Gmail SMTP            Git commit                      
-   Dark mode HTML       (free tier)           state.json                      
-   Table-based CSS      Any recipient         [skip ci]                       
-                                                                              
-══════════════════════════════════════════════════════════════════════════════
+Fetch  →  Parse  →  Dedupe  →  Categorize  →  Enrich  →  Render  →  Send  →  Persist
 ```
 
-### 🔍 Smart Documentation Search
+| Stage | Detail |
+|---|---|
+| **Fetch** | Pull the GitHub Changelog RSS feed |
+| **Parse** | Extract titles, dates, and content with `feedparser` |
+| **Dedupe** | Drop anything already recorded in `state.json` |
+| **Categorize** | Sort into Releases, Improvements, and Retirements |
+| **Enrich** | Build the concise summary and key features; find and verify the docs link |
+| **Render** | Compose the HTML with the Jinja2 template |
+| **Send** | Deliver over SMTP to each recipient individually |
+| **Persist** | Commit the updated `state.json` so nothing repeats |
 
-The digest intelligently finds accurate documentation for each entry using a **3-tier fallback strategy**:
+### Documentation lookup
 
-| Priority | Method | Description |
-|:--------:|:-------|:------------|
-| 1️⃣ | **Embedded Links** | Extracts `docs.github.com` URLs directly from changelog HTML |
-| 2️⃣ | **Web Search** | Queries `site:docs.github.com` with title keywords |
-| 3️⃣ | **Keyword Mapping** | 20+ curated feature → docs URL mappings (Copilot, Actions, Security, Codespaces, Projects, etc.) |
+Each entry's docs link is resolved with a three-step fallback, and every candidate is fetched and checked for relevance before it's used. Links point at GitHub's Enterprise Cloud / Server docs:
 
-### 🎯 SE-Focused Demo Outlines
+| Step | Method | Detail |
+|:--:|---|---|
+| 1 | **Embedded link** | Use an Enterprise docs link already present in the changelog entry |
+| 2 | **Convert** | Map an embedded `docs.github.com` link to its Enterprise equivalent (and confirm it exists) |
+| 3 | **Search** | Search GitHub Docs for the entry's keywords |
 
-Each entry includes an **actionable demo outline** with:
-- **Concise summary** (~350 chars) highlighting business value
-- **Top 4 key features** extracted from the actual release
-- **Direct documentation link** for deeper exploration
+If no candidate is confirmed relevant, the entry shows **no docs link** rather than a wrong one.
+
+### What's in each entry
+
+Each item carries just enough to act on — for both the demo and the conversation:
+
+- A **concise summary** (a few sentences) of what the update is.
+- Up to **four key features** pulled from the entry — what an SE would show.
+- A **verified docs link**, when one is confidently matched.
+
+Dates are shown in Pacific Time.
 
 <br />
 
-## ⚙️ Configuration
+## Configuration
 
-### 👥 Recipients
+### Recipients
 
-Recipients are configured through the **`DIGEST_TO_EMAIL`** secret — a comma-separated list of addresses. The daily digest is sent to everyone on the list.
+Recipients live in the **`DIGEST_TO_EMAIL`** secret — a comma-separated list. The digest goes to everyone on it.
 
-- **Add or remove someone:** edit the `DIGEST_TO_EMAIL` secret under **Settings → Secrets and variables → Actions** (the value is the full comma-separated list).
-- **Send a one-off test:** trigger a manual run and fill in the **Test email** input. It sets `DIGEST_TEST_EMAIL`, which overrides the list for that run only.
+- **Add or remove someone** — edit `DIGEST_TO_EMAIL` under **Settings → Secrets and variables → Actions** (the value is the full comma-separated list).
+- **Send a one-off test** — trigger a manual run and fill in the **Test email** input; it overrides the list for that run only.
 
-Keeping recipients in the secret rather than a tracked file means addresses never land in this repository's public git history.
+Keeping recipients in the secret (rather than a tracked file) means addresses never land in public git history.
 
-### GitHub Actions (Automated)
+### Repository secrets
 
-The workflow runs **daily** via GitHub Actions.
-
-#### Repository Secrets
-
-Navigate to **Settings → Secrets and variables → Actions**:
+**Settings → Secrets and variables → Actions:**
 
 | Secret | Description |
-|:-------|:------------|
-| `SMTP_HOST` | SMTP server (e.g., `smtp.gmail.com`) |
-| `SMTP_PORT` | SMTP port (e.g., `587`) |
-| `SMTP_USER` | Your Gmail address |
-| `SMTP_PASSWORD` | Gmail App Password |
-| `SMTP_FROM_EMAIL` | Sender email address |
-| `DIGEST_TO_EMAIL` | Recipient email(s), comma-separated |
+|---|---|
+| `SMTP_HOST` | SMTP server (e.g. `smtp.gmail.com`) |
+| `SMTP_PORT` | SMTP port (e.g. `587`) |
+| `SMTP_USER` | SMTP username |
+| `SMTP_PASSWORD` | SMTP password / app password |
+| `SMTP_FROM_EMAIL` | Sender address |
+| `DIGEST_TO_EMAIL` | Recipient address(es), comma-separated |
 
-#### Manual Trigger
+### Automation
 
-Go to **Actions → GitHub Changelog Digest → Run workflow** with options:
-- 📧 **Test email** — send only to this address (leave empty for all recipients)
-- ☑️ **Dry run** — test without sending
-- ☑️ **Force** — send even with no new entries
+The workflow runs **daily** via GitHub Actions. To run it by hand: **Actions → GitHub Changelog Digest → Run workflow**, with optional inputs for a **test email**, a **dry run**, or a **force** send.
 
 <br />
 
-## 📁 Project Structure
+## Project structure
 
 ```
 GH-Changelog-Email-Digest/
-│
-├── 📂 .github/
-│   └── workflows/
-│       └── digest.yml              # ⏰ Daily cron job
-│
-├── 📂 src/
-│   ├── main.py                     # 🎯 Entry point & orchestration
-│   ├── changelog.py                # 📡 RSS fetch, parse, docs search
-│   ├── email_sender.py             # 📧 Build & send via SMTP
-│   └── state.py                    # 💾 Track processed entries
-│
-├── 📂 templates/
-│   └── digest_email.html           # 🎨 Jinja2 email template (dark mode, GitHub Octicons)
-│
-├── 📂 data/
-│   └── state.json                  # 📋 Persisted URLs (auto-generated)
-│
-├── requirements.txt                # 📦 Python dependencies
-└── README.md                       # 📖 You are here
+├── .github/workflows/
+│   └── digest.yml            # Daily cron + manual trigger
+├── assets/icons/             # Octicon PNGs used in the email tiles
+├── src/
+│   ├── main.py               # Entry point and orchestration
+│   ├── changelog.py          # RSS fetch, parse, and docs lookup
+│   ├── email_sender.py       # Build the HTML and send over SMTP
+│   └── state.py              # Track which entries have been sent
+├── templates/
+│   └── digest_email.html     # Jinja2 email (dark Primer theme, Mona Sans)
+├── data/
+│   └── state.json            # Persisted sent-URLs (auto-generated)
+└── requirements.txt
 ```
 
 <br />
 
-## 🛠️ Tech Stack
+## Tech stack
+
+**Python** · **GitHub Actions** (automation) · **SMTP** (delivery) · `feedparser` + `beautifulsoup4` (parsing) · `jinja2` (templating)
+
+<br />
+
+## License
+
+MIT — free to use and modify.
 
 <div align="center">
-
-| Component | Technology |
-|:---------:|:----------:|
-| **Language** | ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) |
-| **Email** | ![Gmail SMTP](https://img.shields.io/badge/Gmail%20SMTP-EA4335?style=flat-square&logo=gmail&logoColor=white) |
-| **Automation** | ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white) |
-| **Parsing** | `feedparser` · `beautifulsoup4` |
-| **Templating** | `jinja2` |
-
-</div>
-
 <br />
 
-## 📄 License
-
-MIT License — feel free to use and modify.
-
-<br />
-
----
-
-<div align="center">
-
-**[⬆ Back to Top](#-github-changelog-email-digest)**
-
-<br />
-
-[Report Bug](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues) · [Request Feature](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues)
+[Report a bug](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues) · [Request a feature](https://github.com/franktomasello/GH-Changelog-Email-Digest/issues)
 
 </div>
