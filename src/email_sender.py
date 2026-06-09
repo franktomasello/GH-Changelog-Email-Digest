@@ -141,10 +141,11 @@ def send_digest_email(
     # Build subject line
     total_items = len(releases) + len(improvements) + len(retirements)
     date_str = datetime.now(tz=PACIFIC_TZ).strftime("%a, %b %-d")
+    update_word = "update" if total_items == 1 else "updates"
     if total_items == 0:
         subject = f"No changelog updates today · {date_str}"
     else:
-        subject = f"{total_items} new in the GitHub Changelog · {date_str}"
+        subject = f"{total_items} new {update_word} in the GitHub Changelog · {date_str}"
 
     # Send email
     return send_email(to_emails, subject, html_content)
