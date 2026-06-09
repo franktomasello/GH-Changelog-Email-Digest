@@ -117,7 +117,6 @@
       .stat-cell { width: 33.33% !important; padding: 0 4px !important; }
       .stat-card { padding: 12px 6px !important; }
       .stat-number { font-size: 22px !important; }
-      .stat-emoji { font-size: 13px !important; }
       .stat-label { font-size: 11px !important; }
 
       .section-header { padding-bottom: 12px !important; }
@@ -228,8 +227,13 @@
                           <td align="center" class="stat-card stat-card-green" style="padding: 14px 10px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #3fb950; border-radius: 8px;" bgcolor="#161b22">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{{ releases|length }}</td></tr>
-                              <tr><td align="center" style="padding-top: 6px; line-height: 1;">
-                                <span class="stat-emoji" style="font-size: 14px; vertical-align: middle;">🚀</span><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; vertical-align: middle; padding-left: 6px;">Releases</span>
+                              <tr><td align="center" style="padding-top: 6px;">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
+                                  <tr>
+                                    <td valign="middle" width="16" height="16" bgcolor="#161b22" style="width: 16px; height: 16px; line-height: 1; font-size: 0;"><img src="https://raw.githubusercontent.com/franktomasello/GH-Changelog-Email-Digest/main/assets/icons/releases.png" alt="" width="16" height="16" class="stat-emoji" style="display: block; width: 16px; height: 16px; border: 0; outline: none; text-decoration: none;"></td>
+                                    <td valign="middle" style="padding-left: 6px;"><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; line-height: 1;">Releases</span></td>
+                                  </tr>
+                                </table>
                               </td></tr>
                             </table>
                           </td>
@@ -245,8 +249,13 @@
                           <td align="center" class="stat-card stat-card-blue" style="padding: 14px 10px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #58a6ff; border-radius: 8px;" bgcolor="#161b22">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{{ improvements|length }}</td></tr>
-                              <tr><td align="center" style="padding-top: 6px; line-height: 1;">
-                                <span class="stat-emoji" style="font-size: 14px; vertical-align: middle;">🔧</span><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; vertical-align: middle; padding-left: 6px;">Improvements</span>
+                              <tr><td align="center" style="padding-top: 6px;">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
+                                  <tr>
+                                    <td valign="middle" width="16" height="16" bgcolor="#161b22" style="width: 16px; height: 16px; line-height: 1; font-size: 0;"><img src="https://raw.githubusercontent.com/franktomasello/GH-Changelog-Email-Digest/main/assets/icons/improvements.png" alt="" width="16" height="16" class="stat-emoji" style="display: block; width: 16px; height: 16px; border: 0; outline: none; text-decoration: none;"></td>
+                                    <td valign="middle" style="padding-left: 6px;"><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; line-height: 1;">Improvements</span></td>
+                                  </tr>
+                                </table>
                               </td></tr>
                             </table>
                           </td>
@@ -262,8 +271,13 @@
                           <td align="center" class="stat-card stat-card-amber" style="padding: 14px 10px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #d29922; border-radius: 8px;" bgcolor="#161b22">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{{ retirements|length }}</td></tr>
-                              <tr><td align="center" style="padding-top: 6px; line-height: 1;">
-                                <span class="stat-emoji" style="font-size: 14px; vertical-align: middle;">🗄️</span><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; vertical-align: middle; padding-left: 6px;">Retirements</span>
+                              <tr><td align="center" style="padding-top: 6px;">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
+                                  <tr>
+                                    <td valign="middle" width="16" height="16" bgcolor="#161b22" style="width: 16px; height: 16px; line-height: 1; font-size: 0;"><img src="https://raw.githubusercontent.com/franktomasello/GH-Changelog-Email-Digest/main/assets/icons/retirements.png" alt="" width="16" height="16" class="stat-emoji" style="display: block; width: 16px; height: 16px; border: 0; outline: none; text-decoration: none;"></td>
+                                    <td valign="middle" style="padding-left: 6px;"><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; line-height: 1;">Retirements</span></td>
+                                  </tr>
+                                </table>
                               </td></tr>
                             </table>
                           </td>
