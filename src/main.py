@@ -104,6 +104,14 @@ def main():
     categorized["improvements"] = enriched_improvements
     categorized["retirements"] = enriched_retirements
 
+    # Docs-link coverage: surfaced in CI logs so accuracy regressions are visible
+    all_enriched = enriched_releases + enriched_improvements + enriched_retirements
+    linked_count = sum(1 for e in all_enriched if e.docs_url)
+    print(f"   Docs links resolved: {linked_count}/{len(all_enriched)} entries")
+    for e in all_enriched:
+        if not e.docs_url:
+            print(f"     ⚠️  no docs link: {e.title[:70]}")
+
     # Step 7: Convert to dict format for templating
     releases = entries_to_dict(categorized["releases"])
     improvements = entries_to_dict(categorized["improvements"])
