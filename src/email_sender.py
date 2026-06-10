@@ -29,6 +29,17 @@ def _mask_email(email: str) -> str:
     return (name[:1] or "") + "***@" + domain
 
 
+def _compact_html(html: str) -> str:
+    """Strip template indentation and blank lines from rendered HTML.
+
+    Table layout is whitespace-insensitive, so this is lossless visually but
+    cuts ~20% of the payload — keeping busy digests under Gmail's ~102KB
+    clipping threshold.
+    """
+    lines = (line.strip() for line in html.split("\n"))
+    return "\n".join(line for line in lines if line)
+
+
 def build_email_html(
     releases: list[dict],
     improvements: list[dict],
@@ -50,7 +61,7 @@ def build_email_html(
         total_count=len(releases) + len(improvements) + len(retirements),
     )
 
-    return html_content
+    return _compact_html(html_content)
 
 
 def send_email(
