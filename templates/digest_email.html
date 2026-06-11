@@ -332,10 +332,14 @@
                             <span class="card-meta" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; color: #8b949e; line-height: 1.3;">{{ release.published }}</span>
                           </div>
                           {% if release.labels %}
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-labels-wrap" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card-labels-wrap">
+                            <tr><td style="padding-bottom: 12px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                             <tr>
                               {% for label in release.labels[:3] %}<td bgcolor="#21262d" class="card-label" style="padding: 3px 9px; background-color: #21262d; border: 1px solid #30363d; border-radius: 100px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #c9d1d9; white-space: nowrap;">{{ label }}</td>{% if not loop.last %}<td width="6" style="width: 6px; font-size: 0; line-height: 0;">&nbsp;</td>{% endif %}{% endfor %}
                             </tr>
+                            </table>
+                            </td></tr>
                           </table>
                           {% endif %}
                           {% if release.summary %}
@@ -343,18 +347,18 @@
                           {% endif %}
 
                           {% if release.key_features %}
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                             {% for feature in release.key_features[:4] %}
                             <tr>
                               <td valign="top" style="width: 14px; min-width: 14px; max-width: 14px; font-size: 5px; color: #6e7681; line-height: 22px;">&#9679;</td>
-                              <td valign="top" style="padding-left: 6px;"><span class="card-feature" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #8b949e; line-height: 1.55;">{{ feature }}</span></td>
+                              <td valign="top" style="padding-left: 6px;{% if loop.last %} padding-bottom: 12px;{% endif %}"><span class="card-feature" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #8b949e; line-height: 1.55;">{{ feature }}</span></td>
                             </tr>
                             {% endfor %}
                           </table>
                           {% endif %}
 
                           {% if release.docs_url %}
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 16px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="padding: 4px 0 14px;"><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr></table></td></tr></table>
                           <a href="{{ release.docs_url }}" class="docs-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #58a6ff; text-decoration: none;">Read the docs <span style="font-size: 12px;">→</span></a>
                           {% endif %}
                         </td>
@@ -414,10 +418,14 @@
                             <span class="card-meta" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; color: #8b949e; line-height: 1.3;">{{ improvement.published }}</span>
                           </div>
                           {% if improvement.labels %}
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-labels-wrap" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card-labels-wrap">
+                            <tr><td style="padding-bottom: 12px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                             <tr>
                               {% for label in improvement.labels[:3] %}<td bgcolor="#21262d" class="card-label" style="padding: 3px 9px; background-color: #21262d; border: 1px solid #30363d; border-radius: 100px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #c9d1d9; white-space: nowrap;">{{ label }}</td>{% if not loop.last %}<td width="6" style="width: 6px; font-size: 0; line-height: 0;">&nbsp;</td>{% endif %}{% endfor %}
                             </tr>
+                            </table>
+                            </td></tr>
                           </table>
                           {% endif %}
                           {% if improvement.summary %}
@@ -425,18 +433,18 @@
                           {% endif %}
 
                           {% if improvement.key_features %}
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                             {% for feature in improvement.key_features[:4] %}
                             <tr>
                               <td valign="top" style="width: 14px; min-width: 14px; max-width: 14px; font-size: 5px; color: #6e7681; line-height: 22px;">&#9679;</td>
-                              <td valign="top" style="padding-left: 6px;"><span class="card-feature" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #8b949e; line-height: 1.55;">{{ feature }}</span></td>
+                              <td valign="top" style="padding-left: 6px;{% if loop.last %} padding-bottom: 12px;{% endif %}"><span class="card-feature" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #8b949e; line-height: 1.55;">{{ feature }}</span></td>
                             </tr>
                             {% endfor %}
                           </table>
                           {% endif %}
 
                           {% if improvement.docs_url %}
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 16px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="padding: 4px 0 14px;"><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr></table></td></tr></table>
                           <a href="{{ improvement.docs_url }}" class="docs-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #58a6ff; text-decoration: none;">Read the docs <span style="font-size: 12px;">→</span></a>
                           {% endif %}
                         </td>
@@ -496,10 +504,14 @@
                             <span class="card-meta" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; color: #8b949e; line-height: 1.3;">{{ retirement.published }}</span>
                           </div>
                           {% if retirement.labels %}
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="card-labels-wrap" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="card-labels-wrap">
+                            <tr><td style="padding-bottom: 12px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                             <tr>
                               {% for label in retirement.labels[:3] %}<td bgcolor="#21262d" class="card-label" style="padding: 3px 9px; background-color: #21262d; border: 1px solid #30363d; border-radius: 100px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #c9d1d9; white-space: nowrap;">{{ label }}</td>{% if not loop.last %}<td width="6" style="width: 6px; font-size: 0; line-height: 0;">&nbsp;</td>{% endif %}{% endfor %}
                             </tr>
+                            </table>
+                            </td></tr>
                           </table>
                           {% endif %}
                           {% if retirement.summary %}
@@ -507,18 +519,18 @@
                           {% endif %}
 
                           {% if retirement.key_features %}
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 12px;">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                             {% for feature in retirement.key_features[:4] %}
                             <tr>
                               <td valign="top" style="width: 14px; min-width: 14px; max-width: 14px; font-size: 5px; color: #6e7681; line-height: 22px;">&#9679;</td>
-                              <td valign="top" style="padding-left: 6px;"><span class="card-feature" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #8b949e; line-height: 1.55;">{{ feature }}</span></td>
+                              <td valign="top" style="padding-left: 6px;{% if loop.last %} padding-bottom: 12px;{% endif %}"><span class="card-feature" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #8b949e; line-height: 1.55;">{{ feature }}</span></td>
                             </tr>
                             {% endfor %}
                           </table>
                           {% endif %}
 
                           {% if retirement.docs_url %}
-                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 16px; margin-bottom: 14px;"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr></table>
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="padding: 4px 0 14px;"><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="height: 1px; font-size: 1px; line-height: 1px; background-color: #21262d;" bgcolor="#21262d">&nbsp;</td></tr></table></td></tr></table>
                           <a href="{{ retirement.docs_url }}" class="docs-link" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #58a6ff; text-decoration: none;">Read the docs <span style="font-size: 12px;">→</span></a>
                           {% endif %}
                         </td>
