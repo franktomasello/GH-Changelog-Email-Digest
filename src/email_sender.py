@@ -47,7 +47,7 @@ def build_email_html(
     digest_date: Optional[str] = None,
 ) -> str:
     """Build the HTML email content using Jinja2 template."""
-    env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
+    env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), autoescape=True)
     template = env.get_template("digest_email.html")
 
     if digest_date is None:
@@ -61,7 +61,12 @@ def build_email_html(
         total_count=len(releases) + len(improvements) + len(retirements),
     )
 
-    return _compact_html(html_content)
+    html_content = _compact_html(html_content)
+    size_kb = len(html_content.encode("utf-8")) / 1024
+    if size_kb > 100:
+        print(f"⚠️  Rendered email is {size_kb:.0f}KB — Gmail clips at ~102KB. "
+              "Large sends (e.g. --all) may be truncated for Gmail recipients.")
+    return html_content
 
 
 def send_email(
