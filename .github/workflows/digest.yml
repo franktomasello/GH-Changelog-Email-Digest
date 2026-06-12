@@ -60,7 +60,9 @@ jobs:
           cd src && uv run python main.py $ARGS
 
       - name: Persist state
-        if: success() && !inputs.dry_run
+        # Never persist on test-email runs: only the test address received the
+        # email, so marking entries processed would skip them for everyone else.
+        if: success() && !inputs.dry_run && inputs.test_email == ''
         run: |
           git diff --quiet data/state.json 2>/dev/null && exit 0
           git config user.name "github-actions[bot]"
