@@ -58,6 +58,12 @@ class ChangelogEntry:
     docs_url: Optional[str] = None
 
 
+def _capitalize_label(label: str) -> str:
+    """Capitalize each word of a feed label for display ("collaboration tools"
+    -> "Collaboration Tools"), preserving existing uppercase ("API" stays "API")."""
+    return " ".join(w[:1].upper() + w[1:] for w in label.split(" "))
+
+
 def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
     """Fetch and parse the GitHub changelog RSS feed.
     
@@ -90,7 +96,9 @@ def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
             if tag.get("scheme") == "changelog-type":
                 category = tag.get("term", "Improvement")
             elif tag.get("scheme") == "changelog-label":
-                labels.append(tag.get("term", ""))
+                label = tag.get("term", "")
+                if label:
+                    labels.append(_capitalize_label(label))
 
         # Get content (prefer full content over summary)
         content_html = ""
