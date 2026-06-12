@@ -1147,6 +1147,26 @@ def enrich_entries_with_demo_outlines(entries: list[ChangelogEntry]) -> list[Cha
     return entries
 
 
+def _fit_labels(labels: list[str], max_px: float = 240.0, max_count: int = 3) -> list[str]:
+    """Keep the leading labels that fit a single pill row on the narrowest phones.
+
+    Pills must always render as one horizontal row — never stacked — so emit
+    labels only while their estimated rendered width fits ~240px (the card
+    content width at a 320px viewport, with slack). Estimate: ~5.8px/char at
+    11px Mona Sans/Helvetica, plus 20px pill chrome (padding + border) and a
+    6px gap between pills.
+    """
+    out: list[str] = []
+    used = 0.0
+    for label in labels[:max_count]:
+        width = 5.8 * len(label) + 20 + (6 if out else 0)
+        if used + width > max_px:
+            break
+        out.append(label)
+        used += width
+    return out
+
+
 def entries_to_dict(entries: list[ChangelogEntry]) -> list[dict]:
     """Convert entries to dictionaries for JSON serialization and templating."""
     result = []
@@ -1167,7 +1187,7 @@ def entries_to_dict(entries: list[ChangelogEntry]) -> list[dict]:
             "summary": summary_text,
             "content_html": e.content_html,
             "category": e.category,
-            "labels": e.labels,
+            "labels": _fit_labels(e.labels),
             "demo_outline": e.demo_outline,
             "navigation_path": e.navigation_path,
             "docs_url": e.docs_url,
