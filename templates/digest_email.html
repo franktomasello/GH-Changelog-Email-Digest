@@ -226,18 +226,18 @@
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="stats-table">
                 <tr>
                   <!-- Releases -->
-                  <td align="center" width="33%" style="padding: 0 4px 0 0;" class="stat-cell">
+                  <td align="center" width="33%" style="padding: 0 3px 0 0;" class="stat-cell">
                     {% if releases %}<!--[if !mso]><!--><a href="#releases-section" class="nav-link" style="text-decoration: none; display: block;"><!--<![endif]-->{% endif %}
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-green" style="padding: 14px 10px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #3fb950; border-radius: 8px;" bgcolor="#161b22">
+                          <td align="center" class="stat-card stat-card-green" style="padding: 14px 5px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #3fb950; border-radius: 8px;" bgcolor="#161b22">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{% if releases %}<!--[if mso]><a href="#releases-section" style="text-decoration: none; color: #f0f6fc;"><![endif]-->{% endif %}{{ releases|length }}{% if releases %}<!--[if mso]></a><![endif]-->{% endif %}</td></tr>
                               <tr><td align="center" style="padding-top: 6px;">
                                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
                                   <tr>
                                     <td valign="middle" width="16" height="16" bgcolor="#161b22" style="width: 16px; height: 16px; line-height: 1; font-size: 0;"><img src="https://raw.githubusercontent.com/franktomasello/GH-Changelog-Email-Digest/main/assets/icons/releases.png" alt="" width="16" height="16" class="stat-emoji" style="display: block; width: 16px; height: 16px; min-width: 16px; max-width: 16px; border: 0; outline: none; text-decoration: none;"></td>
-                                    <td valign="middle" style="padding-left: 6px;"><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; line-height: 1;">{% if releases %}<!--[if mso]><a href="#releases-section" style="text-decoration: none; color: #8b949e;"><![endif]-->{% endif %}{{ 'Release' if releases|length == 1 else 'Releases' }}{% if releases %}<!--[if mso]></a><![endif]-->{% endif %}</span></td>
+                                    <td valign="middle" style="padding-left: 4px;"><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #8b949e; line-height: 1;">{% if releases %}<!--[if mso]><a href="#releases-section" style="text-decoration: none; color: #8b949e;"><![endif]-->{% endif %}{{ 'Release' if releases|length == 1 else 'Releases' }}{% if releases %}<!--[if mso]></a><![endif]-->{% endif %}</span></td>
                                   </tr>
                                 </table>
                               </td></tr>
@@ -248,18 +248,18 @@
                     {% if releases %}<!--[if !mso]><!--></a><!--<![endif]-->{% endif %}
                   </td>
                   <!-- Improvements -->
-                  <td align="center" width="33%" style="padding: 0 4px;" class="stat-cell">
+                  <td align="center" width="33%" style="padding: 0 3px;" class="stat-cell">
                     {% if improvements %}<!--[if !mso]><!--><a href="#improvements-section" class="nav-link" style="text-decoration: none; display: block;"><!--<![endif]-->{% endif %}
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-blue" style="padding: 14px 10px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #58a6ff; border-radius: 8px;" bgcolor="#161b22">
+                          <td align="center" class="stat-card stat-card-blue" style="padding: 14px 5px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #58a6ff; border-radius: 8px;" bgcolor="#161b22">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{% if improvements %}<!--[if mso]><a href="#improvements-section" style="text-decoration: none; color: #f0f6fc;"><![endif]-->{% endif %}{{ improvements|length }}{% if improvements %}<!--[if mso]></a><![endif]-->{% endif %}</td></tr>
                               <tr><td align="center" style="padding-top: 6px;">
                                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
                                   <tr>
                                     <td valign="middle" width="16" height="16" bgcolor="#161b22" style="width: 16px; height: 16px; line-height: 1; font-size: 0;"><img src="https://raw.githubusercontent.com/franktomasello/GH-Changelog-Email-Digest/main/assets/icons/improvements.png" alt="" width="16" height="16" class="stat-emoji" style="display: block; width: 16px; height: 16px; min-width: 16px; max-width: 16px; border: 0; outline: none; text-decoration: none;"></td>
-                                    <td valign="middle" style="padding-left: 6px;"><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; line-height: 1;">{% if improvements %}<!--[if mso]><a href="#improvements-section" style="text-decoration: none; color: #8b949e;"><![endif]-->{% endif %}{{ 'Improvement' if improvements|length == 1 else 'Improvements' }}{% if improvements %}<!--[if mso]></a><![endif]-->{% endif %}</span></td>
+                                    <td valign="middle" style="padding-left: 4px;"><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #8b949e; line-height: 1;">{% if improvements %}<!--[if mso]><a href="#improvements-section" style="text-decoration: none; color: #8b949e;"><![endif]-->{% endif %}{{ 'Improvement' if improvements|length == 1 else 'Improvements' }}{% if improvements %}<!--[if mso]></a><![endif]-->{% endif %}</span></td>
                                   </tr>
                                 </table>
                               </td></tr>
@@ -270,18 +270,18 @@
                     {% if improvements %}<!--[if !mso]><!--></a><!--<![endif]-->{% endif %}
                   </td>
                   <!-- Retirements -->
-                  <td align="center" width="33%" style="padding: 0 0 0 4px;" class="stat-cell">
+                  <td align="center" width="33%" style="padding: 0 0 0 3px;" class="stat-cell">
                     {% if retirements %}<!--[if !mso]><!--><a href="#retirements-section" class="nav-link" style="text-decoration: none; display: block;"><!--<![endif]-->{% endif %}
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                         <tr>
-                          <td align="center" class="stat-card stat-card-amber" style="padding: 14px 10px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #d29922; border-radius: 8px;" bgcolor="#161b22">
+                          <td align="center" class="stat-card stat-card-amber" style="padding: 14px 5px; background-color: #161b22; border: 1px solid #30363d; border-top: 2px solid #d29922; border-radius: 8px;" bgcolor="#161b22">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr><td align="center" class="stat-number" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #f0f6fc; letter-spacing: -0.6px; line-height: 1; mso-line-height-rule: exactly;">{% if retirements %}<!--[if mso]><a href="#retirements-section" style="text-decoration: none; color: #f0f6fc;"><![endif]-->{% endif %}{{ retirements|length }}{% if retirements %}<!--[if mso]></a><![endif]-->{% endif %}</td></tr>
                               <tr><td align="center" style="padding-top: 6px;">
                                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
                                   <tr>
                                     <td valign="middle" width="16" height="16" bgcolor="#161b22" style="width: 16px; height: 16px; line-height: 1; font-size: 0;"><img src="https://raw.githubusercontent.com/franktomasello/GH-Changelog-Email-Digest/main/assets/icons/retirements.png" alt="" width="16" height="16" class="stat-emoji" style="display: block; width: 16px; height: 16px; min-width: 16px; max-width: 16px; border: 0; outline: none; text-decoration: none;"></td>
-                                    <td valign="middle" style="padding-left: 6px;"><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #8b949e; line-height: 1;">{% if retirements %}<!--[if mso]><a href="#retirements-section" style="text-decoration: none; color: #8b949e;"><![endif]-->{% endif %}{{ 'Retirement' if retirements|length == 1 else 'Retirements' }}{% if retirements %}<!--[if mso]></a><![endif]-->{% endif %}</span></td>
+                                    <td valign="middle" style="padding-left: 4px;"><span class="stat-label" style="font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 500; color: #8b949e; line-height: 1;">{% if retirements %}<!--[if mso]><a href="#retirements-section" style="text-decoration: none; color: #8b949e;"><![endif]-->{% endif %}{{ 'Retirement' if retirements|length == 1 else 'Retirements' }}{% if retirements %}<!--[if mso]></a><![endif]-->{% endif %}</span></td>
                                   </tr>
                                 </table>
                               </td></tr>
@@ -565,7 +565,8 @@
                     <p class="footer-text text-muted" style="margin: 0 0 24px; font-family: 'Mona Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; color: #8b949e !important; line-height: 1.6;">
                       Your daily digest of the GitHub Changelog
                     </p>
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="footer-links" width="320" align="center" style="width: 320px; max-width: 100%;">
+                    <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="320" align="center"><tr><td><![endif]-->
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="footer-links" align="center" style="width: 100%; max-width: 320px;">
                       <tr>
                         <td class="footer-link-cell" width="50%" style="padding: 0 5px;">
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -575,6 +576,7 @@
                               </td>
                             </tr>
                           </table>
+                    <!--[if mso]></td></tr></table><![endif]-->
                         </td>
                         <td class="footer-link-cell" width="50%" style="padding: 0 5px;">
                           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
