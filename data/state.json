@@ -1,9 +1,5 @@
 {
   "processed_urls": {
-    "https://github.blog/changelog/2026-06-11-new-runner-images-in-public-preview": "2026-06-12T01:40:23.195012",
-    "https://github.blog/changelog/2026-06-11-github-enterprise-server-3-21-is-now-generally-available": "2026-06-12T01:40:23.195012",
-    "https://github.blog/changelog/2026-06-11-ai-usage-report-updates": "2026-06-12T01:40:23.195012",
-    "https://github.blog/changelog/2026-06-11-bot-created-pull-requests-can-run-workflows-if-approved": "2026-06-12T01:40:23.195012",
     "https://github.blog/changelog/2026-06-10-incremental-analysis-for-go-c-c-and-codeql-cli": "2026-06-11T18:38:41.922151",
     "https://github.blog/changelog/2026-06-10-manage-sub-issues-types-and-dependencies-from-github-cli": "2026-06-11T18:38:41.922151",
     "https://github.blog/changelog/2026-06-11-github-agentic-workflows-is-now-in-public-preview": "2026-06-11T18:38:41.922151",
