@@ -2,7 +2,11 @@ name: GitHub Changelog Digest
 
 on:
   schedule:
-    - cron: '0 16 * * *'  # 8 AM PT daily
+    # Scheduled for 13:23 UTC (6:23 AM PDT / 5:23 AM PST). GitHub Actions
+    # queues scheduled runs — this repo's measured delay is 1-4 hours, and
+    # top-of-the-hour slots are the worst — so an early, off-peak minute
+    # lands actual delivery in the 7-10 AM PT window instead of 10 AM-1 PM.
+    - cron: '23 13 * * *'
   workflow_dispatch:
     inputs:
       test_email:
