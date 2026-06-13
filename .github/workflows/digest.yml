@@ -54,7 +54,7 @@ jobs:
           DIGEST_TO_EMAIL: ${{ secrets.DIGEST_TO_EMAIL }}
         run: |
           uv venv && source .venv/bin/activate
-          uv pip install -r requirements.txt
+          uv pip install -r requirements.lock
           git pull --rebase || true
           mkdir -p data
           
