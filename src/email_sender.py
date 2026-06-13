@@ -6,6 +6,7 @@ import ssl
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formatdate, make_msgid
 from typing import Optional
 from zoneinfo import ZoneInfo
 
@@ -69,11 +70,69 @@ def build_email_html(
     return html_content
 
 
+def build_email_text(
+    releases: list[dict],
+    improvements: list[dict],
+    retirements: list[dict],
+    digest_date: Optional[str] = None,
+) -> str:
+    """Build a plain-text alternative of the digest.
+
+    A multipart/alternative message that carries only a text/html part is a
+    known spam signal (SpamAssassin MIME_HTML_ONLY) and leaves text-only and
+    accessibility clients with no readable body. This renders the same data as
+    plain text so a text/plain part can be attached alongside the HTML.
+    """
+    if digest_date is None:
+        digest_date = datetime.now(tz=PACIFIC_TZ).strftime("%A, %B %-d, %Y")
+
+    total = len(releases) + len(improvements) + len(retirements)
+    word = "update" if total == 1 else "updates"
+
+    lines = [
+        "GitHub Changelog Digest",
+        digest_date,
+        "",
+        f"{total} new {word} in the GitHub Changelog." if total
+        else "No new updates today.",
+    ]
+
+    sections = [
+        ("RELEASES", releases),
+        ("IMPROVEMENTS", improvements),
+        ("RETIREMENTS", retirements),
+    ]
+    for heading, items in sections:
+        if not items:
+            continue
+        lines += ["", f"== {heading} ({len(items)}) =="]
+        for it in items:
+            lines += ["", f"* {it.get('title', '').strip()}"]
+            if it.get("published"):
+                lines.append(f"  {it['published']}")
+            if it.get("summary"):
+                lines.append(f"  {it['summary'].strip()}")
+            for feature in it.get("key_features", []) or []:
+                lines.append(f"    - {feature}")
+            if it.get("docs_url"):
+                lines.append(f"  Docs: {it['docs_url']}")
+            if it.get("url"):
+                lines.append(f"  Link: {it['url']}")
+
+    lines += [
+        "",
+        "—",
+        "Full changelog: https://github.blog/changelog/",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def send_email(
     to_emails: list[str],
     subject: str,
     html_content: str,
     from_email: Optional[str] = None,
+    text_content: Optional[str] = None,
 ) -> bool:
     """Send an email using SMTP to each recipient individually."""
     smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
@@ -100,6 +159,7 @@ def send_email(
             server.starttls(context=context)
             server.login(smtp_user, smtp_password)
 
+            sender_domain = from_email.split("@")[-1] if "@" in (from_email or "") else None
             for email in to_emails:
                 try:
                     # Create message
@@ -107,8 +167,22 @@ def send_email(
                     msg["Subject"] = subject
                     msg["From"] = from_email
                     msg["To"] = email
+                    # smtplib.sendmail() transmits the message verbatim and adds
+                    # no headers, so set Date and a unique Message-ID ourselves —
+                    # their absence is a spam signal (e.g. MISSING_MID) and can
+                    # cause client threading oddities. make_msgid() is unique
+                    # even when called back-to-back, so each copy gets its own ID.
+                    msg["Date"] = formatdate(localtime=True)
+                    msg["Message-ID"] = make_msgid(domain=sender_domain)
+                    # A mailto-based unsubscribe; the maintainer processes opt-outs
+                    # by editing the DIGEST_TO_EMAIL secret. (No List-Unsubscribe-Post
+                    # / One-Click: that requires an authenticated https endpoint.)
+                    msg["List-Unsubscribe"] = f"<mailto:{from_email}?subject=unsubscribe>"
 
-                    # Attach HTML content
+                    # multipart/alternative is least-rich-first: attach plain
+                    # text before HTML so text-only clients pick it up.
+                    if text_content:
+                        msg.attach(MIMEText(text_content, "plain", "utf-8"))
                     msg.attach(MIMEText(html_content, "html"))
 
                     # Send
@@ -164,8 +238,11 @@ def send_digest_email(
             "a one-off test send."
         )
 
-    # Build email content
-    html_content = build_email_html(releases, improvements, retirements)
+    # Build email content (shared digest date keeps the HTML and text parts in
+    # sync) — HTML plus a plain-text alternative for deliverability/accessibility.
+    digest_date = datetime.now(tz=PACIFIC_TZ).strftime("%A, %B %-d, %Y")
+    html_content = build_email_html(releases, improvements, retirements, digest_date)
+    text_content = build_email_text(releases, improvements, retirements, digest_date)
 
     # Build subject line
     total_items = len(releases) + len(improvements) + len(retirements)
@@ -177,4 +254,4 @@ def send_digest_email(
         subject = f"{total_items} new {update_word} in the GitHub Changelog · {date_str}"
 
     # Send email
-    return send_email(to_emails, subject, html_content)
+    return send_email(to_emails, subject, html_content, text_content=text_content)

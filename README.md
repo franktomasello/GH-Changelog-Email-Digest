@@ -80,7 +80,7 @@ cd src && python main.py
 | `python main.py` | Send the digest if there are new entries |
 | `python main.py --dry-run` | Process everything but don't send or update state |
 | `python main.py --force` | Send even when there are no new entries |
-| `python main.py --all` | Include every entry from the past week |
+| `python main.py --all` | Re-include entries already sent, ignoring dedup state (the past-week window still applies). Manual workflow runs use this by default |
 | `python main.py --preview` | Print the rendered HTML to stdout |
 
 </details>
@@ -108,13 +108,12 @@ Fetch  →  Parse  →  Dedupe  →  Categorize  →  Enrich  →  Render  →  
 
 ### Documentation lookup
 
-Each entry's docs link is resolved with a three-step fallback, and every candidate is fetched and checked for relevance before it's used. Links point at GitHub's Enterprise Cloud / Server docs:
+Each entry's docs link is resolved in two tiers, and every candidate is fetched and checked for relevance before it's used. Links prefer GitHub's Enterprise Cloud / Server docs:
 
-| Step | Method | Detail |
+| Tier | Method | Detail |
 |:--:|---|---|
-| 1 | **Embedded link** | Use an Enterprise docs link already present in the changelog entry |
-| 2 | **Convert** | Map an embedded `docs.github.com` link to its Enterprise equivalent (and confirm it exists) |
-| 3 | **Search** | Search GitHub Docs for the entry's keywords |
+| 1 | **The entry's own embedded docs link** | Used as-is if it's already an Enterprise link; otherwise converted to a verified Enterprise equivalent, or used as the general docs link |
+| 2 | **Search GitHub Docs** | Search the entry's keywords — Enterprise docs first, then general |
 
 If no candidate is confirmed relevant, the entry shows **no docs link** rather than a wrong one.
 
@@ -168,9 +167,10 @@ GH-Changelog-Email-Digest/
 │   └── digest.yml            # Daily cron + manual trigger
 ├── assets/icons/             # Octicon PNGs used in the email tiles
 ├── src/
+│   ├── __init__.py           # Marks src as a package
 │   ├── main.py               # Entry point and orchestration
 │   ├── changelog.py          # RSS fetch, parse, and docs lookup
-│   ├── email_sender.py       # Build the HTML and send over SMTP
+│   ├── email_sender.py       # Build the email (HTML + plain text) and send over SMTP
 │   └── state.py              # Track which entries have been sent
 ├── templates/
 │   └── digest_email.html     # Jinja2 email (dark Primer theme, Mona Sans)
