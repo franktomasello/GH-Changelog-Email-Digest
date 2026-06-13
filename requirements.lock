@@ -1,0 +1,23 @@
+# Pinned dependency lock — CI installs from this file (see .github/workflows/digest.yml).
+# requirements.txt holds the loose, human-edited top-level deps; this file pins the
+# full resolved tree (direct + transitive) so a daily cron run can't silently pull a
+# new/compromised release. Regenerate after editing requirements.txt, e.g.:
+#   uv pip compile requirements.txt -o requirements.lock
+# (No hashes: keeps the lock cross-platform between local macOS and the Linux runner.)
+
+# direct
+beautifulsoup4==4.14.3
+feedparser==6.0.12
+Jinja2==3.1.6
+python-dotenv==1.2.1
+requests==2.32.5
+
+# transitive
+certifi==2026.1.4
+charset-normalizer==3.4.4
+idna==3.11
+MarkupSafe==3.0.3
+sgmllib3k==1.0.0
+soupsieve==2.8.2
+typing-extensions==4.15.0
+urllib3==2.6.3

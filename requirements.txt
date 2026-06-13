@@ -1,3 +1,5 @@
+# Loose top-level deps (human-edited). CI installs from the pinned requirements.lock,
+# which captures the full resolved tree — regenerate the lock after changing this file.
 feedparser>=6.0.0
 beautifulsoup4>=4.12.0
 requests>=2.31.0
