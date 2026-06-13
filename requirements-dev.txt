@@ -1,0 +1,2 @@
+# Dev/test-only dependencies (not installed by the daily digest workflow).
+pytest==8.4.2

@@ -1,0 +1,22 @@
+name: Tests
+
+# Runs on PRs and on pushes to main. Kept off the daily cron path so it never
+# delays delivery. The digest's state commits use "[skip ci]", so they don't
+# trigger this workflow.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - name: Install & test
+        run: |
+          uv venv && source .venv/bin/activate
+          uv pip install -r requirements.lock -r requirements-dev.txt
+          python -m pytest tests/ -q
