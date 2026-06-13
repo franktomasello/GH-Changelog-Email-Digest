@@ -71,7 +71,24 @@ jobs:
           git diff --quiet data/state.json 2>/dev/null && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/state.json && git commit -m "state [skip ci]" && git push
+          git add data/state.json
+          git commit -m "state [skip ci]"
+
+          # Push with rebase-and-retry. Another commit (e.g. a merged PR) can
+          # land on the branch between this run's checkout and now; a bare push
+          # would then be rejected and state.json would never persist — causing
+          # the next run to re-send already-sent entries (duplicates). Rebasing
+          # onto the latest and retrying closes that window. Other commits don't
+          # touch state.json, so the rebase replays our commit cleanly.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt/5) — rebasing onto latest and retrying"
+            git pull --rebase || true
+          done
+          echo "::error::Failed to persist data/state.json after 5 attempts"
+          exit 1
 
       - if: always()
         run: |
