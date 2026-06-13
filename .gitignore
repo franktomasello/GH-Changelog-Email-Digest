@@ -34,3 +34,9 @@ env/
 *.swp
 *.swo
 *~
+
+# Local preview / render artifacts (generated, disposable)
+preview.html
+_preview/
+preview_*.log
+.claude/
