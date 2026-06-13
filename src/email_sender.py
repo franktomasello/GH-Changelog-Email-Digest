@@ -93,7 +93,10 @@ def send_email(
     context = ssl.create_default_context()
 
     try:
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
+        # timeout bounds a hung/half-open SMTP endpoint; without it the socket
+        # inherits the global default (None = block forever) and the only
+        # backstop is the workflow's 5-minute job kill.
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as server:
             server.starttls(context=context)
             server.login(smtp_user, smtp_password)
 
@@ -124,6 +127,16 @@ def send_email(
 
     if failed_recipients:
         print(f"Failed recipients: {', '.join(_mask_email(e) for e in failed_recipients)}")
+        # A partial failure must NOT be reported as success. If it were, main.py
+        # would mark every entry as sent and persist state, so the recipients
+        # whose send failed would never receive those entries again. Returning
+        # False keeps state un-advanced: the run fails loudly (red workflow +
+        # ::error:: annotation) and the next run retries for everyone. A few
+        # duplicates to already-delivered recipients is far better than a silent
+        # permanent drop, and the loud failure flags a persistently-bad address.
+        print("::error::Some recipients failed — not advancing state; "
+              "entries will be retried on the next run.")
+        return False
 
     return success_count > 0
 

@@ -68,10 +68,25 @@ def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
     """Fetch and parse the GitHub changelog RSS feed.
     
     Only returns entries from the past max_age_days (default 7 days).
+
+    Raises on a feed outage. feedparser.parse() given a URL does its own
+    unbounded fetch and never raises on a network/HTTP failure — it just returns
+    an empty feed — which would make a real outage indistinguishable from
+    "nothing new today" and let the daily run pass silently green. Fetching the
+    bytes ourselves with a timeout + raise_for_status turns an outage into a loud
+    failure, while a genuinely empty (but reachable) feed still returns [].
     """
-    feed = feedparser.parse(CHANGELOG_FEED_URL)
+    response = requests.get(CHANGELOG_FEED_URL, timeout=10)
+    response.raise_for_status()
+    feed = feedparser.parse(response.content)
+    if feed.bozo and not feed.entries:
+        # Reachable but unparseable and nothing recovered — fail rather than
+        # silently treating a broken feed as an empty one.
+        raise RuntimeError(
+            f"Changelog feed could not be parsed: {feed.get('bozo_exception')!r}"
+        )
     entries = []
-    
+
     # Calculate cutoff date (entries older than this are excluded)
     cutoff_date = datetime.now(timezone.utc) - timedelta(days=max_age_days)
 
@@ -83,7 +98,15 @@ def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
         except Exception:
             # If we can't parse the date, skip this entry
             continue
-        
+
+        # Skip entries with a missing or timezone-naive date. Comparing a naive
+        # datetime against the aware cutoff below raises TypeError, which (since
+        # this loop is unguarded) would abort the entire run and skip the day's
+        # digest. GitHub's feed is always tz-aware, so this only guards against a
+        # malformed or changed feed.
+        if published_dt is None or published_dt.tzinfo is None:
+            continue
+
         # Skip entries older than the cutoff
         if published_dt < cutoff_date:
             continue
@@ -131,11 +154,21 @@ def categorize_entries(entries: list[ChangelogEntry]) -> dict[str, list[Changelo
     }
 
     for entry in entries:
-        if entry.category == "Release":
+        # Match case-insensitively: the term comes verbatim from the feed's
+        # changelog-type tag, so a casing/wording change ("release", "Deprecated")
+        # would otherwise silently land in Improvements.
+        kind = (entry.category or "").strip().lower()
+        if kind == "release":
             categorized["releases"].append(entry)
-        elif entry.category == "Retired":
+        elif kind in ("retired", "deprecated", "retirement"):
             categorized["retirements"].append(entry)
         else:
+            if kind not in ("improvement", ""):
+                # Surface an unrecognized changelog-type so a feed-schema change
+                # is visible in CI logs rather than silently misclassified
+                # (consistent with the docs-coverage logging in main.py).
+                print(f"   ⚠️  Unrecognized changelog-type '{entry.category}' "
+                      f"— treating as Improvement: {entry.title[:60]}")
             categorized["improvements"].append(entry)
 
     return categorized
@@ -1167,6 +1200,19 @@ def _fit_labels(labels: list[str], max_px: float = 240.0, max_count: int = 3) ->
     return out
 
 
+def _safe_href(url: Optional[str]) -> str:
+    """Allow only http(s) URLs into email hrefs.
+
+    The entry URL comes straight from the feed's <link>, which is
+    attacker-influenceable in principle. Jinja2 autoescape stops an attacker
+    breaking out of the href attribute, but it does NOT block a javascript: or
+    data: scheme, so gate the scheme here at the data boundary.
+    """
+    if not url:
+        return ""
+    return url if urlsplit(url).scheme.lower() in ("http", "https") else ""
+
+
 def entries_to_dict(entries: list[ChangelogEntry]) -> list[dict]:
     """Convert entries to dictionaries for JSON serialization and templating."""
     result = []
@@ -1182,7 +1228,7 @@ def entries_to_dict(entries: list[ChangelogEntry]) -> list[dict]:
         
         result.append({
             "title": e.title,
-            "url": e.url,
+            "url": _safe_href(e.url),
             "published": e.published,
             "summary": summary_text,
             "content_html": e.content_html,
@@ -1190,7 +1236,7 @@ def entries_to_dict(entries: list[ChangelogEntry]) -> list[dict]:
             "labels": _fit_labels(e.labels),
             "demo_outline": e.demo_outline,
             "navigation_path": e.navigation_path,
-            "docs_url": e.docs_url,
+            "docs_url": _safe_href(e.docs_url),
             "demo_context": getattr(e, 'demo_context', None),
             "detailed_summary": detailed_summary,
             "key_features": getattr(e, 'key_features', []),
