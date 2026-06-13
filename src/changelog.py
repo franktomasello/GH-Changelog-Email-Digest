@@ -1,5 +1,5 @@
 """
-Changelog fetching, parsing, categorization, and demo outline extraction.
+Changelog fetching, parsing, categorization, and docs-link resolution.
 """
 
 import re
@@ -53,9 +53,10 @@ class ChangelogEntry:
     content_html: str
     category: str  # "Release", "Improvement", or "Retired"
     labels: list = field(default_factory=list)
-    demo_outline: Optional[str] = None
-    navigation_path: Optional[str] = None
     docs_url: Optional[str] = None
+    # Populated during enrichment (see enrich_entries).
+    detailed_summary: str = ""
+    key_features: list = field(default_factory=list)
 
 
 def _capitalize_label(label: str) -> str:
@@ -436,43 +437,6 @@ def search_docs_for_release(title: str, content_html: str = "", summary: str = "
     return None
 
 
-def extract_docs_url(content_html: str) -> Optional[str]:
-    """
-    Extract the most relevant documentation URL from changelog content.
-    Only returns docs.github.com links (enterprise or generic).
-    Blog posts, feature pages, and other non-docs links are ignored.
-    """
-    soup = BeautifulSoup(content_html, "html.parser")
-    
-    enterprise_docs_links = []
-    generic_docs_links = []
-    
-    for link in soup.find_all("a", href=True):
-        href = link["href"]
-        
-        # Skip empty or anchor-only links
-        if not href or href.startswith("#"):
-            continue
-        
-        # Only consider docs.github.com links
-        if "docs.github.com" not in href:
-            continue
-        
-        # Prefer enterprise docs links
-        if is_enterprise_docs_url(href):
-            enterprise_docs_links.append(href)
-        else:
-            generic_docs_links.append(href)
-    
-    # Return enterprise docs first, then generic (will be converted later)
-    if enterprise_docs_links:
-        return enterprise_docs_links[0]
-    if generic_docs_links:
-        return generic_docs_links[0]
-    
-    return None
-
-
 def _strip_tracking(url: str) -> str:
     """Drop marketing/tracking query params (utm_*, ref, source) from a docs
     URL so the link is the clean canonical page. Keeps any #fragment."""
@@ -530,81 +494,6 @@ def extract_best_docs_url(content_html: str, keywords: list[str]) -> Optional[st
             best_score = score
             best = href
     return best
-
-
-def extract_all_relevant_links(content_html: str) -> dict:
-    """
-    Extract all relevant links from changelog content for SE reference.
-    Returns a dict with categorized links.
-    """
-    soup = BeautifulSoup(content_html, "html.parser")
-    
-    links = {
-        "docs": None,
-        "blog": None,
-        "feature_page": None,
-    }
-    
-    for link in soup.find_all("a", href=True):
-        href = link["href"]
-        link_text = link.get_text().lower().strip()
-        
-        if not href or href.startswith("#"):
-            continue
-        
-        # Official documentation
-        if "docs.github.com" in href and not links["docs"]:
-            links["docs"] = href
-        # Blog posts (feature announcements often have more detail)
-        elif "github.blog" in href and "/changelog/" not in href and not links["blog"]:
-            links["blog"] = href
-        # Feature pages on github.com (like github.com/features/copilot)
-        elif "github.com/features" in href and not links["feature_page"]:
-            links["feature_page"] = href
-    
-    return links
-
-
-def extract_navigation_path(docs_url: str) -> Optional[str]:
-    """Scrape a docs page to extract navigation/access instructions."""
-    try:
-        response = requests.get(docs_url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        # Look for navigation instructions in common patterns
-        # Pattern 1: Look for "how to access" or "navigate to" sections
-        text_content = soup.get_text().lower()
-
-        # Pattern 2: Look for breadcrumb-style navigation in the content
-        # Common patterns: "Settings > Feature > Sub-feature"
-        settings_patterns = [
-            r"(?:navigate to|go to|click|select|open)\s+[\"']?([^\"'\n]+(?:>|→|›)[^\"'\n]+)[\"']?",
-            r"(?:Settings|Repository|Organization|Profile)\s*(?:>|→|›)\s*[^\n]+",
-        ]
-
-        for pattern in settings_patterns:
-            matches = re.findall(pattern, soup.get_text(), re.IGNORECASE)
-            if matches:
-                # Clean up the match
-                nav_path = matches[0].strip()
-                # Normalize arrows
-                nav_path = re.sub(r"\s*[>›]\s*", " → ", nav_path)
-                return nav_path
-
-        # Pattern 3: Look for ordered lists that might be steps
-        ol_elements = soup.find_all("ol")
-        for ol in ol_elements:
-            items = ol.find_all("li")
-            if 2 <= len(items) <= 6:
-                steps = [li.get_text().strip() for li in items[:5]]
-                if any("click" in s.lower() or "select" in s.lower() or "navigate" in s.lower() for s in steps):
-                    return " → ".join(steps)
-
-        return None
-
-    except Exception:
-        return None
 
 
 def _clean_html_to_text(html: str) -> str:
@@ -784,398 +673,18 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
     return deduped[:4]
 
 
-def infer_feature_context(entry: ChangelogEntry) -> dict:
-    """
-    Build a click-by-click demo skeleton with conversational talking points.
-    Uses actual content from the entry to generate specific, relevant demos.
-    """
-    title_lower = entry.title.lower()
-    labels_lower = " ".join(entry.labels).lower()
-    content_lower = entry.content_html.lower() if entry.content_html else ""
-    summary_lower = entry.summary.lower() if entry.summary else ""
-    all_text = f"{title_lower} {labels_lower} {content_lower} {summary_lower}"
-    
-    # Extract key information from the entry
-    detailed_summary = extract_detailed_summary(entry)
-    key_features = extract_key_features(entry)
-    feature_title = entry.title
-    
-    # Each step is a tuple: (click/action, what to say naturally)
-    context = {
-        "area": "general",
-        "navigation": None,
-        "demo_flow": [],  # List of {"click": "...", "say": "..."}
-        "detailed_summary": detailed_summary,
-        "key_features": key_features,
-    }
-    
-    # Build feature-specific talking points from actual content
-    feature_highlight = detailed_summary[:200] + "..." if len(detailed_summary) > 200 else detailed_summary
-    
-    # Build specific benefit statements from key features
-    feature_benefits = ""
-    if key_features:
-        feature_benefits = f"Key capabilities include: {key_features[0]}"
-        if len(key_features) > 1:
-            feature_benefits += f", and {key_features[1]}"
-    
-    if "copilot" in all_text:
-        context["area"] = "copilot"
-        if "agent" in all_text or "agentic" in all_text:
-            context["navigation"] = "VS Code → Copilot Chat → Agent Mode"
-            context["demo_flow"] = [
-                {
-                    "click": "Open VS Code with a project that has multiple files",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Press Cmd+Shift+I to open Copilot Chat, then enable 'Agent' mode",
-                    "say": f"Agent mode is the key here. {feature_benefits}" if feature_benefits else "Agent mode lets Copilot work autonomously across your entire codebase."
-                },
-                {
-                    "click": "Type a multi-step request like 'Add error handling to all API calls'",
-                    "say": "Watch it analyze the codebase, identify all the relevant files, and propose changes — this would take a developer 30+ minutes manually."
-                },
-                {
-                    "click": "Review the diff and click 'Accept' on changes you approve",
-                    "say": "You're always in control. Nothing changes until you review and accept. That's the key for enterprise adoption."
-                },
-            ]
-        elif "chat" in all_text:
-            context["navigation"] = "VS Code → Copilot Chat (Cmd+Shift+I)"
-            context["demo_flow"] = [
-                {
-                    "click": "Open VS Code and navigate to a complex file",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Select a block of code, right-click → 'Copilot' → 'Explain This'",
-                    "say": f"{feature_benefits}" if feature_benefits else "Instead of searching docs or asking the original author, just ask Copilot."
-                },
-                {
-                    "click": "In the Chat panel, type '@workspace how does authentication work?'",
-                    "say": "The @workspace command searches your entire project — it understands context across all files, not just the one you're looking at."
-                },
-            ]
-        elif "code review" in all_text or "review" in all_text:
-            context["navigation"] = "github.com → Pull Request → Files changed tab"
-            context["demo_flow"] = [
-                {
-                    "click": "Open a PR with 10+ file changes",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Click the Copilot icon in the PR toolbar → 'Summarize' or 'Review'",
-                    "say": f"{feature_benefits}" if feature_benefits else "One click for AI-powered code review that catches security issues, bugs, and performance problems."
-                },
-                {
-                    "click": "Scroll through the suggestions — click 'Apply' on any you want to accept",
-                    "say": "Developers don't have to figure out the fix themselves. Copilot proposes the code change and they just approve it."
-                },
-            ]
-        elif "extension" in all_text or "extensions" in all_text:
-            context["navigation"] = "github.com → Marketplace → Copilot Extensions"
-            context["demo_flow"] = [
-                {
-                    "click": "Go to github.com/marketplace and filter by 'Copilot Extensions'",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Browse available extensions or search for a specific tool integration",
-                    "say": f"{feature_benefits}" if feature_benefits else "Extensions let third-party tools integrate directly into Copilot Chat — so developers can query Datadog, Sentry, or your internal tools without leaving their editor."
-                },
-                {
-                    "click": "Install an extension and demo using it via @extension-name in Copilot Chat",
-                    "say": "This is how you extend Copilot's capabilities for your specific tech stack and internal tools."
-                },
-            ]
-        else:
-            context["navigation"] = "github.com → Settings → Copilot"
-            context["demo_flow"] = [
-                {
-                    "click": "Navigate to your organization or user settings → Copilot",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Show the relevant configuration or feature toggle",
-                    "say": f"{feature_benefits}" if feature_benefits else "Here's where admins control Copilot policies and features for their organization."
-                },
-                {
-                    "click": "Demo the feature in VS Code or github.com",
-                    "say": "Let me show you what this looks like from a developer's perspective."
-                },
-            ]
-    
-    elif "actions" in all_text or "workflow" in all_text:
-        context["area"] = "actions"
-        if "runner" in all_text or "runners" in all_text:
-            context["navigation"] = "Repository → Settings → Actions → Runners"
-            context["demo_flow"] = [
-                {
-                    "click": "Go to any repository → Settings → Actions → Runners",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Click 'New self-hosted runner' or view existing runner configuration",
-                    "say": f"{feature_benefits}" if feature_benefits else "You can use GitHub-hosted runners (we manage everything) or self-hosted for compliance and specialized hardware."
-                },
-                {
-                    "click": "Show the runner logs or trigger a workflow to demonstrate",
-                    "say": "This is where you get visibility into build times, resource usage, and troubleshooting."
-                },
-            ]
-        elif "reusable" in all_text or "composite" in all_text:
-            context["navigation"] = "Repository → .github/workflows/ → workflow file"
-            context["demo_flow"] = [
-                {
-                    "click": "Open a workflow YAML file that uses 'uses: ./.github/actions/' or 'workflow_call'",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Show the reusable workflow or composite action definition",
-                    "say": f"{feature_benefits}" if feature_benefits else "Reusable workflows let you define CI/CD logic once and call it from multiple repos — DRY principle for DevOps."
-                },
-                {
-                    "click": "Trigger the workflow and show the execution graph",
-                    "say": "The Actions UI shows exactly which reusable components ran and their individual status."
-                },
-            ]
-        else:
-            context["navigation"] = "Repository → Actions tab"
-            context["demo_flow"] = [
-                {
-                    "click": "Click the 'Actions' tab in any repository",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Click into a recent workflow run to show the execution details",
-                    "say": f"{feature_benefits}" if feature_benefits else "Actions gives you native CI/CD without managing separate infrastructure — one less tool in your stack."
-                },
-                {
-                    "click": "Show the workflow YAML and how it maps to the visual execution",
-                    "say": "Everything is code. Version controlled, reviewable, and auditable."
-                },
-            ]
-    
-    elif "security" in all_text or "dependabot" in all_text or "secret" in all_text or "vulnerability" in all_text or "ghas" in all_text or "codeql" in all_text:
-        context["area"] = "security"
-        if "dependabot" in all_text:
-            context["navigation"] = "Repository → Security tab → Dependabot"
-            context["demo_flow"] = [
-                {
-                    "click": "Go to any repository → Security tab → Dependabot alerts",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Click into a vulnerability alert to show the details and remediation",
-                    "say": f"{feature_benefits}" if feature_benefits else "Dependabot continuously scans your dependency tree and alerts you to known vulnerabilities."
-                },
-                {
-                    "click": "Show a Dependabot PR that auto-updates a vulnerable package",
-                    "say": "It doesn't just report problems — it opens PRs with fixes. Your team just reviews and merges."
-                },
-            ]
-        elif "secret" in all_text:
-            context["navigation"] = "Repository → Settings → Code security → Secret scanning"
-            context["demo_flow"] = [
-                {
-                    "click": "Go to Settings → Code security and analysis → Secret scanning",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Show the Push protection toggle and explain what it does",
-                    "say": f"{feature_benefits}" if feature_benefits else "Push protection blocks secrets BEFORE they're committed — not after the damage is done."
-                },
-                {
-                    "click": "Go to Security tab → Secret scanning alerts to show detected secrets",
-                    "say": "Full audit trail of what was found, when, and remediation status. This is what your security team needs."
-                },
-            ]
-        elif "code scanning" in all_text or "codeql" in all_text:
-            context["navigation"] = "Repository → Security tab → Code scanning"
-            context["demo_flow"] = [
-                {
-                    "click": "Go to Security tab → Code scanning alerts",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Click into a finding to show the data flow visualization",
-                    "say": f"{feature_benefits}" if feature_benefits else "CodeQL does semantic analysis — it traces how untrusted input flows to sensitive operations. This catches real vulnerabilities, not just pattern matches."
-                },
-                {
-                    "click": "Show a PR where code scanning blocked a vulnerability from merging",
-                    "say": "This runs on every PR automatically. Vulnerabilities get caught before they hit main branch."
-                },
-            ]
-        else:
-            context["navigation"] = "Repository → Security tab → Overview"
-            context["demo_flow"] = [
-                {
-                    "click": "Click the Security tab → Security overview",
-                    "say": f"{feature_title} — {feature_highlight}"
-                },
-                {
-                    "click": "Walk through the different security features shown",
-                    "say": f"{feature_benefits}" if feature_benefits else "This is your security command center — one place to see Dependabot, secret scanning, and code scanning status."
-                },
-                {
-                    "click": "Click into specific alerts to show remediation workflows",
-                    "say": "Security teams get visibility, developers get actionable fixes. That's the balance you need."
-                },
-            ]
-    
-    elif "issues" in all_text or "projects" in all_text or "project" in all_text:
-        context["area"] = "projects"
-        context["navigation"] = "Repository or Organization → Projects tab"
-        context["demo_flow"] = [
-            {
-                "click": "Go to a repository or org → Projects tab → Open a project board",
-                "say": f"{feature_title} — {feature_highlight}"
-            },
-            {
-                "click": "Show the different views: Board, Table, Roadmap",
-                "say": f"{feature_benefits}" if feature_benefits else "GitHub Projects is planning that lives where your code lives — no context switching to Jira or Monday."
-            },
-            {
-                "click": "Demo adding an item, changing status, or using automation",
-                "say": "Issues and PRs automatically flow through the board based on their state. Less manual status updates."
-            },
-        ]
-    
-    elif "pull request" in all_text or "merge" in all_text or " pr " in all_text:
-        context["area"] = "pull_requests"
-        context["navigation"] = "Repository → Pull requests tab"
-        context["demo_flow"] = [
-            {
-                "click": "Go to Pull requests tab and open a PR with active discussion",
-                "say": f"{feature_title} — {feature_highlight}"
-            },
-            {
-                "click": "Show the specific feature in the PR interface",
-                "say": f"{feature_benefits}" if feature_benefits else "Pull requests are the heart of code collaboration on GitHub."
-            },
-            {
-                "click": "Walk through how this improves the review or merge workflow",
-                "say": "This directly addresses pain points teams have with code review velocity and quality."
-            },
-        ]
-    
-    elif "codespace" in all_text:
-        context["area"] = "codespaces"
-        context["navigation"] = "Repository → Code button → Codespaces tab"
-        context["demo_flow"] = [
-            {
-                "click": "Go to any repository → Click green 'Code' button → Codespaces tab",
-                "say": f"{feature_title} — {feature_highlight}"
-            },
-            {
-                "click": "Click 'Create codespace on main' and wait for it to spin up",
-                "say": f"{feature_benefits}" if feature_benefits else "Full dev environment in the cloud — VS Code, terminal, extensions, everything. Compare this to 'works on my machine' problems."
-            },
-            {
-                "click": "Show the devcontainer.json that defines the environment",
-                "say": "This is infrastructure as code for dev environments. Every developer gets an identical setup."
-            },
-        ]
-    
-    elif "api" in all_text or "graphql" in all_text or "rest" in all_text:
-        context["area"] = "api"
-        context["navigation"] = "docs.github.com/rest or GraphQL Explorer"
-        context["demo_flow"] = [
-            {
-                "click": "Open docs.github.com/rest and search for the relevant endpoint",
-                "say": f"{feature_title} — {feature_highlight}"
-            },
-            {
-                "click": "Show the endpoint documentation with request/response examples",
-                "say": f"{feature_benefits}" if feature_benefits else "GitHub is API-first — anything you can do in the UI, you can automate via API."
-            },
-            {
-                "click": "Demo a curl command or show the GitHub CLI equivalent",
-                "say": "Quick demo: here's what the response looks like. Everything you need for custom integrations."
-            },
-        ]
-    
-    else:
-        # Default: create demo based on extracted content with specific feature info
-        context["navigation"] = "github.com"
-        context["demo_flow"] = [
-            {
-                "click": "Navigate to the feature area in GitHub",
-                "say": f"{feature_title} — {feature_highlight}"
-            },
-            {
-                "click": "Locate and demonstrate the new capability",
-                "say": f"{feature_benefits}" if feature_benefits else "Here's the key value: this addresses a common pain point teams face."
-            },
-            {
-                "click": "Show a real-world example of how this helps developers",
-                "say": "This is how it fits into day-to-day workflows — less friction, faster delivery."
-            },
-        ]
-    
-    return context
-
-
-def generate_demo_outline(entry: ChangelogEntry) -> str:
-    """Generate a click-by-click demo skeleton with conversational talking points."""
-    context = infer_feature_context(entry)
-    
-    # Store enhanced data on the entry for template use
-    entry.demo_context = context
-    
-    outline_parts = []
-    outline_parts.append(f"## {entry.title}")
-    outline_parts.append("")
-    
-    # Navigation
-    if entry.navigation_path:
-        outline_parts.append(f"**Start:** `{entry.navigation_path}`")
-    elif context["navigation"]:
-        outline_parts.append(f"**Start:** `{context['navigation']}`")
-        entry.navigation_path = context["navigation"]
-    outline_parts.append("")
-    
-    # Demo flow - click by click with talking points
-    outline_parts.append("**Demo Flow:**")
-    for i, step in enumerate(context["demo_flow"], 1):
-        outline_parts.append(f"{i}. **{step['click']}**")
-        outline_parts.append(f"   _\"{step['say']}\"_")
-    outline_parts.append("")
-    
-    # Links
-    if entry.docs_url:
-        outline_parts.append(f"**Documentation:** [View full docs]({entry.docs_url})")
-    outline_parts.append(f"**Changelog:** [Read more]({entry.url})")
-    
-    return "\n".join(outline_parts)
-
-
-def enrich_entries_with_demo_outlines(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
-    """Add demo outlines and detailed summaries to all entries."""
+def enrich_entries(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
+    """Attach a cleaned summary, key features, and a verified docs link to each entry."""
     for entry in entries:
-        # Extract detailed summary for ALL entries (not just releases)
         entry.detailed_summary = extract_detailed_summary(entry)
         entry.key_features = extract_key_features(entry)
 
-        # Search for the most accurate documentation URL
-        # Only sets docs_url if the page is verified as genuinely relevant
+        # Search for the most accurate documentation URL. Only sets docs_url if
+        # the page is verified as genuinely relevant (else the template omits it).
         print(f"  🔍 Searching docs for: {entry.title[:50]}...")
-        entry.docs_url = search_docs_for_release(entry.title, entry.content_html, entry.detailed_summary or entry.summary or "")
-        
-        # Also extract all relevant links for reference
-        entry.all_links = extract_all_relevant_links(entry.content_html)
-        
-        if entry.category == "Release":
-            # Try to extract navigation path from docs
-            if entry.docs_url:
-                entry.navigation_path = extract_navigation_path(entry.docs_url)
-
-            # Generate demo outline
-            entry.demo_outline = generate_demo_outline(entry)
-        else:
-            # For improvements and retirements, still add context
-            entry.demo_context = infer_feature_context(entry)
+        entry.docs_url = search_docs_for_release(
+            entry.title, entry.content_html, entry.detailed_summary or entry.summary or ""
+        )
 
     return entries
 
@@ -1214,32 +723,25 @@ def _safe_href(url: Optional[str]) -> str:
 
 
 def entries_to_dict(entries: list[ChangelogEntry]) -> list[dict]:
-    """Convert entries to dictionaries for JSON serialization and templating."""
+    """Convert entries to the dicts the email template consumes."""
     result = []
     for e in entries:
-        # Prefer the cleaned detailed_summary; fall back to RSS summary
-        detailed_summary = getattr(e, 'detailed_summary', '')
-        if detailed_summary:
-            summary_text = detailed_summary
+        # Prefer the cleaned detailed_summary; fall back to the RSS summary.
+        if e.detailed_summary:
+            summary_text = e.detailed_summary
         elif e.summary:
             summary_text = _clean_html_to_text(e.summary)
         else:
             summary_text = ""
-        
+
         result.append({
             "title": e.title,
             "url": _safe_href(e.url),
             "published": e.published,
             "summary": summary_text,
-            "content_html": e.content_html,
             "category": e.category,
             "labels": _fit_labels(e.labels),
-            "demo_outline": e.demo_outline,
-            "navigation_path": e.navigation_path,
             "docs_url": _safe_href(e.docs_url),
-            "demo_context": getattr(e, 'demo_context', None),
-            "detailed_summary": detailed_summary,
-            "key_features": getattr(e, 'key_features', []),
-            "all_links": getattr(e, 'all_links', {}),
+            "key_features": e.key_features,
         })
     return result
