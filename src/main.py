@@ -14,7 +14,7 @@ from datetime import datetime
 from changelog import (
     fetch_changelog,
     categorize_entries,
-    enrich_entries_with_demo_outlines,
+    enrich_entries,
     entries_to_dict,
 )
 from state import (
@@ -95,11 +95,11 @@ def main():
     print(f"   - Improvements: {len(categorized['improvements'])}")
     print(f"   - Retirements: {len(categorized['retirements'])}")
 
-    # Step 6: Enrich all entries with documentation links and demo outlines
-    print("📝 Enriching entries with documentation and demo outlines...")
-    enriched_releases = enrich_entries_with_demo_outlines(categorized["releases"])
-    enriched_improvements = enrich_entries_with_demo_outlines(categorized["improvements"])
-    enriched_retirements = enrich_entries_with_demo_outlines(categorized["retirements"])
+    # Step 6: Enrich all entries with summary, key features, and a docs link
+    print("📝 Enriching entries with summaries and documentation links...")
+    enriched_releases = enrich_entries(categorized["releases"])
+    enriched_improvements = enrich_entries(categorized["improvements"])
+    enriched_retirements = enrich_entries(categorized["retirements"])
     categorized["releases"] = enriched_releases
     categorized["improvements"] = enriched_improvements
     categorized["retirements"] = enriched_retirements
