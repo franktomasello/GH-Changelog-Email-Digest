@@ -107,19 +107,19 @@ def test_validate_docs_url_threshold_boundary(monkeypatch):
 
     # Page mentions only 1 of 3 keywords -> 0.33 ratio: passes non-strict (>=0.30),
     # fails strict (<0.60). This is exactly the embedded-vs-search trust boundary.
-    monkeypatch.setattr(cl.requests, "get", lambda *a, **k: _FakeResp(_page("copilot")))
+    monkeypatch.setattr(cl._DOCS_SESSION, "get", lambda *a, **k: _FakeResp(_page("copilot")))
     assert cl.validate_docs_url("https://docs.github.com/x", title, strict=False) is True
     assert cl.validate_docs_url("https://docs.github.com/x", title, strict=True) is False
 
     # Page mentions all 3 -> 1.0 ratio: passes both.
-    monkeypatch.setattr(cl.requests, "get", lambda *a, **k: _FakeResp(_page("copilot", "code", "review")))
+    monkeypatch.setattr(cl._DOCS_SESSION, "get", lambda *a, **k: _FakeResp(_page("copilot", "code", "review")))
     assert cl.validate_docs_url("https://docs.github.com/x", title, strict=True) is True
 
 
 def test_validate_docs_url_returns_false_on_fetch_error(monkeypatch):
     def boom(*a, **k):
         raise RuntimeError("network down")
-    monkeypatch.setattr(cl.requests, "get", boom)
+    monkeypatch.setattr(cl._DOCS_SESSION, "get", boom)
     assert cl.validate_docs_url("https://docs.github.com/x", "anything here") is False
 
 
