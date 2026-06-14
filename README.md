@@ -127,6 +127,21 @@ Each item carries just enough to act on — for both the demo and the conversati
 
 Dates are shown in Pacific Time.
 
+### Optional: AI-written summaries
+
+By default the summary is extracted heuristically (clean the post, drop filler, take the substantive sentences). You can optionally have each summary written by Claude instead — useful when the source post is heavy on marketing language. It's **off by default** and **degrades gracefully**: if it isn't enabled, the package isn't installed, or the API call fails, the digest silently falls back to the heuristic summary, so the daily run is never at risk. Key features and docs links are unchanged.
+
+To enable:
+
+```bash
+pip install anthropic
+export DIGEST_LLM_SUMMARIES=1
+export ANTHROPIC_API_KEY=sk-ant-...
+export DIGEST_LLM_MODEL=claude-haiku-4-5-20251001   # optional; this is the default
+```
+
+(In GitHub Actions, add `ANTHROPIC_API_KEY` as a secret and set the variables in the workflow env.) Cost is negligible — a handful of short summaries once a day.
+
 <br />
 
 ## Configuration
