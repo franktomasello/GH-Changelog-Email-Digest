@@ -971,13 +971,13 @@ def _fit_labels(labels: list[str], max_px: float = 240.0, max_count: int = 3) ->
     Pills must always render as one horizontal row — never stacked — so emit
     labels only while their estimated rendered width fits ~240px (the card
     content width at a 320px viewport, with slack). Estimate: ~5.8px/char at
-    11px Mona Sans/Helvetica, plus 20px pill chrome (padding + border) and a
-    6px gap between pills.
+    11px Mona Sans/Helvetica, plus 22px pill chrome (10px*2 padding + 1px*2
+    border) and a 6px gap between pills.
     """
     out: list[str] = []
     used = 0.0
     for label in labels[:max_count]:
-        width = 5.8 * len(label) + 20 + (6 if out else 0)
+        width = 5.8 * len(label) + 22 + (6 if out else 0)
         if used + width > max_px:
             break
         out.append(label)
