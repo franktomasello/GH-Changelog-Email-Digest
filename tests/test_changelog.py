@@ -138,3 +138,36 @@ def test_entries_to_dict_shape_and_safe_url():
     # Dead keys from the old demo subsystem must be gone.
     for dead in ("demo_outline", "navigation_path", "demo_context", "all_links", "content_html"):
         assert dead not in d
+
+
+# --- feature-text normalization & extraction --------------------------------
+
+@pytest.mark.parametrize("raw,expected", [
+    # CLI commands keep their lowercase form (not "Gh discussion list").
+    ("gh discussion list to scan recent discussions", "gh discussion list to scan recent discussions"),
+    ("git push to publish your branch", "git push to publish your branch"),
+    # Ordinary lowercase sentences are still capitalized.
+    ("improved performance for large repositories", "Improved performance for large repositories"),
+    # Slash commands and code tokens are left as-is.
+    ("/settings opens a configuration dialog", "/settings opens a configuration dialog"),
+])
+def test_normalize_feature_text_capitalization(raw, expected):
+    assert cl._normalize_feature_text(raw) == expected
+
+
+def test_key_features_ignores_bold_headings_when_list_items_exist():
+    # Bold "Runner type" is a heading, not a feature; a real <li> is present.
+    e = _entry("Improvement", title="Copilot code review")
+    e.content_html = (
+        "<ul><li>Lock the runner setting so org defaults override repo settings</li></ul>"
+        "<p><strong>Runner type</strong></p>"
+    )
+    feats = cl.extract_key_features(e)
+    assert any("Lock the runner setting" in f for f in feats)
+    assert "Runner type" not in feats
+
+
+def test_key_features_falls_back_to_bold_when_no_list_items():
+    e = _entry("Release", title="Some release")
+    e.content_html = "<p><strong>Realtime collaboration mode</strong></p>"
+    assert cl.extract_key_features(e) == ["Realtime collaboration mode"]

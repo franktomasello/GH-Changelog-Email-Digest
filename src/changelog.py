@@ -608,6 +608,15 @@ def extract_detailed_summary(entry: ChangelogEntry) -> str:
     return ""
 
 
+# Lowercase CLI/command tokens that must never be title-cased when they lead a
+# feature bullet (e.g. "gh discussion list" must not become "Gh discussion list").
+_COMMAND_PREFIXES = {
+    "gh", "git", "npm", "npx", "pip", "pipx", "pnpm", "yarn", "curl", "wget",
+    "docker", "kubectl", "brew", "dotnet", "cargo", "bundle", "gem", "mvn",
+    "gradle", "terraform", "aws", "gcloud", "ssh", "scp", "psql",
+}
+
+
 def _normalize_feature_text(text: str) -> str:
     """Clean and normalize a single feature bullet point."""
     text = re.sub(r'\s+', ' ', text).strip()
@@ -622,8 +631,12 @@ def _normalize_feature_text(text: str) -> str:
     # but not in code-like strings (e.g., npm install, pip install, dotnet add)
     if not any(kw in text.lower() for kw in ['install', 'import', 'go get', 'dotnet', 'pip', 'npm', 'require']):
         text = re.sub(r'(?<=[a-zA-Z])_(?=[a-zA-Z])', ' ', text)
-    # Capitalize the first letter (skip if starts with a code token like .NET or a lowercase package name)
-    if text and text[0].islower() and not text.startswith(('.', '@')):
+    # Capitalize the first letter — but skip code tokens (.NET, @handle) and CLI
+    # command names (gh, git, npm, ...), where the lowercase form is intentional.
+    first_word = text.split(maxsplit=1)[0].lower() if text else ""
+    if (text and text[0].islower()
+            and not text.startswith(('.', '@'))
+            and first_word not in _COMMAND_PREFIXES):
         text = text[0].upper() + text[1:]
     # Bullet points never need trailing periods — keep them consistent
     text = text.rstrip('.')
@@ -636,27 +649,31 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
     Focuses on capabilities, not implementation details.
     Returns up to 4 clean, deduplicated bullet points.
     """
-    features = []
     title_lower = entry.title.lower()
+    li_features = []
+    bold_features = []
 
     if entry.content_html:
         soup = BeautifulSoup(entry.content_html, "html.parser")
 
-        # Look for list items (common in changelogs)
+        # List items are the reliable source of demoable capabilities.
         for li in soup.find_all("li"):
             text = li.get_text().strip()
             if 15 < len(text) < 150:
                 text = _normalize_feature_text(text)
                 if text:
-                    features.append(text)
+                    li_features.append(text)
 
-        # Also look for bold/strong text as key points
+        # Bold/strong text is usually a section heading, not a feature, so use it
+        # only as a fallback when the post has no usable list items.
         for strong in soup.find_all(["strong", "b"]):
             text = strong.get_text().strip()
             if 5 < len(text) < 80:
                 text = _normalize_feature_text(text)
-                if text and text not in features:
-                    features.append(text)
+                if text:
+                    bold_features.append(text)
+
+    features = li_features if li_features else bold_features
 
     # Deduplicate: remove features that are substrings of the title or of each other
     deduped = []
