@@ -28,6 +28,11 @@ PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
 # Only include entries from the past 7 days
 MAX_AGE_DAYS = 7
 
+# Shared session for docs-resolution calls. A single run makes many requests to
+# the same host (docs.github.com); reusing one connection (keep-alive) avoids a
+# fresh TCP+TLS handshake per call. Behavior is otherwise identical to requests.*.
+_DOCS_SESSION = requests.Session()
+
 
 def convert_to_pst(date_string: str) -> str:
     """Convert RSS date string to Pacific Time formatted string."""
@@ -227,7 +232,7 @@ def verify_enterprise_url_exists(url: str) -> bool:
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
             'Accept': 'text/html',
         }
-        response = requests.head(url, headers=headers, timeout=10, allow_redirects=True)
+        response = _DOCS_SESSION.head(url, headers=headers, timeout=10, allow_redirects=True)
         return response.status_code == 200
     except Exception:
         return False
@@ -281,7 +286,7 @@ def search_github_docs(query: str, prefer_enterprise: bool = True) -> Optional[s
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         }
         
-        response = requests.get(search_url, headers=headers, timeout=10)
+        response = _DOCS_SESSION.get(search_url, headers=headers, timeout=10)
         response.raise_for_status()
         
         soup = BeautifulSoup(response.text, "html.parser")
@@ -323,7 +328,7 @@ def validate_docs_url(url: str, title: str, summary: str = "", strict: bool = Fa
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         }
-        response = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
+        response = _DOCS_SESSION.get(url, headers=headers, timeout=10, allow_redirects=True)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
