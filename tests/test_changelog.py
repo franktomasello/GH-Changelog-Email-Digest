@@ -123,6 +123,58 @@ def test_validate_docs_url_returns_false_on_fetch_error(monkeypatch):
     assert cl.validate_docs_url("https://docs.github.com/x", "anything here") is False
 
 
+# --- docs-link ranking (extract_best_docs_url) ------------------------------
+
+def test_best_docs_url_prefers_release_notes_for_version_entry():
+    # A whole-version GA entry should land on release notes, not a narrow feature.
+    html = ('<a href="https://docs.github.com/enterprise-server@3.21/admin/release-notes">notes</a>'
+            '<a href="https://docs.github.com/enterprise-server@3.21/admin/multiple-data-disks/configuring-multiple-data-disks">disks</a>')
+    best = cl.extract_best_docs_url(html, ["enterprise", "server"])
+    assert best.endswith("/admin/release-notes")
+
+
+def test_best_docs_url_penalizes_rest_reference():
+    # A REST API reference should lose to the feature's own page.
+    html = ('<a href="https://docs.github.com/en/rest/actions/self-hosted-runners">rest</a>'
+            '<a href="https://docs.github.com/en/actions/hosting-your-own-runners">hub</a>')
+    best = cl.extract_best_docs_url(html, ["actions", "runners"])
+    assert "hosting-your-own-runners" in best
+    assert "/rest/" not in best
+
+
+def test_best_docs_url_dedupes_keywords():
+    # A keyword repeated in the summary must not multiply a URL's score and beat
+    # a page that matches more *distinct* keywords.
+    html = ('<a href="https://docs.github.com/en/a/repeated-word">A</a>'
+            '<a href="https://docs.github.com/en/b/two-distinct">B</a>')
+    best = cl.extract_best_docs_url(html, ["repeated", "repeated", "repeated", "two", "distinct"])
+    assert best.endswith("/b/two-distinct")
+
+
+# --- optional LLM docs-link picker ------------------------------------------
+
+def test_llm_pick_docs_url_disabled_by_default(monkeypatch):
+    monkeypatch.delenv("DIGEST_LLM", raising=False)
+    monkeypatch.delenv("DIGEST_LLM_SUMMARIES", raising=False)
+    assert cl.llm_pick_docs_url("Some title", "<p>body</p>") is None
+
+
+def test_llm_pick_docs_url_returns_model_choice(monkeypatch):
+    monkeypatch.setenv("DIGEST_LLM", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setattr(cl, "_llm_call",
+                        lambda *a, **k: "https://docs.github.com/en/actions/concepts/security/github_token")
+    out = cl.llm_pick_docs_url("Agentic workflows no longer need a PAT", "<p>uses GITHUB_TOKEN</p>")
+    assert out == "https://docs.github.com/en/actions/concepts/security/github_token"
+
+
+def test_llm_pick_docs_url_handles_none(monkeypatch):
+    monkeypatch.setenv("DIGEST_LLM", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setattr(cl, "_llm_call", lambda *a, **k: "NONE")
+    assert cl.llm_pick_docs_url("Obscure update", "<p>body</p>") is None
+
+
 # --- entries_to_dict ---------------------------------------------------------
 
 def test_entries_to_dict_shape_and_safe_url():
