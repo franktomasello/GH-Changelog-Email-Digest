@@ -2,6 +2,7 @@
 Changelog fetching, parsing, categorization, and docs-link resolution.
 """
 
+import os
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -753,10 +754,68 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
     return deduped[:4]
 
 
+# Default model for optional LLM summaries — a small, fast, inexpensive model is
+# plenty for a one-sentence factual summary. Override with DIGEST_LLM_MODEL.
+_LLM_MODEL = "claude-haiku-4-5-20251001"
+
+_LLM_SYSTEM = (
+    "You write one concise, factual sentence (two at most) describing what a "
+    "GitHub changelog update actually does, for GitHub Solutions Engineers and "
+    "Sales Reps. Lead with the capability. No marketing language, no preamble "
+    "(no 'We're excited'), no first person, present tense. Output only the summary."
+)
+
+
+def llm_summary(entry: ChangelogEntry) -> Optional[str]:
+    """Optional, polished summary via the Anthropic API.
+
+    Returns None — so the caller falls back to the heuristic extract_detailed_summary —
+    unless LLM summaries are explicitly enabled AND the call succeeds. This keeps
+    the daily cron working unchanged until opted in. To enable:
+      * pip install anthropic
+      * set DIGEST_LLM_SUMMARIES=1 and ANTHROPIC_API_KEY (optionally DIGEST_LLM_MODEL)
+    """
+    if os.environ.get("DIGEST_LLM_SUMMARIES", "").strip().lower() not in ("1", "true", "yes"):
+        return None
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return None
+    try:
+        import anthropic
+    except ImportError:
+        return None
+
+    source = _clean_html_to_text(entry.content_html or entry.summary or "")[:1500]
+    if not source:
+        return None
+
+    try:
+        client = anthropic.Anthropic()
+        resp = client.messages.create(
+            model=os.environ.get("DIGEST_LLM_MODEL", _LLM_MODEL),
+            max_tokens=120,
+            temperature=0,
+            system=_LLM_SYSTEM,
+            messages=[{
+                "role": "user",
+                "content": f"Title: {entry.title}\n\nChangelog text:\n{source}",
+            }],
+        )
+        text = "".join(
+            getattr(b, "text", "") for b in resp.content if getattr(b, "type", "") == "text"
+        ).strip()
+        return _normalize_summary_text(text) or None
+    except Exception as e:
+        # Never let an API hiccup break the digest — fall back to the heuristic.
+        print(f"  ⚠️  LLM summary failed ({e}); using heuristic summary")
+        return None
+
+
 def enrich_entries(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
     """Attach a cleaned summary, key features, and a verified docs link to each entry."""
     for entry in entries:
-        entry.detailed_summary = extract_detailed_summary(entry)
+        # Prefer an LLM-written summary when explicitly enabled; otherwise (and on
+        # any failure) fall back to the heuristic extractor.
+        entry.detailed_summary = llm_summary(entry) or extract_detailed_summary(entry)
         entry.key_features = extract_key_features(entry)
 
         # Search for the most accurate documentation URL. Only sets docs_url if

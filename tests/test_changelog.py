@@ -1,5 +1,7 @@
 """Tests for changelog parsing, categorization, and the pure display helpers."""
 
+import sys
+import types
 from datetime import datetime, timezone
 
 import pytest
@@ -248,3 +250,59 @@ def test_summary_keeps_sole_titleish_sentence():
     e.content_html = "<p>Feature X is now in public preview.</p>"
     # Nothing else to fall back to, so the lone sentence is kept rather than blanked.
     assert "Feature X is now in public preview" in cl.extract_detailed_summary(e)
+
+
+# --- optional LLM summary (opt-in, graceful fallback) -----------------------
+
+def _fake_anthropic(text=None, raises=None):
+    """A stand-in for the `anthropic` package exposing Anthropic().messages.create."""
+    mod = types.ModuleType("anthropic")
+
+    class _Msgs:
+        def create(self, **kwargs):
+            if raises:
+                raise raises
+            block = types.SimpleNamespace(type="text", text=text)
+            return types.SimpleNamespace(content=[block])
+
+    class _Client:
+        def __init__(self, *a, **k):
+            self.messages = _Msgs()
+
+    mod.Anthropic = _Client
+    return mod
+
+
+def test_llm_summary_disabled_by_default(monkeypatch):
+    monkeypatch.delenv("DIGEST_LLM_SUMMARIES", raising=False)
+    e = _entry("Release", title="X")
+    e.content_html = "<p>Some changelog body text long enough to matter.</p>"
+    assert cl.llm_summary(e) is None
+
+
+def test_llm_summary_requires_api_key(monkeypatch):
+    monkeypatch.setenv("DIGEST_LLM_SUMMARIES", "1")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    e = _entry("Release", title="X")
+    e.content_html = "<p>Body text.</p>"
+    assert cl.llm_summary(e) is None
+
+
+def test_llm_summary_uses_api_when_enabled(monkeypatch):
+    monkeypatch.setenv("DIGEST_LLM_SUMMARIES", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setitem(sys.modules, "anthropic",
+                        _fake_anthropic(text="Automates issue triage with coding agents in Actions."))
+    e = _entry("Release", title="Agentic workflows")
+    e.content_html = "<p>You can automate triage and analysis with coding agents.</p>"
+    assert cl.llm_summary(e) == "Automates issue triage with coding agents in Actions."
+
+
+def test_llm_summary_falls_back_on_api_error(monkeypatch):
+    monkeypatch.setenv("DIGEST_LLM_SUMMARIES", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setitem(sys.modules, "anthropic",
+                        _fake_anthropic(raises=RuntimeError("429 overloaded")))
+    e = _entry("Release", title="X")
+    e.content_html = "<p>Body text that is long enough.</p>"
+    assert cl.llm_summary(e) is None
