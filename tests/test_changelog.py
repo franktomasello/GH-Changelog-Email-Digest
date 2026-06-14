@@ -171,3 +171,80 @@ def test_key_features_falls_back_to_bold_when_no_list_items():
     e = _entry("Release", title="Some release")
     e.content_html = "<p><strong>Realtime collaboration mode</strong></p>"
     assert cl.extract_key_features(e) == ["Realtime collaboration mode"]
+
+
+# --- _condense_feature (recovering over-long list items) ---------------------
+
+def test_condense_feature_cuts_at_first_clause():
+    long = ("Organization custom properties are now generally available, giving "
+            "enterprise administrators a way to tag organizations with metadata "
+            "and apply policies across many repositories at once")
+    out = cl._condense_feature(long)
+    assert out == "Organization custom properties are now generally available"
+
+
+def test_condense_feature_strips_dangling_unclosed_paren():
+    out = cl._condense_feature(
+        "Existing runners below the minimum version required to execute workflow jobs (i.e")
+    assert "(" not in out
+    assert out.endswith("workflow jobs")
+
+
+def test_condense_feature_trims_dangling_function_word():
+    out = cl._condense_feature(
+        "The runner must stay up to date by installing each new release within 30 days of its")
+    assert out.endswith("30 days")
+
+
+def test_condense_feature_leaves_short_text_intact():
+    assert cl._condense_feature("Lock the runner setting") == "Lock the runner setting"
+
+
+def test_key_features_recovers_long_list_item_as_fill():
+    long_li = ("Organization custom properties are now generally available, giving "
+               "enterprise administrators a scalable way to tag organizations with "
+               "metadata and apply governance policies across many repositories at once")
+    assert len(long_li) >= 150   # must exceed the old drop threshold
+    e = _entry("Release", title="GHES 3.21")
+    e.content_html = f"<ul><li>{long_li}</li></ul>"
+    feats = cl.extract_key_features(e)
+    assert feats == ["Organization custom properties are now generally available"]
+
+
+def test_key_features_prefers_complete_bullets_over_condensed():
+    short = "Lock the runner setting so org defaults override repo settings"
+    long_li = ("Set the default Copilot code review runner across every repository in "
+               "the organization automatically without any per-repo configuration needed")
+    e = _entry("Improvement", title="Copilot code review")
+    e.content_html = f"<ul><li>{short}</li><li>{long_li}</li></ul>"
+    feats = cl.extract_key_features(e)
+    assert feats[0].startswith("Lock the runner setting")   # complete bullet wins
+
+
+# --- _echoes_title / summary de-duplication ---------------------------------
+
+def test_echoes_title_detects_restatement():
+    assert cl._echoes_title("GitHub Agentic Workflows is now in public preview.",
+                            "GitHub Agentic Workflows is now in public preview") is True
+
+
+def test_echoes_title_keeps_substantive_opener():
+    assert cl._echoes_title(
+        "Two new GitHub-hosted runner images for GitHub Actions are now available for all users.",
+        "New runner images in public preview") is False
+
+
+def test_summary_drops_leading_title_echo():
+    e = _entry("Release", title="Feature X is now in public preview")
+    e.content_html = ("<p>Feature X is now in public preview. You can now automate "
+                      "triage and analysis with it directly.</p>")
+    s = cl.extract_detailed_summary(e)
+    assert not s.lower().startswith("feature x is now in public preview")
+    assert "automate triage" in s
+
+
+def test_summary_keeps_sole_titleish_sentence():
+    e = _entry("Release", title="Feature X is now in public preview")
+    e.content_html = "<p>Feature X is now in public preview.</p>"
+    # Nothing else to fall back to, so the lone sentence is kept rather than blanked.
+    assert "Feature X is now in public preview" in cl.extract_detailed_summary(e)
