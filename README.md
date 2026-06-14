@@ -112,6 +112,7 @@ Each entry's docs link is resolved in tiers, and every candidate is fetched and 
 
 | Tier | Method | Detail |
 |:--:|---|---|
+| V | **Verified override** | A human-verified map (`data/docs_overrides.json`, keyed by changelog URL) is consulted first, so audited entries always link to the proven-correct page. A `null` entry intentionally shows **no link** when no suitable docs page exists |
 | 0 | **LLM selection** *(optional, when enabled)* | Claude picks the canonical docs page for the update; the URL is then fetched (200-checked) before use, so a bad pick can never produce a dead link |
 | 1 | **The entry's own embedded docs link** | Used as-is if it's already an Enterprise link; otherwise converted to a verified Enterprise equivalent, or used as the general docs link. REST API reference pages are de-prioritized, and a release-notes page is preferred for whole-version entries |
 | 2 | **Search GitHub Docs** | Search the entry's keywords (Enterprise first, then general), de-prioritizing REST API references |

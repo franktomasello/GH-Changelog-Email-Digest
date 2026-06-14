@@ -1,0 +1,10 @@
+{
+  "_comment": "Human-verified 'Read the docs' targets, keyed by changelog entry URL. The resolver consults this FIRST (before the LLM picker and the keyword heuristic), so audited entries always link to the proven-correct docs page. A null value means 'show no docs link' (no suitable docs.github.com page exists). Unlisted entries fall through to the resolver. Each URL below was fetched (200) and content-verified.",
+  "https://github.blog/changelog/2026-06-12-copilot-code-review-new-configurations-and-controls": "https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/copilot-on-github/set-up-copilot/configure-runners",
+  "https://github.blog/changelog/2026-06-12-github-actions-minimum-version-enforcement-timeline-for-self-hosted-runners": "https://docs.github.com/en/actions/reference/runners/self-hosted-runners",
+  "https://github.blog/changelog/2026-06-11-bot-created-pull-requests-can-run-workflows-if-approved": "https://docs.github.com/en/actions/concepts/security/github_token",
+  "https://github.blog/changelog/2026-06-11-ai-usage-report-updates": "https://docs.github.com/en/enterprise-cloud@latest/billing/reference/billing-reports",
+  "https://github.blog/changelog/2026-06-11-copilot-cli-configure-everything-from-one-place-with-settings": "https://docs.github.com/en/enterprise-cloud@latest/copilot/reference/copilot-cli-reference/cli-command-reference",
+  "https://github.blog/changelog/2026-06-11-agentic-workflows-no-longer-need-a-personal-access-token": "https://docs.github.com/en/copilot/concepts/agents/about-github-agentic-workflows",
+  "https://github.blog/changelog/2026-06-10-list-view-and-create-discussions-in-github-cli": null
+}
