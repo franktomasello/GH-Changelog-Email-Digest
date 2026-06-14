@@ -108,12 +108,13 @@ Fetch  →  Parse  →  Dedupe  →  Categorize  →  Enrich  →  Render  →  
 
 ### Documentation lookup
 
-Each entry's docs link is resolved in two tiers, and every candidate is fetched and checked for relevance before it's used. Links prefer GitHub's Enterprise Cloud / Server docs:
+Each entry's docs link is resolved in tiers, and every candidate is fetched and checked before it's used. Links prefer GitHub's Enterprise Cloud / Server docs:
 
 | Tier | Method | Detail |
 |:--:|---|---|
-| 1 | **The entry's own embedded docs link** | Used as-is if it's already an Enterprise link; otherwise converted to a verified Enterprise equivalent, or used as the general docs link |
-| 2 | **Search GitHub Docs** | Search the entry's keywords — Enterprise docs first, then general |
+| 0 | **LLM selection** *(optional, when enabled)* | Claude picks the canonical docs page for the update; the URL is then fetched (200-checked) before use, so a bad pick can never produce a dead link |
+| 1 | **The entry's own embedded docs link** | Used as-is if it's already an Enterprise link; otherwise converted to a verified Enterprise equivalent, or used as the general docs link. REST API reference pages are de-prioritized, and a release-notes page is preferred for whole-version entries |
+| 2 | **Search GitHub Docs** | Search the entry's keywords (Enterprise first, then general), de-prioritizing REST API references |
 
 If no candidate is confirmed relevant, the entry shows **no docs link** rather than a wrong one.
 
@@ -127,20 +128,25 @@ Each item carries just enough to act on — for both the demo and the conversati
 
 Dates are shown in Pacific Time.
 
-### Optional: AI-written summaries
+### Optional: LLM enhancements (summaries + docs accuracy)
 
-By default the summary is extracted heuristically (clean the post, drop filler, take the substantive sentences). You can optionally have each summary written by Claude instead — useful when the source post is heavy on marketing language. It's **off by default** and **degrades gracefully**: if it isn't enabled, the package isn't installed, or the API call fails, the digest silently falls back to the heuristic summary, so the daily run is never at risk. Key features and docs links are unchanged.
+By default, summaries are extracted heuristically and docs links are resolved by relevance heuristics. You can optionally turn on Claude for two things at once:
+
+- **Summaries** — written by Claude instead of extracted, useful when the source post is heavy on marketing language.
+- **Docs-link accuracy** — Claude picks the canonical docs page for each update. Keyword overlap can't tell that *"managing PATs"* is the wrong page for an update about *no longer needing* a PAT; the model can. Every pick is still fetched and 200-checked before use.
+
+It's **off by default** and **degrades gracefully**: if it isn't enabled, the `anthropic` package isn't installed, or a call fails, the digest silently falls back to the heuristics, so the daily run is never at risk.
 
 To enable:
 
 ```bash
 pip install anthropic
-export DIGEST_LLM_SUMMARIES=1
+export DIGEST_LLM=1                                 # turns on summaries + docs selection
 export ANTHROPIC_API_KEY=sk-ant-...
 export DIGEST_LLM_MODEL=claude-haiku-4-5-20251001   # optional; this is the default
 ```
 
-(In GitHub Actions, add `ANTHROPIC_API_KEY` as a secret and set the variables in the workflow env.) Cost is negligible — a handful of short summaries once a day.
+(In GitHub Actions, add `ANTHROPIC_API_KEY` as a secret and set the variables in the workflow env.) Cost is negligible — a handful of short calls once a day. `DIGEST_LLM_SUMMARIES=1` is still accepted as an alias for `DIGEST_LLM=1`.
 
 <br />
 

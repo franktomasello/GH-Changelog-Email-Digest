@@ -291,18 +291,24 @@ def search_github_docs(query: str, prefer_enterprise: bool = True) -> Optional[s
         
         soup = BeautifulSoup(response.text, "html.parser")
         
-        # Look for search result links — only accept enterprise docs
+        # Look for search result links. Prefer a non-REST page — REST API
+        # reference pages match keywords but document the API, not the feature;
+        # keep the first REST hit only as a last resort.
+        rest_fallback = None
         for link in soup.find_all("a", href=True):
             href = link["href"]
             skip = ["/search", "/site-policy", "/get-started/learning-about-github"]
-            if href.startswith("/en/") and not any(x in href for x in skip):
-                full_url = f"https://docs.github.com{href}"
-                if not prefer_enterprise:
-                    return full_url
-                if is_enterprise_docs_url(full_url):
-                    return full_url
-        
-        return None
+            if not (href.startswith("/en/") and not any(x in href for x in skip)):
+                continue
+            full_url = f"https://docs.github.com{href}"
+            if prefer_enterprise and not is_enterprise_docs_url(full_url):
+                continue
+            if "/rest/" in href or "apiversion=" in href:
+                rest_fallback = rest_fallback or full_url
+                continue
+            return full_url
+
+        return rest_fallback
         
     except Exception as e:
         print(f"  ⚠️  Docs search failed for '{query[:50]}...': {e}")
@@ -408,6 +414,27 @@ def search_docs_for_release(title: str, content_html: str = "", summary: str = "
     """
     keywords = _relevance_keywords(f"{title} {summary}")
 
+    # 0) When the LLM features are enabled, let the model choose the canonical
+    #    docs page — far more accurate than keyword overlap for cases where the
+    #    right page shares few words with the title (e.g. an update about NOT
+    #    needing a PAT belongs on the GITHUB_TOKEN page, not "managing PATs").
+    #    Verify the pick resolves (200) before trusting it, and prefer its
+    #    Enterprise equivalent. Falls through to the heuristic if disabled, if
+    #    the model declines, or if the pick doesn't resolve.
+    if _llm_enabled():
+        pick = llm_pick_docs_url(title, content_html, summary)
+        if pick:
+            pick = _strip_tracking(pick)
+            if not is_enterprise_docs_url(pick):
+                for candidate in convert_to_enterprise_docs_urls(pick):
+                    if verify_enterprise_url_exists(candidate):
+                        print(f"  ✅ LLM-selected (enterprise): {candidate}")
+                        return candidate
+            if verify_enterprise_url_exists(pick):
+                print(f"  ✅ LLM-selected: {pick}")
+                return pick
+            print(f"  ⚠️  LLM-selected URL did not resolve, falling back: {pick}")
+
     # 1) The changelog's own best embedded docs link — the canonical source.
     embedded_url = extract_best_docs_url(content_html, keywords) if content_html else None
     if embedded_url:
@@ -486,6 +513,9 @@ def extract_best_docs_url(content_html: str, keywords: list[str]) -> Optional[st
     if not content_html:
         return None
     soup = BeautifulSoup(content_html, "html.parser")
+    # Distinct keywords only — counting duplicates lets a word repeated in the
+    # summary multiply a URL's score and drown out the ranking signals below.
+    unique_keywords = set(keywords)
     best = None
     best_score = -1.0
     for link in soup.find_all("a", href=True):
@@ -493,9 +523,19 @@ def extract_best_docs_url(content_html: str, keywords: list[str]) -> Optional[st
         if not href or href.startswith("#") or "docs.github.com" not in href:
             continue
         path = href.lower()
-        score = float(sum(1 for kw in keywords if kw in path))
+        score = float(sum(1 for kw in unique_keywords if kw in path))
         if is_enterprise_docs_url(href):
             score += 0.5  # tie-break toward enterprise docs
+        # REST API reference pages document the API surface, not the feature a
+        # changelog entry announces — they're rarely the right "Read the docs"
+        # target (posts usually link them only to show how to query data).
+        if "/rest/" in path or "apiversion=" in path:
+            score -= 3.0
+        # A release-notes page is the right target for a whole-version entry
+        # (e.g. "GHES 3.21 is now generally available"), which otherwise has no
+        # single feature page that represents it.
+        if "/release-notes" in path:
+            score += 2.0
         if score > best_score:
             best_score = score
             best = href
@@ -759,60 +799,121 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
     return deduped[:4]
 
 
-# Default model for optional LLM summaries — a small, fast, inexpensive model is
-# plenty for a one-sentence factual summary. Override with DIGEST_LLM_MODEL.
+# Default model for the optional LLM features — a small, fast, inexpensive model
+# is plenty for a one-sentence summary or a docs-link choice. Override with
+# DIGEST_LLM_MODEL.
 _LLM_MODEL = "claude-haiku-4-5-20251001"
 
-_LLM_SYSTEM = (
+_LLM_SUMMARY_SYSTEM = (
     "You write one concise, factual sentence (two at most) describing what a "
     "GitHub changelog update actually does, for GitHub Solutions Engineers and "
     "Sales Reps. Lead with the capability. No marketing language, no preamble "
     "(no 'We're excited'), no first person, present tense. Output only the summary."
 )
 
+_LLM_DOCS_SYSTEM = (
+    "You pick the single best GitHub documentation page for a changelog update's "
+    "'Read the docs' link — the canonical page that documents what shipped, where "
+    "a reader would want to land. Output ONLY a bare URL on docs.github.com, or the "
+    "word NONE if no good docs page exists. No prose, no markdown."
+)
+
+
+def _llm_enabled() -> bool:
+    """True when the optional LLM features are explicitly turned on (off by
+    default, so the daily cron is unchanged until opted in)."""
+    flag = (os.environ.get("DIGEST_LLM")
+            or os.environ.get("DIGEST_LLM_SUMMARIES") or "").strip().lower()
+    return flag in ("1", "true", "yes") and bool(os.environ.get("ANTHROPIC_API_KEY"))
+
+
+def _llm_call(system: str, user: str, max_tokens: int) -> Optional[str]:
+    """Single Anthropic call; returns the text or None on any failure (so callers
+    fall back gracefully). Imports anthropic lazily — it's an optional dependency."""
+    try:
+        import anthropic
+    except ImportError:
+        return None
+    try:
+        client = anthropic.Anthropic()
+        resp = client.messages.create(
+            model=os.environ.get("DIGEST_LLM_MODEL", _LLM_MODEL),
+            max_tokens=max_tokens,
+            temperature=0,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+        )
+        return "".join(
+            getattr(b, "text", "") for b in resp.content if getattr(b, "type", "") == "text"
+        ).strip()
+    except Exception as e:
+        print(f"  ⚠️  LLM call failed ({e})")
+        return None
+
 
 def llm_summary(entry: ChangelogEntry) -> Optional[str]:
     """Optional, polished summary via the Anthropic API.
 
     Returns None — so the caller falls back to the heuristic extract_detailed_summary —
-    unless LLM summaries are explicitly enabled AND the call succeeds. This keeps
-    the daily cron working unchanged until opted in. To enable:
+    unless the LLM features are enabled AND the call succeeds. To enable:
       * pip install anthropic
-      * set DIGEST_LLM_SUMMARIES=1 and ANTHROPIC_API_KEY (optionally DIGEST_LLM_MODEL)
+      * set DIGEST_LLM=1 (or DIGEST_LLM_SUMMARIES=1) and ANTHROPIC_API_KEY
     """
-    if os.environ.get("DIGEST_LLM_SUMMARIES", "").strip().lower() not in ("1", "true", "yes"):
+    if not _llm_enabled():
         return None
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        return None
-    try:
-        import anthropic
-    except ImportError:
-        return None
-
     source = _clean_html_to_text(entry.content_html or entry.summary or "")[:1500]
     if not source:
         return None
+    text = _llm_call(_LLM_SUMMARY_SYSTEM, f"Title: {entry.title}\n\nChangelog text:\n{source}", 120)
+    return _normalize_summary_text(text) if text else None
 
-    try:
-        client = anthropic.Anthropic()
-        resp = client.messages.create(
-            model=os.environ.get("DIGEST_LLM_MODEL", _LLM_MODEL),
-            max_tokens=120,
-            temperature=0,
-            system=_LLM_SYSTEM,
-            messages=[{
-                "role": "user",
-                "content": f"Title: {entry.title}\n\nChangelog text:\n{source}",
-            }],
-        )
-        text = "".join(
-            getattr(b, "text", "") for b in resp.content if getattr(b, "type", "") == "text"
-        ).strip()
-        return _normalize_summary_text(text) or None
-    except Exception as e:
-        # Never let an API hiccup break the digest — fall back to the heuristic.
-        print(f"  ⚠️  LLM summary failed ({e}); using heuristic summary")
+
+def _all_embedded_docs_links(content_html: str) -> list[str]:
+    """Every distinct docs.github.com link the post embeds (tracking stripped)."""
+    out = []
+    if content_html:
+        for a in BeautifulSoup(content_html, "html.parser").find_all("a", href=True):
+            href = a["href"]
+            if "docs.github.com" in href and not href.startswith("#"):
+                clean = _strip_tracking(href)
+                if clean not in out:
+                    out.append(clean)
+    return out
+
+
+def llm_pick_docs_url(title: str, content_html: str = "", summary: str = "") -> Optional[str]:
+    """Optional, high-accuracy docs-link selection via the Anthropic API.
+
+    Keyword overlap can't tell that "managing PATs" is the wrong page for an
+    update about *no longer needing* a PAT. When enabled, ask the model for the
+    canonical docs page (it knows GitHub's docs structure and the post's own
+    embedded links); the caller then verifies the URL returns 200 before using
+    it, so a bad pick can never produce a dead link. Returns None when disabled,
+    on failure, or when the model judges no good page exists.
+    """
+    if not _llm_enabled():
         return None
+    context = _clean_html_to_text(content_html or summary or "")[:1200]
+    embedded = _all_embedded_docs_links(content_html)
+    user = (
+        f"Changelog title: {title}\n"
+        f"What it covers: {context}\n"
+        f"Docs links the post itself embeds: {embedded or 'none'}\n\n"
+        "Give the single best docs.github.com 'Read the docs' URL for THIS update. "
+        "Prefer the Enterprise Cloud path (/en/enterprise-cloud@latest/...) when an "
+        "equivalent page exists. Use an embedded link only if it is genuinely the "
+        "page about what shipped (not a tangential or analogy link). For a whole-"
+        "version release, prefer its release-notes page. Reply NONE if no good page exists."
+    )
+    text = _llm_call(_LLM_DOCS_SYSTEM, user, 200)
+    if not text:
+        return None
+    # Take the first docs.github.com token; ignore NONE / prose.
+    for token in text.split():
+        token = token.strip().strip('<>"\'.,)')
+        if token.startswith("https://docs.github.com"):
+            return token
+    return None
 
 
 def enrich_entries(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
