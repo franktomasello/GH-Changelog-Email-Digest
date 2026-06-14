@@ -570,6 +570,25 @@ def _normalize_summary_text(text: str) -> str:
     return text
 
 
+def _echoes_title(sentence: str, title: str) -> bool:
+    """True if a sentence essentially just restates the title.
+
+    Conservative: only fires when the sentence adds at most one content word
+    beyond the title and isn't much longer than it — so a substantive opener
+    that merely shares some title words (e.g. "Two new GitHub-hosted runner
+    images for GitHub Actions are now available…") is kept.
+    """
+    def content_words(s: str) -> set:
+        return {w for w in re.findall(r"[a-z0-9.]+", s.lower()) if len(w) > 3}
+
+    sentence_words = content_words(sentence)
+    title_words = content_words(title)
+    if not sentence_words or not title_words:
+        return False
+    novel = sentence_words - title_words
+    return len(novel) <= 1 and len(sentence) <= len(title) + 25
+
+
 def extract_detailed_summary(entry: ChangelogEntry) -> str:
     """
     Extract a concise, well-formed summary from the changelog entry.
@@ -578,18 +597,19 @@ def extract_detailed_summary(entry: ChangelogEntry) -> str:
     if entry.content_html:
         text = _clean_html_to_text(entry.content_html)
 
-        # Split into sentences and select meaningful ones
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+        # Meaningful sentences: drop short fragments and filler/preamble.
+        sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text)]
+        candidates = [s for s in sentences if len(s) >= 15 and not _is_filler_sentence(s)]
+
+        # Drop a leading sentence that merely restates the title (e.g. "X is now
+        # in public preview.") when there's substantive text after it, so the
+        # summary leads with what shipped rather than echoing the headline.
+        if len(candidates) > 1 and _echoes_title(candidates[0], entry.title):
+            candidates = candidates[1:]
+
         summary_sentences = []
         char_count = 0
-        for sentence in sentences:
-            sentence = sentence.strip()
-            # Skip very short fragments
-            if len(sentence) < 15:
-                continue
-            # Skip filler/preamble
-            if _is_filler_sentence(sentence):
-                continue
+        for sentence in candidates:
             if char_count + len(sentence) <= 350:
                 summary_sentences.append(sentence)
                 char_count += len(sentence)
@@ -606,6 +626,36 @@ def extract_detailed_summary(entry: ChangelogEntry) -> str:
             return _normalize_summary_text(text)
 
     return ""
+
+
+# Function words that read as dangling if a condensed bullet ends on them.
+_TRAILING_STOPWORDS = {
+    "and", "or", "but", "with", "to", "the", "a", "an", "of", "for", "in", "on",
+    "by", "that", "as", "at", "from", "into", "so", "which", "while", "when",
+    "where", "this", "giving", "allowing", "letting", "including", "such",
+    "its", "their", "your", "our", "his", "her", "my", "it", "they", "you", "we",
+}
+
+
+def _condense_feature(text: str, limit: int = 140) -> str:
+    """Reduce an over-long list item to one clean clause for a bullet.
+
+    Long <li>s used to be discarded entirely, leaving information-rich entries
+    (e.g. a GHES release) with no features at all. Keep the first sentence, or
+    failing that the leading clause before a comma, trimming any dangling
+    fragment left by the cut.
+    """
+    text = re.split(r'(?<=[.!?])\s+', text.strip())[0].strip()
+    if len(text) > limit:
+        head = text[:limit]
+        # Prefer cutting at the last comma; otherwise the last word boundary.
+        text = head.rsplit(",", 1)[0] if "," in head else head.rsplit(" ", 1)[0]
+    # Drop a trailing unclosed parenthetical left by the cut, e.g. "... jobs (i.e".
+    text = re.sub(r'\s*\([^)]*$', '', text)
+    words = text.rstrip(".,;:").split()
+    while words and words[-1].lower().strip(".,;:") in _TRAILING_STOPWORDS:
+        words.pop()
+    return " ".join(words)
 
 
 # Lowercase CLI/command tokens that must never be title-cased when they lead a
@@ -650,7 +700,8 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
     Returns up to 4 clean, deduplicated bullet points.
     """
     title_lower = entry.title.lower()
-    li_features = []
+    natural_li = []     # list items that fit a bullet as-is (complete sentences)
+    condensed_li = []   # over-long items reduced to their first clause
     bold_features = []
 
     if entry.content_html:
@@ -658,11 +709,20 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
 
         # List items are the reliable source of demoable capabilities.
         for li in soup.find_all("li"):
-            text = li.get_text().strip()
-            if 15 < len(text) < 150:
-                text = _normalize_feature_text(text)
+            raw = li.get_text().strip()
+            if 15 < len(raw) < 150:
+                text = _normalize_feature_text(raw)
                 if text:
-                    li_features.append(text)
+                    natural_li.append(text)
+            elif len(raw) >= 150:
+                # Previously dropped; condense to its first clause so detailed
+                # entries still surface features — but rank these below complete
+                # items so a clean short bullet always wins.
+                condensed = _condense_feature(raw)
+                if 15 < len(condensed) < 150:
+                    text = _normalize_feature_text(condensed)
+                    if text:
+                        condensed_li.append(text)
 
         # Bold/strong text is usually a section heading, not a feature, so use it
         # only as a fallback when the post has no usable list items.
@@ -673,6 +733,9 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
                 if text:
                     bold_features.append(text)
 
+    # Prefer complete list items; fill with condensed-long items; fall back to
+    # bold headings only when there are no list items at all.
+    li_features = natural_li + condensed_li
     features = li_features if li_features else bold_features
 
     # Deduplicate: remove features that are substrings of the title or of each other
