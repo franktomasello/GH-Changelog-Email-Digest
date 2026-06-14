@@ -175,6 +175,29 @@ def test_llm_pick_docs_url_handles_none(monkeypatch):
     assert cl.llm_pick_docs_url("Obscure update", "<p>body</p>") is None
 
 
+# --- verified docs-link overrides -------------------------------------------
+
+def test_docs_override_lookup(monkeypatch):
+    monkeypatch.setattr(cl, "_overrides_cache", {
+        "https://github.blog/changelog/x": "https://docs.github.com/en/foo",
+        "https://github.blog/changelog/y": None,
+    })
+    assert cl.docs_override("https://github.blog/changelog/x") == "https://docs.github.com/en/foo"
+    assert cl.docs_override("https://github.blog/changelog/y") is None        # suppress link
+    assert cl.docs_override("https://github.blog/changelog/z") is cl._NO_OVERRIDE  # fall through
+
+
+def test_shipped_overrides_file_is_well_formed():
+    import json
+    with open(cl._OVERRIDES_FILE) as f:
+        data = json.load(f)
+    for key, value in data.items():
+        if key.startswith("_"):          # documentation comment
+            continue
+        assert key.startswith("https://github.blog/changelog/"), key
+        assert value is None or value.startswith("https://docs.github.com/"), value
+
+
 # --- entries_to_dict ---------------------------------------------------------
 
 def test_entries_to_dict_shape_and_safe_url():

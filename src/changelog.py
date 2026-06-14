@@ -2,6 +2,7 @@
 Changelog fetching, parsing, categorization, and docs-link resolution.
 """
 
+import json
 import os
 import re
 from dataclasses import dataclass, field
@@ -32,6 +33,28 @@ MAX_AGE_DAYS = 7
 # the same host (docs.github.com); reusing one connection (keep-alive) avoids a
 # fresh TCP+TLS handshake per call. Behavior is otherwise identical to requests.*.
 _DOCS_SESSION = requests.Session()
+
+# Human-verified docs-link overrides, keyed by changelog entry URL. Consulted
+# before any automated resolution so audited entries always link to the proven
+# page. A null value means "show no docs link". See data/docs_overrides.json.
+_OVERRIDES_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "docs_overrides.json")
+_NO_OVERRIDE = object()  # sentinel: entry isn't in the override map -> resolve normally
+_overrides_cache = None
+
+
+def docs_override(entry_url: str):
+    """Return the verified docs URL for an entry (a str), None to suppress the
+    link, or the _NO_OVERRIDE sentinel when the entry isn't listed."""
+    global _overrides_cache
+    if _overrides_cache is None:
+        try:
+            with open(_OVERRIDES_FILE) as f:
+                _overrides_cache = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            _overrides_cache = {}
+    if entry_url in _overrides_cache:
+        return _overrides_cache[entry_url]
+    return _NO_OVERRIDE
 
 
 def convert_to_pst(date_string: str) -> str:
@@ -924,8 +947,16 @@ def enrich_entries(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
         entry.detailed_summary = llm_summary(entry) or extract_detailed_summary(entry)
         entry.key_features = extract_key_features(entry)
 
-        # Search for the most accurate documentation URL. Only sets docs_url if
-        # the page is verified as genuinely relevant (else the template omits it).
+        # A human-verified override wins over any automated resolution: it's the
+        # proven-correct page (or an intentional "no link" when no docs page fits).
+        override = docs_override(entry.url)
+        if override is not _NO_OVERRIDE:
+            entry.docs_url = override  # a verified URL, or None to show no link
+            print(f"  ✅ Verified docs override: {override or '(no docs link)'}")
+            continue
+
+        # Otherwise resolve the most accurate documentation URL. Only sets docs_url
+        # if the page is verified as genuinely relevant (else the template omits it).
         print(f"  🔍 Searching docs for: {entry.title[:50]}...")
         entry.docs_url = search_docs_for_release(
             entry.title, entry.content_html, entry.detailed_summary or entry.summary or ""
