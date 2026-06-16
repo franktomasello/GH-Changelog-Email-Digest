@@ -35,11 +35,12 @@ One email. No duplicates — each update is sent exactly once.
 | | |
 |---|---|
 | **Field-ready content** | A concise summary, the top features, and a relevance-checked docs link on every entry — enough to talk through or demo |
-| **Accurate docs links** | Each docs link is fetched and checked against the page content, and omitted when there's no confident match |
-| **GitHub-native design** | Dark Primer theme, Mona Sans, Octicons — responsive, with explicit Outlook/Word-engine handling |
+| **Accurate docs links** | Resolved in tiers — verified overrides, an optional LLM pass, then relevance heuristics — with every candidate fetched and checked, and omitted when there's no confident match |
+| **GitHub-native design** | Dark Primer theme, Mona Sans, Octicons, color-coded stat tiles — responsive, with explicit Outlook/Word-engine handling |
 | **Organized by impact** | Releases, Improvements, and Retirements, each in its own section |
 | **Fully automated** | Runs daily on GitHub Actions, with test, dry-run, and force modes |
 | **No repeats** | Sent entries are tracked in state, so nobody gets the same update twice |
+| **Tested** | A pytest suite (dedup, parsing, docs resolution, email assembly) runs in CI on every push and PR |
 
 <br />
 
@@ -174,10 +175,11 @@ Keeping recipients in the secret (rather than a tracked file) means addresses ne
 | `SMTP_PASSWORD` | SMTP password / app password |
 | `SMTP_FROM_EMAIL` | Sender address |
 | `DIGEST_TO_EMAIL` | Recipient address(es), comma-separated |
+| `ANTHROPIC_API_KEY` *(optional)* | Enables the LLM summaries + docs-link selection (with `DIGEST_LLM=1`) |
 
 ### Automation
 
-The workflow runs **daily** via GitHub Actions. To run it by hand: **Actions → GitHub Changelog Digest → Run workflow**, with optional inputs for a **test email**, a **dry run**, or a **force** send.
+The workflow runs **daily** via GitHub Actions, tuned so delivery lands in the **morning (~8–10 AM Pacific)**. GitHub queues scheduled runs with a variable delay, so the exact minute is best-effort, not guaranteed. To run it by hand: **Actions → GitHub Changelog Digest → Run workflow**, with optional inputs for a **test email**, a **dry run**, or a **force** send.
 
 <br />
 
@@ -186,26 +188,44 @@ The workflow runs **daily** via GitHub Actions. To run it by hand: **Actions →
 ```
 GH-Changelog-Email-Digest/
 ├── .github/workflows/
-│   └── digest.yml            # Daily cron + manual trigger
-├── assets/icons/             # Octicon PNGs used in the email tiles
+│   ├── digest.yml            # Daily cron (tuned for ~8–10 AM PT) + manual trigger
+│   └── test.yml              # Runs the pytest suite on every push / PR
+├── assets/icons/             # Hosted PNGs: GitHub mark (header/footer) + category Octicons
 ├── src/
 │   ├── __init__.py           # Marks src as a package
 │   ├── main.py               # Entry point and orchestration
-│   ├── changelog.py          # RSS fetch, parse, and docs lookup
+│   ├── changelog.py          # RSS fetch, parse, enrich, and docs-link resolution
 │   ├── email_sender.py       # Build the email (HTML + plain text) and send over SMTP
-│   └── state.py              # Track which entries have been sent
+│   └── state.py              # Track which entries have been sent (dedup)
 ├── templates/
-│   └── digest_email.html     # Jinja2 email (dark Primer theme, Mona Sans)
+│   └── digest_email.html     # Jinja2 email (dark Primer theme, Mona Sans, Octicons)
+├── tests/                    # pytest suite (dedup, parsing, docs resolution, email)
 ├── data/
-│   └── state.json            # Persisted sent-URLs (auto-generated)
-└── requirements.txt
+│   ├── state.json            # Persisted sent-URLs (auto-generated, committed by CI)
+│   └── docs_overrides.json   # Human-verified docs links, consulted first
+├── requirements.txt          # Loose top-level deps (for local dev)
+├── requirements.lock         # Pinned full dependency tree (CI installs from this)
+└── requirements-dev.txt      # Test-only deps (pytest)
 ```
+
+<br />
+
+## Development
+
+Install the dev dependencies and run the test suite — it covers the core logic: the dedup / "no repeats" guarantee, feed parsing and categorization, docs-link resolution, and email assembly.
+
+```bash
+pip install -r requirements.lock -r requirements-dev.txt
+pytest
+```
+
+The same suite runs in CI on every push and pull request (`.github/workflows/test.yml`), and production installs are pinned via `requirements.lock`.
 
 <br />
 
 ## Tech stack
 
-**Python** · **GitHub Actions** (automation) · **SMTP** (delivery) · `feedparser` + `beautifulsoup4` (parsing) · `jinja2` (templating)
+**Python** · **GitHub Actions** (scheduling — no server) · **SMTP** (delivery) · `feedparser` + `requests` + `beautifulsoup4` (fetch & parse) · `jinja2` (templating) · `pytest` (tests) · optional **Anthropic Claude** (summaries + docs-link selection)
 
 <br />
 
