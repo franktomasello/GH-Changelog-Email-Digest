@@ -2,11 +2,17 @@ name: GitHub Changelog Digest
 
 on:
   schedule:
-    # Scheduled for 13:23 UTC (6:23 AM PDT / 5:23 AM PST). GitHub Actions
-    # queues scheduled runs — this repo's measured delay is 1-4 hours, and
-    # top-of-the-hour slots are the worst — so an early, off-peak minute
-    # lands actual delivery in the 7-10 AM PT window instead of 10 AM-1 PM.
-    - cron: '23 13 * * *'
+    # Target delivery window: 8-10 AM Pacific. GitHub queues scheduled runs with
+    # a large, variable delay (this repo's last 14 runs: ~1h50m-6h20m, median
+    # ~4.7h), so the cron is set by working backwards from the *observed* delay
+    # rather than the nominal time. 11:45 UTC + the usual delay lands in
+    # 15:00-17:00 UTC = 8-10 AM PDT on ~11 of 14 days (the old 13:23 cron only
+    # hit it ~3 of 14 — it mostly arrived 10-11:30 AM). Off-the-hour minute
+    # avoids GitHub's worst top-of-hour congestion.
+    # Caveats: best-effort, not a guarantee — fast-queue days can arrive ~6:45 AM
+    # and congested days can slip past 10 AM. Fixed UTC drifts ~1h vs Pacific
+    # across DST; for PST (winter) shift to ~12:45 UTC to stay in window.
+    - cron: '45 11 * * *'
   workflow_dispatch:
     inputs:
       test_email:
