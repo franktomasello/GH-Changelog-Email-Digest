@@ -132,9 +132,10 @@ Dates are shown in Pacific Time.
 
 ### Optional: LLM enhancements (summaries + docs accuracy)
 
-By default, summaries are extracted heuristically and docs links are resolved by relevance heuristics. You can optionally turn on Claude for two things at once:
+By default, summaries and key-feature bullets are extracted heuristically and docs links are resolved by relevance heuristics. You can optionally turn on Claude for three things at once:
 
 - **Summaries** — written by Claude instead of extracted, useful when the source post is heavy on marketing language.
+- **Key-feature bullets** — Claude selects the concrete, demoable capabilities (what an SE would show) rather than scraping the post's list items, so pricing, version requirements, and prose-only posts are handled sensibly (and a pure retirement gets no bullets at all).
 - **Docs-link accuracy** — Claude picks the canonical docs page for each update. Keyword overlap can't tell that *"managing PATs"* is the wrong page for an update about *no longer needing* a PAT; the model can. Every pick is still fetched and 200-checked before use.
 
 It's **off by default** and **degrades gracefully**: if it isn't enabled, the `anthropic` package isn't installed, or a call fails, the digest silently falls back to the heuristics, so the daily run is never at risk.

@@ -762,6 +762,25 @@ def _normalize_feature_text(text: str) -> str:
     return text
 
 
+# Bullets that aren't demoable capabilities — pricing/licensing lines and pure
+# "nothing changes" reassurances/conditions. Filtered so the "what to show" list
+# stays on-goal for a Solutions Engineer.
+_OFFGOAL_BULLET = re.compile(
+    r'(\$\s?\d'
+    r'|\bper\s+(active\s+)?(committer|user|seat|month|year)\b'
+    r'|\b(paid product|usage-based billing|pricing)\b'
+    r'|^if\s+you\b'
+    r'|\bnothing\s+(changes|will\s+change)\b'
+    r'|\bno\s+(action|changes?)\s+(is|are|needed|required)\b'
+    r')', re.IGNORECASE)
+
+
+def _is_offgoal_bullet(text: str) -> bool:
+    """True for bullets that aren't demoable capabilities (pricing/licensing or
+    pure 'nothing changes' reassurances) and should be dropped."""
+    return bool(_OFFGOAL_BULLET.search(text))
+
+
 def extract_key_features(entry: ChangelogEntry) -> list[str]:
     """
     Extract key features relevant to SE demos.
@@ -794,10 +813,11 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
                         condensed_li.append(text)
 
         # Bold/strong text is usually a section heading, not a feature, so use it
-        # only as a fallback when the post has no usable list items.
+        # only as a fallback when the post has no usable list items — and require
+        # real length so one-word headings ("Security") don't become bullets.
         for strong in soup.find_all(["strong", "b"]):
             text = strong.get_text().strip()
-            if 5 < len(text) < 80:
+            if 15 < len(text) < 80:
                 text = _normalize_feature_text(text)
                 if text:
                     bold_features.append(text)
@@ -813,6 +833,9 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
         f_lower = f.lower()
         # Skip if it's essentially the title restated
         if f_lower in title_lower or title_lower in f_lower:
+            continue
+        # Skip pricing/licensing lines and pure reassurances — not demoable.
+        if _is_offgoal_bullet(f):
             continue
         # Skip if it's a substring of an already-kept feature
         if any(f_lower in kept.lower() or kept.lower() in f_lower for kept in deduped):
@@ -839,6 +862,17 @@ _LLM_DOCS_SYSTEM = (
     "'Read the docs' link — the canonical page that documents what shipped, where "
     "a reader would want to land. Output ONLY a bare URL on docs.github.com, or the "
     "word NONE if no good docs page exists. No prose, no markdown."
+)
+
+_LLM_FEATURES_SYSTEM = (
+    "You list the concrete, demoable capabilities in a GitHub changelog update — "
+    "the specific things a GitHub Solutions Engineer would actually show in a demo: "
+    "new commands, UI actions, settings, or capabilities. Output up to 4, one per "
+    "line, each a short phrase that leads with the capability. No numbering, no "
+    "markdown, no preamble. Exclude pricing, licensing, version requirements, dates, "
+    "and vague statements ('new capabilities available'). If the update has no "
+    "demoable surface (e.g. a pure retirement, policy, or billing change), output "
+    "nothing at all."
 )
 
 
@@ -889,6 +923,36 @@ def llm_summary(entry: ChangelogEntry) -> Optional[str]:
         return None
     text = _llm_call(_LLM_SUMMARY_SYSTEM, f"Title: {entry.title}\n\nChangelog text:\n{source}", 120)
     return _normalize_summary_text(text) if text else None
+
+
+def llm_key_features(title: str, content_html: str = "", summary: str = "") -> Optional[list[str]]:
+    """Optional, goal-tuned key-feature bullets via the Anthropic API.
+
+    The heuristic extractor just scrapes the post's list items, so it leaks
+    pricing/requirements and produces nothing for prose-only posts. When enabled,
+    the model picks the concrete, demoable capabilities instead.
+
+    Returns None when disabled or the call fails (caller falls back to the
+    heuristic). Returns a list otherwise — possibly EMPTY, which is meaningful:
+    the model judged the update has no demoable surface (e.g. a pure retirement),
+    so the caller should show no bullets rather than fall back.
+    """
+    if not _llm_enabled():
+        return None
+    context = _clean_html_to_text(content_html or summary or "")[:1800]
+    if not context:
+        return None
+    text = _llm_call(_LLM_FEATURES_SYSTEM, f"Title: {title}\n\nUpdate:\n{context}", 220)
+    if text is None:
+        return None  # call failed -> let the caller use the heuristic
+    bullets = []
+    for line in text.splitlines():
+        line = re.sub(r'^[\-\*•–—\d.\)\s]+', '', line).strip()
+        if len(line) > 2:
+            cleaned = _normalize_feature_text(line)
+            if cleaned:
+                bullets.append(cleaned)
+    return bullets[:4]
 
 
 def _all_embedded_docs_links(content_html: str) -> list[str]:
@@ -942,10 +1006,13 @@ def llm_pick_docs_url(title: str, content_html: str = "", summary: str = "") -> 
 def enrich_entries(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
     """Attach a cleaned summary, key features, and a verified docs link to each entry."""
     for entry in entries:
-        # Prefer an LLM-written summary when explicitly enabled; otherwise (and on
-        # any failure) fall back to the heuristic extractor.
+        # Prefer LLM-written summary/features when explicitly enabled; otherwise
+        # (and on any failure) fall back to the heuristic extractors. For features,
+        # an empty LLM result is intentional (no demoable surface) and is kept;
+        # only None (disabled/failed) falls back.
         entry.detailed_summary = llm_summary(entry) or extract_detailed_summary(entry)
-        entry.key_features = extract_key_features(entry)
+        _llm_feats = llm_key_features(entry.title, entry.content_html, entry.detailed_summary or entry.summary or "")
+        entry.key_features = _llm_feats if _llm_feats is not None else extract_key_features(entry)
 
         # A human-verified override wins over any automated resolution: it's the
         # proven-correct page (or an intentional "no link" when no docs page fits).
