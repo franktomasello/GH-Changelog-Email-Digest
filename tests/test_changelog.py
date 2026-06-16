@@ -63,6 +63,12 @@ def test_capitalize_label_titlecases_but_preserves_acronyms():
     assert cl._capitalize_label("API") == "API"
 
 
+def test_capitalize_label_unescapes_html_entities():
+    # Feed labels can carry a raw entity; unescape so the template doesn't render
+    # a literal "&amp;" (double-escape).
+    assert cl._capitalize_label("ecosystem &amp; accessibility") == "Ecosystem & Accessibility"
+
+
 def test_fit_labels_keeps_short_labels():
     assert cl._fit_labels(["API", "Actions"]) == ["API", "Actions"]
 
