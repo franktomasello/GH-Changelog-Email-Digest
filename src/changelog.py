@@ -2,6 +2,7 @@
 Changelog fetching, parsing, categorization, and docs-link resolution.
 """
 
+import html
 import json
 import os
 import re
@@ -90,7 +91,13 @@ class ChangelogEntry:
 
 def _capitalize_label(label: str) -> str:
     """Capitalize each word of a feed label for display ("collaboration tools"
-    -> "Collaboration Tools"), preserving existing uppercase ("API" stays "API")."""
+    -> "Collaboration Tools"), preserving existing uppercase ("API" stays "API").
+
+    Labels come straight from the feed's changelog-label term, which can carry a
+    raw HTML entity (e.g. "ecosystem &amp; accessibility"); unescape it first so
+    it doesn't get double-escaped by the template into a literal "&amp;".
+    """
+    label = html.unescape(label)
     return " ".join(w[:1].upper() + w[1:] for w in label.split(" "))
 
 
