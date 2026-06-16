@@ -208,6 +208,35 @@ def test_key_features_drops_pricing_and_short_headings():
     assert "Security" not in feats                                     # one-word heading dropped
 
 
+@pytest.mark.parametrize("bullet,vague", [
+    ("New capabilities will be available", True),       # contentless filler
+    ("More improvements coming soon", True),
+    ("Additional features are available", True),
+    ("Several enhancements to come", True),
+    ("And more", True),
+    ("Coming soon", True),
+    ("More to come", True),
+    ("Hierarchy view for GitHub Projects is now generally available", False),  # specific
+    ("New repository rulesets for branch protection", False),
+    ("More consistency across your data: reports line up with billing", False),
+    ("More improvements to the audit log", False),      # has a concrete subject
+    ("/settings reset restores the default for a setting", False),
+])
+def test_vague_bullet_filter(bullet, vague):
+    assert cl._is_vague_bullet(bullet) is vague
+
+
+def test_key_features_drops_vague_filler_keeps_specific():
+    e = _entry("Release", title="GitHub Code Quality GA")
+    e.content_html = (
+        "<ul><li>New capabilities will be available</li>"
+        "<li>CodeQL-powered maintainability and reliability scans run on Actions</li></ul>"
+    )
+    feats = cl.extract_key_features(e)
+    assert any("CodeQL-powered" in f for f in feats)                   # specific kept
+    assert all("New capabilities" not in f for f in feats)            # vague filler dropped
+
+
 def test_llm_key_features_disabled_returns_none(monkeypatch):
     monkeypatch.delenv("DIGEST_LLM", raising=False)
     monkeypatch.delenv("DIGEST_LLM_SUMMARIES", raising=False)

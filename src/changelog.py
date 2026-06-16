@@ -788,6 +788,31 @@ def _is_offgoal_bullet(text: str) -> bool:
     return bool(_OFFGOAL_BULLET.search(text))
 
 
+# Contentless filler bullets — a vague quantifier ("new"/"more"/...) plus a
+# generic noun ("capabilities"/"features"/...) with nothing specific after it
+# ("New capabilities will be available", "More improvements coming soon"), and
+# bare "and more"/"coming soon" stubs. A reader can neither demo nor speak to
+# these, so they're dropped. The match requires the remainder to be only
+# auxiliary/filler words, so a genuinely specific bullet keeps its content
+# (e.g. "New repository rulesets..." or "More improvements to the audit log"
+# both survive — "repository"/"to" aren't filler-terminal).
+_VAGUE_BULLET = re.compile(
+    r'^(?:new|more|additional|other|various|several|multiple)\s+'
+    r'(?:capabilit(?:y|ies)|features?|functionalit(?:y|ies)|options?|'
+    r'improvements?|updates?|enhancements?|changes?)'
+    r'(?:\s+(?:will|would|are|is|be|now|soon|coming|come|available|added|'
+    r'included|here|to|on|the|way|more|much|also)\b)*\s*$'
+    r'|^(?:and\s+(?:much\s+|many\s+)?more|coming\s+soon|stay\s+tuned'
+    r'|more\s+to\s+come)\s*$',
+    re.IGNORECASE,
+)
+
+
+def _is_vague_bullet(text: str) -> bool:
+    """True for contentless filler bullets that carry no concrete capability."""
+    return bool(_VAGUE_BULLET.search(text))
+
+
 def extract_key_features(entry: ChangelogEntry) -> list[str]:
     """
     Extract key features relevant to SE demos.
@@ -843,6 +868,9 @@ def extract_key_features(entry: ChangelogEntry) -> list[str]:
             continue
         # Skip pricing/licensing lines and pure reassurances — not demoable.
         if _is_offgoal_bullet(f):
+            continue
+        # Skip contentless filler ("New capabilities will be available").
+        if _is_vague_bullet(f):
             continue
         # Skip if it's a substring of an already-kept feature
         if any(f_lower in kept.lower() or kept.lower() in f_lower for kept in deduped):
