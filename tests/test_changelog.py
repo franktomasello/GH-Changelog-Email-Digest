@@ -175,6 +175,64 @@ def test_llm_pick_docs_url_handles_none(monkeypatch):
     assert cl.llm_pick_docs_url("Obscure update", "<p>body</p>") is None
 
 
+# --- key-feature bullet relevance -------------------------------------------
+
+@pytest.mark.parametrize("bullet,offgoal", [
+    ("$10 per active committer per month", True),
+    ("GitHub Code Quality will become a paid product", True),
+    ("AI-powered work, usage-based billing applies", True),
+    ("If you are an existing customer, nothing changes today", True),
+    ("/settings opens a full-screen settings dialog", False),
+    ("Lock the runner setting so org defaults override repos", False),
+])
+def test_offgoal_bullet_filter(bullet, offgoal):
+    assert cl._is_offgoal_bullet(bullet) is offgoal
+
+
+def test_key_features_drops_pricing_and_short_headings():
+    e = _entry("Release", title="GitHub Code Quality GA")
+    e.content_html = (
+        "<ul><li>Set up CodeQL-powered maintainability scans on your repositories</li>"
+        "<li>$10 per active committer per month covers Code Quality findings</li></ul>"
+        "<p><strong>Security</strong></p>"
+    )
+    feats = cl.extract_key_features(e)
+    assert any("CodeQL-powered maintainability" in f for f in feats)   # real capability kept
+    assert all("$10" not in f for f in feats)                          # pricing dropped
+    assert "Security" not in feats                                     # one-word heading dropped
+
+
+def test_llm_key_features_disabled_returns_none(monkeypatch):
+    monkeypatch.delenv("DIGEST_LLM", raising=False)
+    monkeypatch.delenv("DIGEST_LLM_SUMMARIES", raising=False)
+    assert cl.llm_key_features("X", "<p>body here that is long enough</p>") is None
+
+
+def test_llm_key_features_parses_lines(monkeypatch):
+    monkeypatch.setenv("DIGEST_LLM", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setattr(cl, "_llm_call",
+                        lambda *a, **k: "- Open the settings dialog with /settings\n- Set a value inline")
+    out = cl.llm_key_features("Copilot CLI /settings", "<p>...</p>")
+    assert out == ["Open the settings dialog with /settings", "Set a value inline"]
+
+
+def test_llm_key_features_empty_is_kept_not_fallback(monkeypatch):
+    # Model judged no demoable surface -> returns [] (caller shows no bullets),
+    # which is DISTINCT from None (disabled/failed -> caller uses heuristic).
+    monkeypatch.setenv("DIGEST_LLM", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setattr(cl, "_llm_call", lambda *a, **k: "")
+    assert cl.llm_key_features("A pure retirement", "<p>body</p>") == []
+
+
+def test_llm_key_features_call_failure_returns_none(monkeypatch):
+    monkeypatch.setenv("DIGEST_LLM", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setattr(cl, "_llm_call", lambda *a, **k: None)   # API failed
+    assert cl.llm_key_features("X", "<p>body</p>") is None
+
+
 # --- verified docs-link overrides -------------------------------------------
 
 def test_docs_override_lookup(monkeypatch):
