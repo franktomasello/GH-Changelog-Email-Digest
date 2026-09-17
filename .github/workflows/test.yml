@@ -13,8 +13,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v4
+      - uses: actions/checkout@v7
+      # Exact version: setup-uv publishes no major/minor tags since v8, so
+      # "@v10" is a 404. Keep in sync with digest.yml.
+      - uses: astral-sh/setup-uv@v10.1.0
       - name: Install & test
         run: |
           uv venv && source .venv/bin/activate
