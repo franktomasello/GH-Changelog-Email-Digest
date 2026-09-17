@@ -110,3 +110,58 @@ def test_send_email_attaches_text_and_headers(smtp_env):
     assert msg["Date"]
     assert msg["Message-ID"]
     assert msg["List-Unsubscribe"] == "<mailto:digest@example.com?subject=unsubscribe>"
+
+
+# --- From display name / Reply-To --------------------------------------------
+
+def _send_and_capture(monkeypatch, **env):
+    """Send one message and return (envelope_sender, parsed_message)."""
+    for k, v in env.items():
+        monkeypatch.setenv(k, v)
+    captured = {}
+    orig = _FakeSMTP.sendmail
+
+    def capture(self, frm, to, raw):
+        captured["frm"] = frm
+        captured["raw"] = raw
+        return orig(self, frm, to, raw)
+
+    with mock.patch.object(_FakeSMTP, "sendmail", capture):
+        es.send_email(["a@x.com"], "Subj", "<p>h</p>", "digest@example.com")
+
+    import email
+    return captured["frm"], email.message_from_string(captured["raw"])
+
+
+def test_reply_to_set_when_configured(smtp_env, monkeypatch):
+    _, msg = _send_and_capture(monkeypatch, SMTP_REPLY_TO="frank@work.example")
+    assert msg["Reply-To"] == "frank@work.example"
+
+
+def test_no_reply_to_header_when_unset(smtp_env, monkeypatch):
+    monkeypatch.delenv("SMTP_REPLY_TO", raising=False)
+    _, msg = _send_and_capture(monkeypatch)
+    assert msg["Reply-To"] is None
+
+
+def test_from_name_only_decorates_header_not_envelope(smtp_env, monkeypatch):
+    # The display name must never leak into the SMTP envelope sender: relays
+    # reject a MAIL FROM that isn't a bare address.
+    frm, msg = _send_and_capture(monkeypatch, SMTP_FROM_NAME="Frank Tomasello")
+    assert frm == "digest@example.com"
+    assert msg["From"] == "Frank Tomasello <digest@example.com>"
+    # List-Unsubscribe and Message-ID still derive from the bare address.
+    assert msg["List-Unsubscribe"] == "<mailto:digest@example.com?subject=unsubscribe>"
+    assert "example.com" in msg["Message-ID"]
+
+
+def test_from_name_with_comma_is_quoted(smtp_env, monkeypatch):
+    # A bare comma would split the From header into two addresses.
+    _, msg = _send_and_capture(monkeypatch, SMTP_FROM_NAME="Tomasello, Frank")
+    assert msg["From"] == '"Tomasello, Frank" <digest@example.com>'
+
+
+def test_from_header_is_bare_when_no_name(smtp_env, monkeypatch):
+    monkeypatch.delenv("SMTP_FROM_NAME", raising=False)
+    _, msg = _send_and_capture(monkeypatch)
+    assert msg["From"] == "digest@example.com"

@@ -53,6 +53,11 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
+          # Optional. Display name on the From header, and a Reply-To mailbox
+          # for when replies should go somewhere other than the relay-verified
+          # From address. Unset secrets arrive as "" and are ignored.
+          SMTP_FROM_NAME: ${{ secrets.SMTP_FROM_NAME }}
+          SMTP_REPLY_TO: ${{ secrets.SMTP_REPLY_TO }}
           # Manual test-run override (workflow_dispatch input). When set, the
           # digest goes only to this address. Leave empty for normal runs.
           DIGEST_TEST_EMAIL: ${{ inputs.test_email }}
