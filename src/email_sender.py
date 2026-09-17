@@ -6,7 +6,7 @@ import ssl
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.utils import formatdate, make_msgid
+from email.utils import formataddr, formatdate, make_msgid
 from typing import Optional
 from zoneinfo import ZoneInfo
 
@@ -140,6 +140,12 @@ def send_email(
     smtp_user = os.environ.get("SMTP_USER")
     smtp_password = os.environ.get("SMTP_PASSWORD")
     from_email = from_email or os.environ.get("SMTP_FROM_EMAIL") or smtp_user
+    # Optional display name and Reply-To. Sending through a relay means the From
+    # address must be one that relay has verified, which is not necessarily the
+    # mailbox replies should land in. Reply-To carries that second address
+    # without putting an unaligned domain in From (which DMARC would punish).
+    from_name = os.environ.get("SMTP_FROM_NAME", "").strip()
+    reply_to = os.environ.get("SMTP_REPLY_TO", "").strip()
 
     if not smtp_user or not smtp_password:
         raise ValueError("SMTP_USER and SMTP_PASSWORD environment variables are required")
@@ -160,13 +166,20 @@ def send_email(
             server.login(smtp_user, smtp_password)
 
             sender_domain = from_email.split("@")[-1] if "@" in (from_email or "") else None
+            # from_email stays the bare address — it is the SMTP envelope sender,
+            # the Message-ID domain and the List-Unsubscribe mailto. Only the
+            # From *header* gets the display name, via formataddr so a name
+            # containing a comma or non-ASCII is quoted/encoded correctly.
+            from_header = formataddr((from_name, from_email)) if from_name else from_email
             for email in to_emails:
                 try:
                     # Create message
                     msg = MIMEMultipart("alternative")
                     msg["Subject"] = subject
-                    msg["From"] = from_email
+                    msg["From"] = from_header
                     msg["To"] = email
+                    if reply_to:
+                        msg["Reply-To"] = reply_to
                     # smtplib.sendmail() transmits the message verbatim and adds
                     # no headers, so set Date and a unique Message-ID ourselves —
                     # their absence is a spam signal (e.g. MISSING_MID) and can
