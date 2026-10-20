@@ -33,6 +33,10 @@ def harness(tmp_path, monkeypatch):
     monkeypatch.setattr(state, "STATE_FILE", str(tmp_path / "state.json"))
     monkeypatch.setattr(main, "datetime", _Clock)
     monkeypatch.setenv("BREVO_API_KEY", "xkeysib-test")
+    # Explicit recipients: never inherit a developer's .env (load_dotenv runs
+    # when main is imported) and match production's multi-recipient batches.
+    monkeypatch.setenv("DIGEST_TO_EMAIL", "a@example.com,b@example.com")
+    monkeypatch.delenv("DIGEST_TEST_EMAIL", raising=False)
     _Clock.current = EVENING
 
     h = SimpleNamespace(
@@ -203,3 +207,57 @@ def test_plain_run_sends_immediately(harness):
 def test_bad_flag_combinations_rejected(harness, argv):
     with pytest.raises(SystemExit):
         harness.run(*argv)
+
+
+# --- round-2 review regressions -------------------------------------------------
+
+def test_failed_send_after_unknown_precheck_does_not_mark_entries(harness):
+    # The "exists" seen afterwards may be an EARLIER run's batch, which lacks
+    # this run's newer entries: record the morning but don't drop anything.
+    harness.send_result = False
+    harness.statuses = ["unknown", "exists"]
+    assert harness.run("--scheduled-delivery") == 0
+    assert state.load_last_delivery_slot() == MORNING_SLOT
+    assert state.load_processed_urls() == set()
+
+
+@pytest.mark.parametrize("flag", ["--dry-run", "--preview"])
+def test_dry_run_and_preview_never_write_state(harness, flag):
+    harness.statuses = ["exists"]
+    assert harness.run("--scheduled-delivery", flag) == 0
+    assert state.load_last_delivery_slot() is None
+    assert harness.sends == []
+
+
+def test_scheduled_delivery_refuses_a_test_recipient(harness, monkeypatch):
+    # It would claim the morning's batchId for one address, and the real cron
+    # would then skip all 14 recipients as "already scheduled".
+    monkeypatch.setenv("DIGEST_TEST_EMAIL", "me@example.com")
+    with pytest.raises(SystemExit):
+        harness.run("--scheduled-delivery")
+    assert harness.sends == [] and harness.status_calls == []
+
+
+def test_deliver_in_minutes_one_is_rejected(harness):
+    with pytest.raises(SystemExit):
+        harness.run("--deliver-in-minutes", "1")
+
+
+def test_deliver_in_minutes_is_measured_from_send_time(harness):
+    # Slow fetching must not eat the lead time and silently send now.
+    harness.fetch_takes = timedelta(seconds=90)
+    harness.statuses = ["exists"]
+    assert harness.run("--deliver-in-minutes", "2") == 0
+    [kw] = harness.sends
+    assert kw["scheduled_at"] == EVENING + timedelta(seconds=90) + timedelta(minutes=2)
+
+
+
+def test_single_recipient_skips_batch_confirmation(harness, monkeypatch, capsys):
+    # Verified live: Brevo keeps no batch record for a one-message send, so a
+    # lookup would 404 and raise a false alarm.
+    monkeypatch.setenv("DIGEST_TO_EMAIL", "a@example.com")
+    assert harness.run("--deliver-in-minutes", "5") == 0
+    assert harness.status_calls == []
+    out = capsys.readouterr().out
+    assert "no batch to confirm" in out and "::warning::" not in out

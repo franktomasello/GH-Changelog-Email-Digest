@@ -387,3 +387,38 @@ def test_digest_refuses_to_schedule_without_api_key(smtp_env, monkeypatch):
     at = datetime.now(timezone.utc) + timedelta(hours=8)
     assert es.send_digest_email(*_digest_args(), deliver_at=at, scheduled_at=at) is False
     assert sent == []
+
+
+
+def test_brevo_batch_send_202_counts_as_success(brevo_env, monkeypatch):
+    # Live response for a multi-version scheduled send is 202, not 201.
+    monkeypatch.setattr(es.requests, "post", lambda *a, **k: _Resp(202, {
+        "batchId": "34310c0f-a551-4a16-9ca8-166c4cd181e8",
+        "messageIds": ["<1@smtp-relay.mailin.fr>", "<2@smtp-relay.mailin.fr>"]}))
+    at = datetime.now(timezone.utc) + timedelta(hours=1)
+    assert es.send_email_brevo_api(["a@x.com", "b@x.com"], "s", "<p>h</p>", scheduled_at=at) is True
+
+
+def test_batch_status_parses_live_queued_shape(brevo_env, monkeypatch):
+    # Exact body Brevo returned for a queued 2-version batch.
+    _status_with(monkeypatch, _Resp(200, {"count": 1, "batches": [{
+        "scheduledAt": "2026-10-20T19:01:27.000Z", "createdAt": "2026-10-20T18:51:27.632Z",
+        "status": "queued"}]}))
+    assert es.brevo_batch_status("34310c0f-a551-4a16-9ca8-166c4cd181e8") == "exists"
+
+
+def test_batch_status_live_not_found_shape(brevo_env, monkeypatch):
+    _status_with(monkeypatch, _Resp(404, {"code": "document_not_found",
+                                          "message": "Record not found for batchId/messageId"}))
+    assert es.brevo_batch_status("x") == "absent"
+
+
+@pytest.mark.parametrize("test_email,to_email,expected", [
+    ("", "a@x.com, b@x.com", ["a@x.com", "b@x.com"]),
+    ("me@x.com", "a@x.com,b@x.com", ["me@x.com"]),
+    ("", "", []),
+])
+def test_resolve_recipients(monkeypatch, test_email, to_email, expected):
+    monkeypatch.setenv("DIGEST_TEST_EMAIL", test_email)
+    monkeypatch.setenv("DIGEST_TO_EMAIL", to_email)
+    assert es.resolve_recipients() == expected

@@ -2,7 +2,8 @@
 
 Delivery is pinned to a wall-clock time in Pacific, and it is decoupled from
 when the job runs. GitHub queues scheduled workflows with a large, variable
-delay (observed here: ~1h50m to ~6h20m), so no cron value can promise a
+delay (worst seen on this repo: 9h46m; tests/test_delivery.py holds the
+figure the crons are checked against), so no cron value can promise a
 specific minute. Instead the job runs the evening before, builds the digest,
 and hands it to the mail provider with a send time of the next 06:00 Pacific.
 

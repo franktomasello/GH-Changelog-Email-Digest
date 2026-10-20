@@ -33,7 +33,7 @@ on:
         type: boolean
         default: false
       deliver_in_minutes:
-        description: 'Test the scheduled-send path: deliver N minutes from now (pair with a test email)'
+        description: 'Test the scheduled-send path: deliver N (>= 2) minutes after the digest is built (pair with a test email)'
         type: string
         default: ''
 

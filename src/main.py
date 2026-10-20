@@ -73,8 +73,16 @@ def main():
     args = parser.parse_args()
     if args.scheduled_delivery and args.deliver_in_minutes is not None:
         parser.error("--scheduled-delivery and --deliver-in-minutes are mutually exclusive")
-    if args.deliver_in_minutes is not None and args.deliver_in_minutes < 1:
-        parser.error("--deliver-in-minutes must be at least 1")
+    if args.deliver_in_minutes is not None and args.deliver_in_minutes < 2:
+        # Anything shorter is inside MIN_SCHEDULE_LEAD and would just send now,
+        # silently skipping the scheduling path the flag exists to test.
+        parser.error("--deliver-in-minutes must be at least 2")
+    if args.scheduled_delivery and os.environ.get("DIGEST_TEST_EMAIL", "").strip():
+        # A scheduled send claims the morning's batchId. Claiming it for a
+        # single test address would make the real cron run see the morning as
+        # already scheduled and skip all recipients.
+        parser.error("--scheduled-delivery sends to the full recipient list; unset "
+                     "DIGEST_TEST_EMAIL (use --deliver-in-minutes to test scheduling)")
 
     print(f"🚀 GitHub Changelog Digest - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("-" * 60)
@@ -89,6 +97,7 @@ def main():
     now = datetime.now(timezone.utc)
     slot = None
     deliver_at = None
+    precheck = None  # Brevo's answer before we send: "exists"/"absent"/"unknown"
     if args.scheduled_delivery:
         # Only the Brevo API can hold an email until 06:00; SMTP sends now.
         # Fail before fetching, so a missing key is loud and costs nothing.
@@ -103,10 +112,13 @@ def main():
             return 0
         # state.json can lag behind reality: a run may have scheduled the
         # email and then failed before its state commit landed. Ask Brevo.
-        status = email_sender.brevo_batch_status(slot_batch_id(slot))
+        precheck = status = email_sender.brevo_batch_status(slot_batch_id(slot))
         if status == "exists":
             print("✅ Brevo already has this morning's digest scheduled; recording "
                   "the slot without sending again.")
+            if args.dry_run or args.preview:
+                print("   (dry run / preview: state left untouched)")
+                return 0
             # Entries are deliberately not marked processed: we can't tell which
             # ones that batch contained, and repeating an entry tomorrow beats
             # silently dropping one.
@@ -117,6 +129,8 @@ def main():
                   "is already scheduled; continuing.")
         deliver_at = slot
     elif args.deliver_in_minutes is not None:
+        # Provisional, for the log line; re-measured from send time below so
+        # slow fetching can't eat the lead time.
         deliver_at = now + timedelta(minutes=args.deliver_in_minutes)
     if deliver_at is not None:
         when = deliver_at.astimezone(DELIVERY_TZ).strftime("%a %b %-d, %H:%M %Z")
@@ -200,6 +214,8 @@ def main():
     # Decide schedule-vs-now exactly once, against a fresh clock: fetching and
     # enrichment take time, and the target may have passed since the run began.
     send_now = datetime.now(timezone.utc)
+    if args.deliver_in_minutes is not None:
+        deliver_at = send_now + timedelta(minutes=args.deliver_in_minutes)
     scheduled_at = None
     if deliver_at is not None and deliver_at > send_now + MIN_SCHEDULE_LEAD:
         scheduled_at = deliver_at
@@ -213,10 +229,23 @@ def main():
         releases, improvements, retirements,
         deliver_at=deliver_at, scheduled_at=scheduled_at, batch_id=batch_id,
     )
-    if scheduled_at is not None:
+    if scheduled_at is not None and len(email_sender.resolve_recipients()) < 2:
+        print("   One recipient: Brevo keeps no batch record for a single message, "
+              "so there is no batch to confirm.")
+    elif scheduled_at is not None:
         # Brevo is the authority. A timeout can hide a request that actually
         # went through; a 2xx is worth confirming.
         status = email_sender.brevo_batch_status(batch_id)
+        if not success and status == "exists" and slot is not None and precheck != "absent":
+            # Every run for a morning shares one batchId, so without a clean
+            # "absent" beforehand this may be an EARLIER run's batch, which
+            # lacks anything published since. Record the morning, but leave
+            # the entries unprocessed: repeating beats dropping.
+            print("::warning::The send failed, but Brevo already has a batch for this "
+                  "morning (possibly from an earlier run). Recording the morning; "
+                  "these entries will repeat in the next digest.")
+            save_last_delivery_slot(slot, batch_id)
+            return 0
         if not success and status == "exists":
             print("::warning::The send reported an error, but Brevo has the batch "
                   "scheduled; treating it as scheduled.")

@@ -314,8 +314,20 @@ def send_email_brevo_api(
 BREVO_STATUS_URL = "https://api.brevo.com/v3/smtp/emailStatus/{}"
 
 
+def resolve_recipients() -> list[str]:
+    """Who this run sends to. DIGEST_TEST_EMAIL (a manual test-run override)
+    takes precedence over the normal DIGEST_TO_EMAIL list when it is set."""
+    raw = os.environ.get("DIGEST_TEST_EMAIL", "").strip() or os.environ.get("DIGEST_TO_EMAIL", "")
+    return [e.strip() for e in raw.split(",") if e.strip()]
+
+
 def brevo_batch_status(batch_id: str) -> str:
     """Whether Brevo holds a scheduled batch: "exists", "absent" or "unknown".
+
+    Only meaningful for 2+ recipients: Brevo keeps a batch record for a
+    multi-version send (verified live: visible within 3 s, 404 once
+    deleted) but none for a single message, which can only be looked up by
+    its messageId.
 
     Brevo, not state.json, is the authority on whether a morning's digest is
     already queued; state.json can lag if a run scheduled the email but its
@@ -370,10 +382,7 @@ def send_digest_email(
     with the batch_id it records.
     """
     if not to_emails:
-        # DIGEST_TEST_EMAIL (a manual test-run override) takes precedence over
-        # the normal DIGEST_TO_EMAIL recipient list when it is set.
-        raw = os.environ.get("DIGEST_TEST_EMAIL", "").strip() or os.environ.get("DIGEST_TO_EMAIL", "")
-        to_emails = [e.strip() for e in raw.split(",") if e.strip()]
+        to_emails = resolve_recipients()
 
     # Log the count only — avoid writing recipient addresses to CI logs.
     print(f"📬 Resolved {len(to_emails)} recipient(s)")
