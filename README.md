@@ -104,7 +104,7 @@ Fetch  →  Parse  →  Dedupe  →  Categorize  →  Enrich  →  Render  →  
 | **Categorize** | Sort into Releases, Improvements, and Retirements |
 | **Enrich** | Build the concise summary and key features; find and verify the docs link |
 | **Render** | Compose the HTML with the Jinja2 template |
-| **Send** | Deliver over SMTP to each recipient individually |
+| **Send** | Schedule delivery for 6:00 AM Pacific via the Brevo API, one email per recipient (manual runs send immediately) |
 | **Persist** | Commit the updated `state.json` so nothing repeats |
 
 ### Documentation lookup
@@ -174,13 +174,18 @@ Keeping recipients in the secret (rather than a tracked file) means addresses ne
 | `SMTP_PORT` | SMTP port (e.g. `587`) |
 | `SMTP_USER` | SMTP username |
 | `SMTP_PASSWORD` | SMTP password / app password |
-| `SMTP_FROM_EMAIL` | Sender address |
+| `SMTP_FROM_EMAIL` | Sender address (with Brevo, must be a verified sender) |
+| `SMTP_FROM_NAME` *(optional)* | Display name on the From header |
+| `SMTP_REPLY_TO` *(optional)* | Where replies go, if not the From address |
+| `BREVO_API_KEY` | **Required for the daily 6:00 AM delivery.** A Brevo API key (`xkeysib-…`, not the SMTP key). Only the API can hold an email until a set time, so scheduled runs fail fast without it. SMTP is used only for manual sends when it's unset |
 | `DIGEST_TO_EMAIL` | Recipient address(es), comma-separated |
 | `ANTHROPIC_API_KEY` *(optional)* | Enables the LLM summaries + docs-link selection (with `DIGEST_LLM=1`) |
 
 ### Automation
 
-The workflow runs **daily** via GitHub Actions, tuned so delivery lands in the **morning (~8–10 AM Pacific)**. GitHub queues scheduled runs with a variable delay, so the exact minute is best-effort, not guaranteed. To run it by hand: **Actions → GitHub Changelog Digest → Run workflow**, with optional inputs for a **test email**, a **dry run**, or a **force** send.
+The digest is delivered at **6:00 AM Pacific** every day (PDT or PST, whichever is in effect). GitHub queues scheduled workflows with a delay of up to several hours, so the cron can't set the delivery time on its own. Instead the workflow runs the evening before, builds the digest, and hands it to Brevo with a scheduled send time (see `src/delivery.py`). A second, later cron is a backup in case GitHub drops the first; it does nothing once the morning is already scheduled. Brevo may deliver up to 5 minutes after the scheduled time.
+
+To run it by hand: **Actions → GitHub Changelog Digest → Run workflow**, with optional inputs for a **test email**, a **dry run**, a **force** send, or **deliver in minutes** (schedules the test send a few minutes ahead, to exercise the scheduling path).
 
 <br />
 
@@ -189,14 +194,15 @@ The workflow runs **daily** via GitHub Actions, tuned so delivery lands in the *
 ```
 GH-Changelog-Email-Digest/
 ├── .github/workflows/
-│   ├── digest.yml            # Daily cron (tuned for ~8–10 AM PT) + manual trigger
+│   ├── digest.yml            # Evening crons (delivery pinned to 6 AM PT) + manual trigger
 │   └── test.yml              # Runs the pytest suite on every push / PR
 ├── assets/icons/             # Hosted PNGs: GitHub mark (header/footer) + category Octicons
 ├── src/
 │   ├── __init__.py           # Marks src as a package
 │   ├── main.py               # Entry point and orchestration
 │   ├── changelog.py          # RSS fetch, parse, enrich, and docs-link resolution
-│   ├── email_sender.py       # Build the email (HTML + plain text) and send over SMTP
+│   ├── email_sender.py       # Build the email (HTML + plain text); send via Brevo API or SMTP
+│   ├── delivery.py           # Which 6:00 AM Pacific slot a run should fill (DST-aware)
 │   └── state.py              # Track which entries have been sent (dedup)
 ├── templates/
 │   └── digest_email.html     # Jinja2 email (dark Primer theme, Mona Sans, Octicons)
@@ -226,7 +232,7 @@ The same suite runs in CI on every push and pull request (`.github/workflows/tes
 
 ## Tech stack
 
-**Python** · **GitHub Actions** (scheduling — no server) · **SMTP** (delivery) · `feedparser` + `requests` + `beautifulsoup4` (fetch & parse) · `jinja2` (templating) · `pytest` (tests) · optional **Anthropic Claude** (summaries + docs-link selection)
+**Python** · **GitHub Actions** (scheduling — no server) · **Brevo API / SMTP** (delivery) · `feedparser` + `requests` + `beautifulsoup4` (fetch & parse) · `jinja2` (templating) · `pytest` (tests) · optional **Anthropic Claude** (summaries + docs-link selection)
 
 <br />
 

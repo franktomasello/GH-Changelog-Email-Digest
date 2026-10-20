@@ -95,3 +95,52 @@ def test_save_prunes_stale_timestamp(state_file):
     saved = json.loads(state_file.read_text())["processed_urls"]
     assert "https://stale" not in saved
     assert "https://fresh" in saved
+
+
+# --- delivery-slot bookkeeping ------------------------------------------------
+
+from datetime import timezone  # noqa: E402
+from zoneinfo import ZoneInfo  # noqa: E402
+
+PT = ZoneInfo("America/Los_Angeles")
+
+
+def test_delivery_slot_roundtrip(state_file):
+    slot = datetime(2026, 10, 21, 6, 0, tzinfo=PT)
+    state.save_last_delivery_slot(slot, "batch-1")
+    assert state.load_last_delivery_slot() == slot
+    assert json.loads(state_file.read_text())["last_delivery"]["batch_id"] == "batch-1"
+
+
+def test_no_delivery_slot_recorded_yet(state_file):
+    _write_state(state_file, {})
+    assert state.load_last_delivery_slot() is None
+
+
+def test_saving_urls_preserves_delivery_slot(state_file):
+    # Regression guard: save_processed_urls used to rewrite the whole file as
+    # {"processed_urls": ...}, which would erase the slot and let the backup
+    # cron schedule a duplicate.
+    slot = datetime(2026, 10, 21, 6, 0, tzinfo=PT)
+    state.save_last_delivery_slot(slot, "batch-1")
+    state.save_processed_urls({"https://github.blog/changelog/a"})
+    assert state.load_last_delivery_slot() == slot
+    assert state.load_processed_urls() == {"https://github.blog/changelog/a"}
+
+
+def test_saving_slot_preserves_urls(state_file):
+    state.save_processed_urls({"https://github.blog/changelog/a"})
+    state.save_last_delivery_slot(datetime(2026, 10, 21, 13, 0, tzinfo=timezone.utc))
+    assert state.load_processed_urls() == {"https://github.blog/changelog/a"}
+
+
+def test_naive_slot_rejected_on_save(state_file):
+    with pytest.raises(ValueError):
+        state.save_last_delivery_slot(datetime(2026, 10, 21, 6, 0))
+
+
+@pytest.mark.parametrize("bad", ["not-a-date", "2026-10-21T06:00:00", None, ""])
+def test_unusable_stored_slot_reads_as_none(state_file, bad):
+    # A naive or garbled value can't be safely compared to an aware "now".
+    state_file.write_text(json.dumps({"processed_urls": {}, "last_delivery": {"slot": bad}}))
+    assert state.load_last_delivery_slot() is None

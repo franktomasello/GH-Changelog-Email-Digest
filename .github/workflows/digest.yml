@@ -2,17 +2,22 @@ name: GitHub Changelog Digest
 
 on:
   schedule:
-    # Target delivery window: 8-10 AM Pacific. GitHub queues scheduled runs with
-    # a large, variable delay (this repo's last 14 runs: ~1h50m-6h20m, median
-    # ~4.7h), so the cron is set by working backwards from the *observed* delay
-    # rather than the nominal time. 11:45 UTC + the usual delay lands in
-    # 15:00-17:00 UTC = 8-10 AM PDT on ~11 of 14 days (the old 13:23 cron only
-    # hit it ~3 of 14 — it mostly arrived 10-11:30 AM). Off-the-hour minute
-    # avoids GitHub's worst top-of-hour congestion.
-    # Caveats: best-effort, not a guarantee — fast-queue days can arrive ~6:45 AM
-    # and congested days can slip past 10 AM. Fixed UTC drifts ~1h vs Pacific
-    # across DST; for PST (winter) shift to ~12:45 UTC to stay in window.
-    - cron: '45 11 * * *'
+    # Delivery time is NOT set here. The code pins it to 06:00 America/
+    # Los_Angeles (PDT or PST as the date dictates) by handing the finished
+    # digest to Brevo with a scheduled send time; see src/delivery.py.
+    #
+    # These crons only need to get a run going *before* 06:00 Pacific.
+    # GitHub queues scheduled runs with a large, variable delay (this repo's
+    # history, Jun-Oct 2026: ~1h50m typical minimum, 8h40m on Oct 12, 9h46m in
+    # late Aug) and can drop runs under load, so:
+    #   00:47 UTC primary  (5:47 PM PDT / 4:47 PM PST the evening before)
+    #   02:17 UTC backup   (7:17 PM PDT / 6:17 PM PST)
+    # Even at the 9h46m worst case both start by 12:03 UTC, ahead of 06:00 PDT
+    # (13:00 UTC) and PST (14:00 UTC); tests/test_delivery.py enforces this
+    # against these exact lines. The backup is a no-op once the morning is
+    # claimed. Off-the-hour minutes dodge GitHub's top-of-hour congestion.
+    - cron: '47 0 * * *'
+    - cron: '17 2 * * *'
   workflow_dispatch:
     inputs:
       test_email:
@@ -27,10 +32,16 @@ on:
         description: 'Force send even if no new entries'
         type: boolean
         default: false
+      deliver_in_minutes:
+        description: 'Test the scheduled-send path: deliver N (>= 2) minutes after the digest is built (pair with a test email)'
+        type: string
+        default: ''
 
 concurrency:
   group: changelog-digest
-  cancel-in-progress: true
+  # Queue, never cancel: killing a run between "scheduled with Brevo" and
+  # "state committed" would let the next run schedule a duplicate.
+  cancel-in-progress: false
 
 jobs:
   digest:
@@ -61,6 +72,14 @@ jobs:
           # From address. Unset secrets arrive as "" and are ignored.
           SMTP_FROM_NAME: ${{ secrets.SMTP_FROM_NAME }}
           SMTP_REPLY_TO: ${{ secrets.SMTP_REPLY_TO }}
+          # Brevo HTTP API key (xkeysib-..., not the SMTP key). REQUIRED for the
+          # scheduled 06:00 delivery: only the API can hold an email until a
+          # set time, and cron runs fail fast without it. SMTP is used only
+          # for manual/immediate sends when this is unset.
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          # Passed through env (not interpolated into the script) and validated
+          # as an int by main.py.
+          DELIVER_IN_MINUTES: ${{ inputs.deliver_in_minutes }}
           # Manual test-run override (workflow_dispatch input). When set, the
           # digest goes only to this address. Leave empty for normal runs.
           DIGEST_TEST_EMAIL: ${{ inputs.test_email }}
@@ -72,7 +91,8 @@ jobs:
           git pull --rebase || true
           mkdir -p data
           
-          ARGS="${{ github.event_name == 'workflow_dispatch' && '--all' || '' }} ${{ inputs.force && '--force' || '' }} ${{ inputs.dry_run && '--dry-run' || '' }}"
+          ARGS="${{ github.event_name == 'workflow_dispatch' && '--all' || '' }} ${{ github.event_name == 'schedule' && '--scheduled-delivery' || '' }} ${{ inputs.force && '--force' || '' }} ${{ inputs.dry_run && '--dry-run' || '' }}"
+          if [ -n "$DELIVER_IN_MINUTES" ]; then ARGS="$ARGS --deliver-in-minutes $DELIVER_IN_MINUTES"; fi
           
           echo "dry_run=${{ inputs.dry_run || 'false' }}" >> $GITHUB_OUTPUT
           cd src && uv run python main.py $ARGS
