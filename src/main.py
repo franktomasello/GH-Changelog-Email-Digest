@@ -8,8 +8,10 @@ a beautifully formatted email digest.
 """
 
 import argparse
+import os
 import sys
-from datetime import datetime
+import uuid
+from datetime import datetime, timedelta, timezone
 
 from changelog import (
     fetch_changelog,
@@ -22,7 +24,10 @@ from state import (
     save_processed_urls,
     filter_new_entries,
     mark_entries_as_processed,
+    load_last_delivery_slot,
+    save_last_delivery_slot,
 )
+from delivery import next_delivery_slot, slot_batch_id, DELIVERY_TZ, MIN_SCHEDULE_LEAD
 import email_sender
 from dotenv import load_dotenv
 load_dotenv()  # Load .env file; existing env vars take precedence
@@ -52,7 +57,24 @@ def main():
         action="store_true",
         help="Output HTML to stdout instead of sending email",
     )
+    parser.add_argument(
+        "--scheduled-delivery",
+        action="store_true",
+        help="Deliver at the next 06:00 Pacific slot (used by the cron runs). "
+             "Exits without doing anything if that slot is already filled.",
+    )
+    parser.add_argument(
+        "--deliver-in-minutes",
+        type=int,
+        metavar="N",
+        help="Testing aid: schedule this send N minutes from now instead of "
+             "sending immediately. Does not touch delivery-slot state.",
+    )
     args = parser.parse_args()
+    if args.scheduled_delivery and args.deliver_in_minutes is not None:
+        parser.error("--scheduled-delivery and --deliver-in-minutes are mutually exclusive")
+    if args.deliver_in_minutes is not None and args.deliver_in_minutes < 1:
+        parser.error("--deliver-in-minutes must be at least 1")
 
     print(f"🚀 GitHub Changelog Digest - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("-" * 60)
@@ -61,6 +83,45 @@ def main():
     print("📂 Loading state...")
     processed_urls = load_processed_urls()
     print(f"   Found {len(processed_urls)} previously processed entries")
+
+    # Work out when this digest should land, before doing any fetching: a
+    # backup cron run whose slot the primary already filled has nothing to do.
+    now = datetime.now(timezone.utc)
+    slot = None
+    deliver_at = None
+    if args.scheduled_delivery:
+        # Only the Brevo API can hold an email until 06:00; SMTP sends now.
+        # Fail before fetching, so a missing key is loud and costs nothing.
+        if not os.environ.get("BREVO_API_KEY", "").strip():
+            print("::error::Scheduled delivery requires the BREVO_API_KEY secret "
+                  "(a Brevo API key, not the SMTP key). Nothing was sent.")
+            return 1
+        slot = next_delivery_slot(now, load_last_delivery_slot())
+        if slot is None:
+            print("✅ The next 06:00 Pacific delivery is already scheduled (or "
+                  "out of range for this run). Nothing to do.")
+            return 0
+        # state.json can lag behind reality: a run may have scheduled the
+        # email and then failed before its state commit landed. Ask Brevo.
+        status = email_sender.brevo_batch_status(slot_batch_id(slot))
+        if status == "exists":
+            print("✅ Brevo already has this morning's digest scheduled; recording "
+                  "the slot without sending again.")
+            # Entries are deliberately not marked processed: we can't tell which
+            # ones that batch contained, and repeating an entry tomorrow beats
+            # silently dropping one.
+            save_last_delivery_slot(slot, slot_batch_id(slot))
+            return 0
+        if status == "unknown":
+            print("::warning::Couldn't confirm with Brevo whether this morning "
+                  "is already scheduled; continuing.")
+        deliver_at = slot
+    elif args.deliver_in_minutes is not None:
+        deliver_at = now + timedelta(minutes=args.deliver_in_minutes)
+    if deliver_at is not None:
+        when = deliver_at.astimezone(DELIVERY_TZ).strftime("%a %b %-d, %H:%M %Z")
+        late = " (slot already passed: sending now)" if deliver_at <= now else ""
+        print(f"⏰ Delivery target: {when}{late}")
 
     # Step 2: Fetch changelog entries (only from the past 7 days)
     print("📡 Fetching GitHub changelog (past 7 days)...")
@@ -130,11 +191,41 @@ def main():
         print(f"   - {len(releases)} releases")
         print(f"   - {len(improvements)} improvements")
         print(f"   - {len(retirements)} retirements")
+        if deliver_at is not None:
+            print(f"   - delivery at {deliver_at.astimezone(DELIVERY_TZ).strftime('%a %b %-d, %H:%M %Z')}")
         return 0
 
     # Step 9: Send email
     print("📧 Sending digest email...")
-    success = email_sender.send_digest_email(releases, improvements, retirements)
+    # Decide schedule-vs-now exactly once, against a fresh clock: fetching and
+    # enrichment take time, and the target may have passed since the run began.
+    send_now = datetime.now(timezone.utc)
+    scheduled_at = None
+    if deliver_at is not None and deliver_at > send_now + MIN_SCHEDULE_LEAD:
+        scheduled_at = deliver_at
+    elif deliver_at is not None:
+        print("   Delivery time has passed (or is under a minute away): sending now.")
+    batch_id = None
+    if scheduled_at is not None:
+        batch_id = slot_batch_id(slot) if slot is not None else str(uuid.uuid4())
+
+    success = email_sender.send_digest_email(
+        releases, improvements, retirements,
+        deliver_at=deliver_at, scheduled_at=scheduled_at, batch_id=batch_id,
+    )
+    if scheduled_at is not None:
+        # Brevo is the authority. A timeout can hide a request that actually
+        # went through; a 2xx is worth confirming.
+        status = email_sender.brevo_batch_status(batch_id)
+        if not success and status == "exists":
+            print("::warning::The send reported an error, but Brevo has the batch "
+                  "scheduled; treating it as scheduled.")
+            success = True
+        elif success and status == "exists":
+            print("   Brevo confirms the batch is scheduled.")
+        elif success:
+            print(f"::warning::Brevo accepted the request, but looking the batch up "
+                  f"returned '{status}'.")
 
     if not success:
         print("❌ Failed to send email")
@@ -148,9 +239,12 @@ def main():
     )
     save_processed_urls(new_urls)
     print(f"   State now contains {len(new_urls)} processed entries")
+    if slot is not None:
+        save_last_delivery_slot(slot, batch_id)
+        print(f"   Recorded delivery slot {slot.isoformat()}")
 
     print("-" * 60)
-    print("✅ Digest sent successfully!")
+    print("✅ Digest scheduled successfully!" if scheduled_at else "✅ Digest sent successfully!")
     return 0
 
 

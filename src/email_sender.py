@@ -1,15 +1,17 @@
-"""Email building and sending functionality using SMTP (Gmail or other providers)."""
+"""Email building and sending: the Brevo HTTP API (which supports scheduled
+delivery) when BREVO_API_KEY is set, otherwise plain SMTP (immediate only)."""
 
 import os
 import smtplib
 import ssl
-from datetime import datetime
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr, formatdate, make_msgid
 from typing import Optional
 from zoneinfo import ZoneInfo
 
+import requests
 from jinja2 import Environment, FileSystemLoader
 
 # Pacific Time Zone
@@ -228,13 +230,145 @@ def send_email(
     return success_count > 0
 
 
+BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
+BREVO_MAX_RECIPIENTS = 2000  # per request, per Brevo's API limits
+
+
+def send_email_brevo_api(
+    to_emails: list[str],
+    subject: str,
+    html_content: str,
+    text_content: Optional[str] = None,
+    scheduled_at: Optional[datetime] = None,
+    batch_id: Optional[str] = None,
+) -> bool:
+    """Send (or schedule) via Brevo's transactional API.
+
+    SMTP has no way to say "deliver at 06:00", so scheduled delivery needs
+    the API. Uses the same SMTP_FROM_EMAIL / SMTP_FROM_NAME / SMTP_REPLY_TO
+    settings as the SMTP path; the From address must be a Brevo-verified
+    sender.
+    """
+    api_key = os.environ.get("BREVO_API_KEY", "").strip()
+    from_email = os.environ.get("SMTP_FROM_EMAIL", "").strip()
+    from_name = os.environ.get("SMTP_FROM_NAME", "").strip()
+    reply_to = os.environ.get("SMTP_REPLY_TO", "").strip()
+
+    if not api_key:
+        raise ValueError("BREVO_API_KEY is required for API sending")
+    if not from_email:
+        # No fallback to SMTP_USER: for Brevo that's a relay login
+        # (...@smtp-brevo.com), not a deliverable sender.
+        raise ValueError("SMTP_FROM_EMAIL is required (a Brevo-verified sender)")
+    if len(to_emails) > BREVO_MAX_RECIPIENTS:
+        raise ValueError(f"Brevo accepts at most {BREVO_MAX_RECIPIENTS} recipients per request")
+
+    sender = {"email": from_email}
+    if from_name:
+        sender["name"] = from_name
+    payload = {
+        "sender": sender,
+        "subject": subject,
+        "htmlContent": html_content,
+        # One version per recipient, so each person gets an individual email
+        # with only their own address in To, same as the SMTP path.
+        "messageVersions": [{"to": [{"email": e}]} for e in to_emails],
+    }
+    if text_content:
+        payload["textContent"] = text_content
+    if reply_to:
+        payload["replyTo"] = {"email": reply_to}
+    if scheduled_at is not None:
+        if scheduled_at.tzinfo is None:
+            raise ValueError("scheduled_at must be timezone-aware")
+        payload["scheduledAt"] = scheduled_at.astimezone(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%S.000Z"
+        )
+        if batch_id:
+            payload["batchId"] = batch_id
+
+    try:
+        resp = requests.post(
+            BREVO_API_URL,
+            json=payload,
+            headers={"api-key": api_key, "accept": "application/json"},
+            timeout=30,
+        )
+    except requests.RequestException as e:
+        print(f"::error::Brevo API request failed: {e}")
+        return False
+
+    if resp.status_code not in (200, 201, 202):
+        # Brevo error bodies are {"code", "message"} and never echo the key.
+        print(f"::error::Brevo API rejected the send: HTTP {resp.status_code} {resp.text[:300]}")
+        return False
+
+    if scheduled_at is not None:
+        local = scheduled_at.astimezone(PACIFIC_TZ)
+        print(f"  ✓ Scheduled {len(to_emails)} email(s) for "
+              f"{local.strftime('%a %b %-d, %H:%M %Z')} (batch {batch_id})")
+    else:
+        print(f"  ✓ Sent {len(to_emails)} email(s) via Brevo API")
+    return True
+
+BREVO_STATUS_URL = "https://api.brevo.com/v3/smtp/emailStatus/{}"
+
+
+def brevo_batch_status(batch_id: str) -> str:
+    """Whether Brevo holds a scheduled batch: "exists", "absent" or "unknown".
+
+    Brevo, not state.json, is the authority on whether a morning's digest is
+    already queued; state.json can lag if a run scheduled the email but its
+    state commit never landed. "unknown" means the lookup itself failed.
+    """
+    api_key = os.environ.get("BREVO_API_KEY", "").strip()
+    if not api_key:
+        return "unknown"
+    try:
+        resp = requests.get(
+            BREVO_STATUS_URL.format(batch_id),
+            headers={"api-key": api_key, "accept": "application/json"},
+            timeout=30,
+        )
+    except requests.RequestException as e:
+        print(f"::warning::Brevo batch lookup failed: {e}")
+        return "unknown"
+    if resp.status_code == 404:
+        return "absent"
+    if resp.status_code != 200:
+        print(f"::warning::Brevo batch lookup returned HTTP {resp.status_code}")
+        return "unknown"
+    try:
+        body = resp.json()
+    except ValueError:
+        return "unknown"
+    if not isinstance(body, dict):
+        return "unknown"
+    batches = body.get("batches")
+    if batches:
+        return "exists"
+    if batches == [] or body.get("count") == 0:
+        return "absent"
+    return "unknown"
+
+
 def send_digest_email(
     releases: list[dict],
     improvements: list[dict],
     retirements: list[dict],
     to_emails: Optional[list[str]] = None,
+    deliver_at: Optional[datetime] = None,
+    scheduled_at: Optional[datetime] = None,
+    batch_id: Optional[str] = None,
 ) -> bool:
-    """Build and send the changelog digest email."""
+    """Build and send the changelog digest email.
+
+    deliver_at: the morning this digest is for; it sets the date in the
+    subject and header, so a run the evening before is dated for the morning.
+    scheduled_at: when Brevo should release it, or None to send now. The
+    caller decides this (once, against a fresh clock) so it can't disagree
+    with the batch_id it records.
+    """
     if not to_emails:
         # DIGEST_TEST_EMAIL (a manual test-run override) takes precedence over
         # the normal DIGEST_TO_EMAIL recipient list when it is set.
@@ -253,18 +387,28 @@ def send_digest_email(
 
     # Build email content (shared digest date keeps the HTML and text parts in
     # sync) — HTML plus a plain-text alternative for deliverability/accessibility.
-    digest_date = datetime.now(tz=PACIFIC_TZ).strftime("%A, %B %-d, %Y")
+    reference = (deliver_at or datetime.now(tz=PACIFIC_TZ)).astimezone(PACIFIC_TZ)
+    digest_date = reference.strftime("%A, %B %-d, %Y")
     html_content = build_email_html(releases, improvements, retirements, digest_date)
     text_content = build_email_text(releases, improvements, retirements, digest_date)
 
     # Build subject line
     total_items = len(releases) + len(improvements) + len(retirements)
-    date_str = datetime.now(tz=PACIFIC_TZ).strftime("%a, %b %-d")
+    date_str = reference.strftime("%a, %b %-d")
     update_word = "update" if total_items == 1 else "updates"
     if total_items == 0:
         subject = f"No changelog updates today · {date_str}"
     else:
         subject = f"{total_items} new {update_word} in the GitHub Changelog · {date_str}"
 
-    # Send email
+    if os.environ.get("BREVO_API_KEY", "").strip():
+        return send_email_brevo_api(
+            to_emails, subject, html_content, text_content=text_content,
+            scheduled_at=scheduled_at, batch_id=batch_id,
+        )
+    if scheduled_at is not None:
+        # Refuse rather than silently sending at the wrong time.
+        print("::error::Scheduled delivery requires BREVO_API_KEY (SMTP cannot "
+              "schedule). Not sending.")
+        return False
     return send_email(to_emails, subject, html_content, text_content=text_content)
