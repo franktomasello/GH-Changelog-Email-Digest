@@ -753,16 +753,28 @@ def _normalize_feature_text(text: str) -> str:
     text = re.sub(r'^\d+[.)]\s*', '', text)
     # Strip trailing colons (leftover from headers used as list items)
     text = re.sub(r':+\s*$', '', text)
-    # Replace underscores with spaces in display text (e.g., Find_symbol -> Find symbol)
-    # but not in code-like strings (e.g., npm install, pip install, dotnet add)
+    # Replace underscores with spaces in Title_snake display labels only (e.g.
+    # Find_symbol -> Find symbol). Lowercase snake_case and anything with digits or
+    # wildcards is a code identifier (totals_by_client, totals_by_*) and is kept,
+    # as are code-like strings (npm install, pip install, dotnet add).
     if not any(kw in text.lower() for kw in ['install', 'import', 'go get', 'dotnet', 'pip', 'npm', 'require']):
-        text = re.sub(r'(?<=[a-zA-Z])_(?=[a-zA-Z])', ' ', text)
+        text = re.sub(r'\b[A-Z][a-z]+(?:_[a-z]+)+\b', lambda m: m.group(0).replace('_', ' '), text)
+        # A leading "snake_label: description" names a field or tool; as the bullet's
+        # label it reads better humanized ("request_count: ..." -> "Request count: ...").
+        # Identifiers later in the sentence keep their underscores.
+        lead = re.match(r'([a-z][a-z0-9]*(?:_[a-z0-9]+)+)(?=:\s)', text)
+        if lead:
+            text = lead.group(1).replace('_', ' ') + text[lead.end():]
     # Capitalize the first letter — but skip code tokens (.NET, @handle) and CLI
     # command names (gh, git, npm, ...), where the lowercase form is intentional.
     first_word = text.split(maxsplit=1)[0].lower() if text else ""
+    # A '.', '_' or '/' between word characters marks a hostname, path or code
+    # identifier (productionresultssa30.blob.core.windows.net, totals_by_client).
+    looks_like_identifier = bool(re.search(r'[a-z0-9][._/][a-z0-9*]', first_word))
     if (text and text[0].islower()
             and not text.startswith(('.', '@'))
-            and first_word not in _COMMAND_PREFIXES):
+            and first_word not in _COMMAND_PREFIXES
+            and not looks_like_identifier):
         text = text[0].upper() + text[1:]
     # Bullet points never need trailing periods — keep them consistent
     text = text.rstrip('.')
@@ -1038,6 +1050,26 @@ def llm_pick_docs_url(title: str, content_html: str = "", summary: str = "") -> 
     return None
 
 
+def _drop_bullet_echoes(summary: str, features: list[str]) -> str:
+    """Remove summary sentences that repeat a key-feature bullet verbatim.
+
+    The heuristic summary is built from the post's text, list items included,
+    so a list item can end the summary and then reappear as bullet 1 (seen on
+    "Turn notifications into code with GitHub Copilot in Teams"). Never empties
+    the summary: if every sentence echoes a bullet, it's returned unchanged.
+    """
+    if not summary or not features:
+        return summary
+
+    def norm(s: str) -> str:
+        return re.sub(r'[^a-z0-9]+', ' ', s.lower()).strip()
+
+    bullets = {norm(f) for f in features}
+    sentences = re.split(r'(?<=[.!?])\s+', summary.strip())
+    kept = [s for s in sentences if norm(s) not in bullets]
+    return " ".join(kept) if kept else summary
+
+
 def enrich_entries(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
     """Attach a cleaned summary, key features, and a verified docs link to each entry."""
     for entry in entries:
@@ -1048,6 +1080,7 @@ def enrich_entries(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
         entry.detailed_summary = llm_summary(entry) or extract_detailed_summary(entry)
         _llm_feats = llm_key_features(entry.title, entry.content_html, entry.detailed_summary or entry.summary or "")
         entry.key_features = _llm_feats if _llm_feats is not None else extract_key_features(entry)
+        entry.detailed_summary = _drop_bullet_echoes(entry.detailed_summary, entry.key_features)
 
         # A human-verified override wins over any automated resolution: it's the
         # proven-correct page (or an intentional "no link" when no docs page fits).

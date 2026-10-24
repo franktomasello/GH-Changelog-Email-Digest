@@ -320,6 +320,10 @@ def test_entries_to_dict_shape_and_safe_url():
     ("improved performance for large repositories", "Improved performance for large repositories"),
     # Slash commands and code tokens are left as-is.
     ("/settings opens a configuration dialog", "/settings opens a configuration dialog"),
+    # Leading hostnames and code identifiers are never capitalized.
+    ("productionresultssa30.blob.core.windows.net through productionresultssa49",
+     "productionresultssa30.blob.core.windows.net through productionresultssa49"),
+    ("totals_by_client lists usage per tool", "totals_by_client lists usage per tool"),
 ])
 def test_normalize_feature_text_capitalization(raw, expected):
     assert cl._normalize_feature_text(raw) == expected
@@ -474,3 +478,41 @@ def test_llm_summary_falls_back_on_api_error(monkeypatch):
     e = _entry("Release", title="X")
     e.content_html = "<p>Body text that is long enough.</p>"
     assert cl.llm_summary(e) is None
+
+
+
+@pytest.mark.parametrize("raw,expected", [
+    # Title_snake display labels are de-snaked...
+    ("Find_symbol tool", "Find symbol tool"),
+    # ...but code identifiers keep their underscores (they used to become "totals by_*").
+    ("Each totals_by_* list", "Each totals_by_* list"),
+    ("A new totals_by_client array", "A new totals_by_client array"),
+    ("Counts distinct_*_use values", "Counts distinct_*_use values"),
+    # A leading field-name label is humanized; identifiers after it are kept.
+    ("request_count: The number of requests", "Request count: The number of requests"),
+    ("Client: such as opencode, claude_code, codex", "Client: such as opencode, claude_code, codex"),
+    ("totals_by_*: wildcard labels stay literal", "totals_by_*: wildcard labels stay literal"),
+])
+def test_normalize_feature_text_underscores(raw, expected):
+    assert cl._normalize_feature_text(raw) == expected
+
+
+def test_summary_drops_sentence_that_repeats_a_bullet():
+    summary = "Turn updates into action. Get notified: A bug report arrives in Teams."
+    bullets = ["Get notified: A bug report arrives in Teams", "Take action: fix it"]
+    assert cl._drop_bullet_echoes(summary, bullets) == "Turn updates into action."
+
+
+def test_summary_echo_match_ignores_case_and_punctuation():
+    assert cl._drop_bullet_echoes("Intro here. get NOTIFIED - a bug report arrives in teams!",
+                                  ["Get notified: A bug report arrives in Teams"]) == "Intro here."
+
+
+def test_summary_is_never_emptied_by_echo_removal():
+    only = "Get notified: A bug report arrives in Teams."
+    assert cl._drop_bullet_echoes(only, ["Get notified: A bug report arrives in Teams"]) == only
+
+
+@pytest.mark.parametrize("summary,features", [("Some summary.", []), ("", ["A bullet"])])
+def test_summary_echo_removal_noop_without_both(summary, features):
+    assert cl._drop_bullet_echoes(summary, features) == summary
