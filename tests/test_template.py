@@ -139,8 +139,17 @@ def test_meaningful_images_style_their_alt_text_for_images_off():
             assert "font-size:" in tag and "color:" in tag and "font-family:" in tag, tag
 
 
+def _png_size(path):
+    # Width/height sit at fixed offsets in the PNG IHDR chunk, so no imaging
+    # library is needed (CI installs only pytest).
+    import struct
+    with open(path, "rb") as f:
+        head = f.read(24)
+    assert head[:8] == b"\x89PNG\r\n\x1a\n", f"{path} is not a PNG"
+    return struct.unpack(">II", head[16:24])
+
+
 def test_retina_assets_are_at_least_2x_their_display_size():
-    from PIL import Image
     import os
     icons = os.path.join(os.path.dirname(__file__), "..", "assets", "icons")
     shown = {"github-mark.png": 48, "github-mark-muted.png": 20}
@@ -150,5 +159,5 @@ def test_retina_assets_are_at_least_2x_their_display_size():
             if os.path.exists(path):
                 shown[f"{name}-{tone}.png"] = 16
     for fname, px in shown.items():
-        w, h = Image.open(os.path.join(icons, fname)).size
+        w, h = _png_size(os.path.join(icons, fname))
         assert min(w, h) >= 2 * px, f"{fname} is {w}x{h}, shown at {px}px"
