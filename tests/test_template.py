@@ -115,3 +115,40 @@ def test_images_are_pinned_to_the_commit_being_sent(monkeypatch):
 def test_images_default_to_main_outside_actions(monkeypatch):
     monkeypatch.delenv("GITHUB_SHA", raising=False)
     assert "/GH-Changelog-Email-Digest/main/assets/icons/github-mark.png" in render([item()])
+
+
+def _imgs(html):
+    return re.findall(r"<img\b[^>]*>", html)
+
+
+@pytest.mark.parametrize("data", [([item()], [item()], []), ((), (), ())])
+def test_every_image_is_email_safe(data):
+    # Explicit pixel size (Outlook ignores CSS sizing), display:block (no gap
+    # under the image), an alt attribute, and no border.
+    for tag in _imgs(render(*data)):
+        assert re.search(r'\bwidth="\d+"', tag) and re.search(r'\bheight="\d+"', tag), tag
+        assert "alt=" in tag and "display: block" in tag and "border: 0" in tag, tag
+
+
+def test_meaningful_images_style_their_alt_text_for_images_off():
+    # With images blocked, alt text should look designed, not default serif.
+    html = render([item()]) + render()
+    for tag in _imgs(html):
+        alt = re.search(r'alt="([^"]*)"', tag).group(1)
+        if alt:
+            assert "font-size:" in tag and "color:" in tag and "font-family:" in tag, tag
+
+
+def test_retina_assets_are_at_least_2x_their_display_size():
+    from PIL import Image
+    import os
+    icons = os.path.join(os.path.dirname(__file__), "..", "assets", "icons")
+    shown = {"github-mark.png": 48, "github-mark-muted.png": 20}
+    for name in ("releases", "improvements", "retirements"):
+        for tone in ("green", "blue", "amber", "muted"):
+            path = os.path.join(icons, f"{name}-{tone}.png")
+            if os.path.exists(path):
+                shown[f"{name}-{tone}.png"] = 16
+    for fname, px in shown.items():
+        w, h = Image.open(os.path.join(icons, fname)).size
+        assert min(w, h) >= 2 * px, f"{fname} is {w}x{h}, shown at {px}px"
