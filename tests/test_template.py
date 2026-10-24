@@ -101,3 +101,17 @@ def test_footer_mso_wrapper_brackets_the_button_row():
     html = render([item()])
     footer = html[html.index('class="footer-links"'):]
     assert footer.index("RSS feed") < footer.index("<![endif]")
+
+
+
+def test_images_are_pinned_to_the_commit_being_sent(monkeypatch):
+    monkeypatch.setenv("GITHUB_SHA", "abc123def")
+    html = render([item()], [item()], [])
+    assert "/GH-Changelog-Email-Digest/abc123def/assets/icons/github-mark.png" in html
+    assert "/GH-Changelog-Email-Digest/abc123def/assets/icons/retirements-muted.png" in html
+    assert "/main/assets/" not in html
+
+
+def test_images_default_to_main_outside_actions(monkeypatch):
+    monkeypatch.delenv("GITHUB_SHA", raising=False)
+    assert "/GH-Changelog-Email-Digest/main/assets/icons/github-mark.png" in render([item()])

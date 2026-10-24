@@ -743,6 +743,30 @@ _COMMAND_PREFIXES = {
 }
 
 
+_CODE_CONTEXT = re.compile(r'\b(?:install|import|go get|dotnet|pip|npm|require)\b', re.IGNORECASE)
+
+# Slash-joined pairs that are ordinary prose, not paths ("read/write access").
+_PROSE_SLASH = {"and/or", "read/write", "on/off", "yes/no", "either/or", "input/output"}
+_HOST_TLDS = r'(?:com|net|org|io|dev|app|ai|co|cloud|ms|sh)'
+
+
+def _looks_like_identifier(word: str) -> bool:
+    """True for a hostname, path or code identifier whose lowercase is intentional.
+
+    Matches snake_case (totals_by_client), paths and owner/repo (src/app,
+    octocat/hello-world), and hostnames (productionresultssa30.blob.core.windows.net,
+    github.com). Prose stays capitalizable: "e.g.", "i.e.", "read/write", "node.js".
+    """
+    w = word.rstrip('.,;:!?)').lower()
+    if re.search(r'[a-z0-9]_[a-z0-9*]', w):
+        return True
+    if w not in _PROSE_SLASH and re.search(r'[a-z0-9]/[a-z0-9]', w):
+        return True
+    if re.fullmatch(r'[a-z0-9-]+(?:\.[a-z0-9-]+)+', w):
+        return w.count('.') >= 2 or bool(re.search(r'\.' + _HOST_TLDS + r'$', w))
+    return False
+
+
 def _normalize_feature_text(text: str) -> str:
     """Clean and normalize a single feature bullet point."""
     text = re.sub(r'\s+', ' ', text).strip()
@@ -750,31 +774,33 @@ def _normalize_feature_text(text: str) -> str:
     text = re.sub(r'\s+([,;:.!?])', r'\1', text)
     # Strip leading bullets, dashes, or numbering
     text = re.sub(r'^[\-\u2022\u2013\u2014\*]\s*', '', text)
-    text = re.sub(r'^\d+[.)]\s*', '', text)
+    # Only real list numbering ("1. ", "2) "): a digit right after the dot is a
+    # version or decimal ("3.18 is GA", "10.5 percent") and must be kept.
+    text = re.sub(r'^\d+[.)](?!\d)\s*', '', text)
     # Strip trailing colons (leftover from headers used as list items)
     text = re.sub(r':+\s*$', '', text)
+    # A leading "snake_label: description" names a field or tool; as the bullet's
+    # label it reads better humanized ("request_count: ..." -> "Request count: ...").
+    # It can never be an install/import command, so it runs regardless of the gate.
+    lead = re.match(r'([a-z][a-z0-9]*(?:_[a-z0-9]+)+)(?=:\s)', text)
+    if lead:
+        text = lead.group(1).replace('_', ' ') + text[lead.end():]
     # Replace underscores with spaces in Title_snake display labels only (e.g.
     # Find_symbol -> Find symbol). Lowercase snake_case and anything with digits or
     # wildcards is a code identifier (totals_by_client, totals_by_*) and is kept,
-    # as are code-like strings (npm install, pip install, dotnet add).
-    if not any(kw in text.lower() for kw in ['install', 'import', 'go get', 'dotnet', 'pip', 'npm', 'require']):
+    # as are code-like strings. Whole-word match, so "required"/"important"/
+    # "pipeline" don't count as "require"/"import"/"pip".
+    if not _CODE_CONTEXT.search(text):
         text = re.sub(r'\b[A-Z][a-z]+(?:_[a-z]+)+\b', lambda m: m.group(0).replace('_', ' '), text)
-        # A leading "snake_label: description" names a field or tool; as the bullet's
-        # label it reads better humanized ("request_count: ..." -> "Request count: ...").
-        # Identifiers later in the sentence keep their underscores.
-        lead = re.match(r'([a-z][a-z0-9]*(?:_[a-z0-9]+)+)(?=:\s)', text)
-        if lead:
-            text = lead.group(1).replace('_', ' ') + text[lead.end():]
-    # Capitalize the first letter — but skip code tokens (.NET, @handle) and CLI
-    # command names (gh, git, npm, ...), where the lowercase form is intentional.
-    first_word = text.split(maxsplit=1)[0].lower() if text else ""
-    # A '.', '_' or '/' between word characters marks a hostname, path or code
-    # identifier (productionresultssa30.blob.core.windows.net, totals_by_client).
-    looks_like_identifier = bool(re.search(r'[a-z0-9][._/][a-z0-9*]', first_word))
+    # Capitalize the first letter, except: code tokens (.NET, @handle), CLI
+    # command names (gh, git, npm, ...), hostnames/paths/identifiers, and
+    # mixed-case product names (macOS, iOS, gRPC), whose casing is intentional.
+    first = text.split(maxsplit=1)[0] if text else ""
     if (text and text[0].islower()
             and not text.startswith(('.', '@'))
-            and first_word not in _COMMAND_PREFIXES
-            and not looks_like_identifier):
+            and first.lower() not in _COMMAND_PREFIXES
+            and not any(c.isupper() for c in first[1:])
+            and not _looks_like_identifier(first)):
         text = text[0].upper() + text[1:]
     # Bullet points never need trailing periods — keep them consistent
     text = text.rstrip('.')
@@ -994,7 +1020,8 @@ def llm_key_features(title: str, content_html: str = "", summary: str = "") -> O
         return None  # call failed -> let the caller use the heuristic
     bullets = []
     for line in text.splitlines():
-        line = re.sub(r'^[\-\*•–—\d.\)\s]+', '', line).strip()
+        line = re.sub(r'^[\-\*•–—\s]+', '', line)
+        line = re.sub(r'^\d+[.)](?!\d)\s*', '', line).strip()  # keep "2.5x faster"
         if len(line) > 2:
             cleaned = _normalize_feature_text(line)
             if cleaned:
@@ -1055,8 +1082,8 @@ def _drop_bullet_echoes(summary: str, features: list[str]) -> str:
 
     The heuristic summary is built from the post's text, list items included,
     so a list item can end the summary and then reappear as bullet 1 (seen on
-    "Turn notifications into code with GitHub Copilot in Teams"). Never empties
-    the summary: if every sentence echoes a bullet, it's returned unchanged.
+    "Turn notifications into code with GitHub Copilot in Teams"). Only trailing
+    echoes are removed, and the summary is never emptied.
     """
     if not summary or not features:
         return summary
@@ -1066,8 +1093,12 @@ def _drop_bullet_echoes(summary: str, features: list[str]) -> str:
 
     bullets = {norm(f) for f in features}
     sentences = re.split(r'(?<=[.!?])\s+', summary.strip())
-    kept = [s for s in sentences if norm(s) not in bullets]
-    return " ".join(kept) if kept else summary
+    # Trailing echoes only. Removing one from the middle can strand the next
+    # sentence's "They"/"It" without its subject.
+    end = len(sentences)
+    while end > 0 and norm(sentences[end - 1]) in bullets:
+        end -= 1
+    return " ".join(sentences[:end]) if end else summary
 
 
 def enrich_entries(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
@@ -1098,26 +1129,6 @@ def enrich_entries(entries: list[ChangelogEntry]) -> list[ChangelogEntry]:
         )
 
     return entries
-
-
-def _fit_labels(labels: list[str], max_px: float = 240.0, max_count: int = 3) -> list[str]:
-    """Keep the leading labels that fit a single pill row on the narrowest phones.
-
-    Pills must always render as one horizontal row — never stacked — so emit
-    labels only while their estimated rendered width fits ~240px (the card
-    content width at a 320px viewport, with slack). Estimate: ~5.8px/char at
-    11px Mona Sans/Helvetica, plus 22px pill chrome (10px*2 padding + 1px*2
-    border) and a 6px gap between pills.
-    """
-    out: list[str] = []
-    used = 0.0
-    for label in labels[:max_count]:
-        width = 5.8 * len(label) + 22 + (6 if out else 0)
-        if used + width > max_px:
-            break
-        out.append(label)
-        used += width
-    return out
 
 
 def _safe_href(url: Optional[str]) -> str:
@@ -1151,7 +1162,8 @@ def entries_to_dict(entries: list[ChangelogEntry]) -> list[dict]:
             "published": e.published,
             "summary": summary_text,
             "category": e.category,
-            "labels": _fit_labels(e.labels),
+            # Inline text in the meta line (it wraps), so no pill-width budget.
+            "labels": e.labels[:3],
             "docs_url": _safe_href(e.docs_url),
             "key_features": e.key_features,
         })

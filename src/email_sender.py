@@ -56,7 +56,14 @@ def build_email_html(
     if digest_date is None:
         digest_date = datetime.now(tz=PACIFIC_TZ).strftime("%A, %B %-d, %Y")
 
+    # Pin images to the commit being sent (GITHUB_SHA in Actions), not "main":
+    # a test send from an unmerged branch then shows that branch's icons, and an
+    # old email keeps the exact icons it was sent with.
+    ref = os.environ.get("GITHUB_SHA", "").strip() or "main"
+    asset_base = f"https://raw.githubusercontent.com/franktomasello/GH-Changelog-Email-Digest/{ref}/assets/icons"
+
     html_content = template.render(
+        asset_base=asset_base,
         releases=releases,
         improvements=improvements,
         retirements=retirements,
