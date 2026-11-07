@@ -101,6 +101,11 @@ def _capitalize_label(label: str) -> str:
     return " ".join(w[:1].upper() + w[1:] for w in label.split(" "))
 
 
+# Recurring roundup posts ("GitHub Copilot weekly releases — November 2") are
+# excluded from the digest entirely, by the maintainer's choice.
+_WEEKLY_ROUNDUP_TITLE = re.compile(r'\bweekly releases?\b', re.IGNORECASE)
+
+
 def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
     """Fetch and parse the GitHub changelog RSS feed.
     
@@ -147,6 +152,12 @@ def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
         # Skip entries older than the cutoff
         if published_dt < cutoff_date:
             continue
+
+        # Skip weekly roundups here, before they can count as new entries.
+        title = item.get("title", "")
+        if _WEEKLY_ROUNDUP_TITLE.search(title):
+            print(f"   Skipping weekly roundup: {title[:70]}")
+            continue
         
         # Extract category type (Release, Improvement, Retired)
         category = "Improvement"  # Default
@@ -168,7 +179,7 @@ def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
             content_html = item.summary
 
         entry = ChangelogEntry(
-            title=item.get("title", ""),
+            title=title,
             url=item.get("link", ""),
             published=convert_to_pst(published_str),
             published_dt=published_dt,
@@ -180,12 +191,6 @@ def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
         entries.append(entry)
 
     return entries
-
-
-# Recurring roundup posts ("GitHub Copilot weekly releases — November 2")
-# bundle a week of small updates. GitHub tags them "Release", but they aren't a
-# single shipped feature, so they're filed under Improvements instead.
-_ROUNDUP_TITLE = re.compile(r'\bweekly releases?\b', re.IGNORECASE)
 
 
 def categorize_entries(entries: list[ChangelogEntry]) -> dict[str, list[ChangelogEntry]]:
@@ -201,8 +206,6 @@ def categorize_entries(entries: list[ChangelogEntry]) -> dict[str, list[Changelo
         # changelog-type tag, so a casing/wording change ("release", "Deprecated")
         # would otherwise silently land in Improvements.
         kind = (entry.category or "").strip().lower()
-        if kind == "release" and _ROUNDUP_TITLE.search(entry.title or ""):
-            kind = "improvement"
         if kind == "release":
             categorized["releases"].append(entry)
         elif kind in ("retired", "deprecated", "retirement"):
