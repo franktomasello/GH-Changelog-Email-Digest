@@ -19,6 +19,27 @@ def _entry(category="Improvement", title="t", labels=None):
 
 # --- categorization ----------------------------------------------------------
 
+@pytest.mark.parametrize("title", [
+    "GitHub Copilot weekly releases — November 2",
+    "GitHub Copilot weekly releases — August 31",
+    "Copilot Weekly Release — March 3",
+])
+def test_weekly_release_roundups_are_improvements_not_releases(title):
+    # GitHub tags these roundups "Release", but they bundle a week of small updates.
+    out = cl.categorize_entries([_entry(category="Release", title=title)])
+    assert out["releases"] == [] and [e.title for e in out["improvements"]] == [title]
+
+
+@pytest.mark.parametrize("title", [
+    "GitHub Copilot is now available in Xcode's coding assistant",
+    "GHES 3.21 release candidate is available",
+    "Weekly digest emails for Dependabot alerts",   # "weekly" alone isn't a roundup
+])
+def test_ordinary_releases_stay_releases(title):
+    out = cl.categorize_entries([_entry(category="Release", title=title)])
+    assert [e.title for e in out["releases"]] == [title]
+
+
 def test_categorize_routes_by_type():
     res = cl.categorize_entries([_entry("Release"), _entry("Retired"), _entry("Improvement")])
     assert len(res["releases"]) == 1

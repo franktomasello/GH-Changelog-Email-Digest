@@ -182,6 +182,12 @@ def fetch_changelog(max_age_days: int = MAX_AGE_DAYS) -> list[ChangelogEntry]:
     return entries
 
 
+# Recurring roundup posts ("GitHub Copilot weekly releases — November 2")
+# bundle a week of small updates. GitHub tags them "Release", but they aren't a
+# single shipped feature, so they're filed under Improvements instead.
+_ROUNDUP_TITLE = re.compile(r'\bweekly releases?\b', re.IGNORECASE)
+
+
 def categorize_entries(entries: list[ChangelogEntry]) -> dict[str, list[ChangelogEntry]]:
     """Categorize entries into releases, improvements, and retirements."""
     categorized = {
@@ -195,6 +201,8 @@ def categorize_entries(entries: list[ChangelogEntry]) -> dict[str, list[Changelo
         # changelog-type tag, so a casing/wording change ("release", "Deprecated")
         # would otherwise silently land in Improvements.
         kind = (entry.category or "").strip().lower()
+        if kind == "release" and _ROUNDUP_TITLE.search(entry.title or ""):
+            kind = "improvement"
         if kind == "release":
             categorized["releases"].append(entry)
         elif kind in ("retired", "deprecated", "retirement"):
