@@ -565,3 +565,56 @@ def test_summary_echo_in_the_middle_is_kept_to_avoid_dangling_pronouns():
 def test_summary_drops_several_trailing_echoes():
     summary = "Intro sentence here. Bullet one text. Bullet two text."
     assert cl._drop_bullet_echoes(summary, ["Bullet two text", "Bullet one text"]) == "Intro sentence here."
+
+
+
+# --- weekly roundups are excluded from the digest ----------------------------
+
+def _rss(*items):
+    """A minimal feed shaped like github.blog/changelog/feed/ (RSS 2.0)."""
+    from email.utils import format_datetime
+    now = format_datetime(datetime.now(timezone.utc))
+    body = "".join(
+        f"<item><title>{title}</title><link>https://github.blog/changelog/{i}</link>"
+        f"<pubDate>{now}</pubDate><description>d</description>"
+        f'<category domain="changelog-type"><![CDATA[{kind}]]></category></item>'
+        for i, (title, kind) in enumerate(items))
+    return f'<?xml version="1.0"?><rss version="2.0"><channel><title>c</title>{body}</channel></rss>'.encode()
+
+
+def _fetch_with(monkeypatch, *items):
+    class _Resp:
+        content = _rss(*items)
+
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr(cl.requests, "get", lambda *a, **k: _Resp())
+    return cl.fetch_changelog()
+
+
+@pytest.mark.parametrize("title", [
+    "GitHub Copilot weekly releases — November 2",
+    "GitHub Copilot weekly releases — August 31",
+    "Copilot Weekly Release — March 3",
+])
+def test_weekly_roundups_never_reach_the_digest(monkeypatch, title):
+    out = _fetch_with(monkeypatch, (title, "Release"),
+                      ("GitHub Copilot is now available in Xcode", "Release"),
+                      ("CodeQL 2.27.4 improves accuracy", "Improvement"))
+    assert [e.title for e in out] == ["GitHub Copilot is now available in Xcode",
+                                      "CodeQL 2.27.4 improves accuracy"]
+
+
+def test_day_with_only_a_roundup_has_nothing_new(monkeypatch):
+    # Excluded at the source, so it can't trigger an empty "nothing new" email.
+    assert _fetch_with(monkeypatch, ("GitHub Copilot weekly releases — November 2", "Release")) == []
+
+
+@pytest.mark.parametrize("title", [
+    "GHES 3.21 release candidate is available",
+    "Weekly digest emails for Dependabot alerts",   # "weekly" alone isn't a roundup
+    "Release notes now link to weekly summaries",
+])
+def test_ordinary_posts_are_kept(monkeypatch, title):
+    assert [e.title for e in _fetch_with(monkeypatch, (title, "Release"))] == [title]
